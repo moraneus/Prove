@@ -1,0 +1,8 @@
+# system_processes: P1|P2
+# epsilon: 2.0
+eid,processes,vc,timestamp,props,event_type,msg_partner
+iota_P1,P1,P1:1;P2:0,0.0,init_P1,local,
+iota_P2,P2,P1:0;P2:1,0.0,init_P2,local,
+e1,P1,P1:2;P2:0,1.5,ready,local,
+e2,P2,P1:0;P2:2,1.0,done,local,
+e3,P1,P1:3;P2:0,2.5,confirmed,local,

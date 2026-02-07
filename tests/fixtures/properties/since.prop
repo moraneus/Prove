@@ -1,0 +1,2 @@
+# If done, then confirmed was true since ready was true
+done -> (confirmed S ready)
