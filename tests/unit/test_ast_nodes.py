@@ -374,10 +374,7 @@ class TestComplexFormulas:
 
     def test_done_implies_confirmed_since_ready(self) -> None:
         """done -> (confirmed S ready)"""
-        f = Implication(
-            Proposition("done"),
-            Since(Proposition("confirmed"), Proposition("ready"))
-        )
+        f = Implication(Proposition("done"), Since(Proposition("confirmed"), Proposition("ready")))
         assert str(f) == "(done -> (confirmed S ready))"
 
     def test_nested_subformulas(self) -> None:

@@ -25,7 +25,6 @@ from prove.parser.ast_nodes import (
 )
 from prove.parser.grammar import EPLTLParser
 
-
 _parser = EPLTLParser()
 
 
@@ -68,9 +67,7 @@ def propositions(formula: Formula) -> FrozenSet[str]:
     Returns:
         A frozenset of proposition name strings.
     """
-    return frozenset(
-        sub.name for sub in formula.subformulas() if isinstance(sub, Proposition)
-    )
+    return frozenset(sub.name for sub in formula.subformulas() if isinstance(sub, Proposition))
 
 
 def to_string(formula: Formula) -> str:

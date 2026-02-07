@@ -32,18 +32,48 @@ def _two_process_events() -> list[Event]:
         iota_P2(t=0) → b1(t=1) → b2(t=2)  on P2
     """
     return [
-        Event(eid="iota_P1", process="P1", vector_clock=_vc2(1, 0), timestamp=0.0,
-              propositions=frozenset({"init_P1"})),
-        Event(eid="iota_P2", process="P2", vector_clock=_vc2(0, 1), timestamp=0.0,
-              propositions=frozenset({"init_P2"})),
-        Event(eid="a1", process="P1", vector_clock=_vc2(2, 0), timestamp=1.0,
-              propositions=frozenset({"ready"})),
-        Event(eid="b1", process="P2", vector_clock=_vc2(0, 2), timestamp=1.0,
-              propositions=frozenset({"waiting"})),
-        Event(eid="a2", process="P1", vector_clock=_vc2(3, 0), timestamp=2.0,
-              propositions=frozenset({"done"})),
-        Event(eid="b2", process="P2", vector_clock=_vc2(0, 3), timestamp=2.0,
-              propositions=frozenset({"done"})),
+        Event(
+            eid="iota_P1",
+            process="P1",
+            vector_clock=_vc2(1, 0),
+            timestamp=0.0,
+            propositions=frozenset({"init_P1"}),
+        ),
+        Event(
+            eid="iota_P2",
+            process="P2",
+            vector_clock=_vc2(0, 1),
+            timestamp=0.0,
+            propositions=frozenset({"init_P2"}),
+        ),
+        Event(
+            eid="a1",
+            process="P1",
+            vector_clock=_vc2(2, 0),
+            timestamp=1.0,
+            propositions=frozenset({"ready"}),
+        ),
+        Event(
+            eid="b1",
+            process="P2",
+            vector_clock=_vc2(0, 2),
+            timestamp=1.0,
+            propositions=frozenset({"waiting"}),
+        ),
+        Event(
+            eid="a2",
+            process="P1",
+            vector_clock=_vc2(3, 0),
+            timestamp=2.0,
+            propositions=frozenset({"done"}),
+        ),
+        Event(
+            eid="b2",
+            process="P2",
+            vector_clock=_vc2(0, 3),
+            timestamp=2.0,
+            propositions=frozenset({"done"}),
+        ),
     ]
 
 
@@ -233,14 +263,34 @@ class TestCutThreeProcesses:
     def test_three_process_cut(self) -> None:
         """Cut and frontier work correctly with three processes."""
         events = [
-            Event(eid="i1", process="P1", vector_clock=_vc3(1, 0, 0), timestamp=0.0,
-                  propositions=frozenset({"init1"})),
-            Event(eid="i2", process="P2", vector_clock=_vc3(0, 1, 0), timestamp=0.0,
-                  propositions=frozenset({"init2"})),
-            Event(eid="i3", process="P3", vector_clock=_vc3(0, 0, 1), timestamp=0.0,
-                  propositions=frozenset({"init3"})),
-            Event(eid="a1", process="P1", vector_clock=_vc3(2, 0, 0), timestamp=1.0,
-                  propositions=frozenset({"ready"})),
+            Event(
+                eid="i1",
+                process="P1",
+                vector_clock=_vc3(1, 0, 0),
+                timestamp=0.0,
+                propositions=frozenset({"init1"}),
+            ),
+            Event(
+                eid="i2",
+                process="P2",
+                vector_clock=_vc3(0, 1, 0),
+                timestamp=0.0,
+                propositions=frozenset({"init2"}),
+            ),
+            Event(
+                eid="i3",
+                process="P3",
+                vector_clock=_vc3(0, 0, 1),
+                timestamp=0.0,
+                propositions=frozenset({"init3"}),
+            ),
+            Event(
+                eid="a1",
+                process="P1",
+                vector_clock=_vc3(2, 0, 0),
+                timestamp=1.0,
+                propositions=frozenset({"ready"}),
+            ),
         ]
         po = PartialOrder(events, epsilon=float("inf"))
         cut = Cut({events[0], events[1], events[2], events[3]}, po)

@@ -20,7 +20,6 @@ from prove.core.vector_clock import VectorClock
 from prove.parser.ast_nodes import Proposition
 from prove.utils.visualization import GraphVisualizer, PartialOrderVisualizer
 
-
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -80,12 +79,22 @@ def _message_events() -> list[Event]:
         _evt("ic", "Client", {"Client": 1, "Server": 0}, 0.0, frozenset({"init"})),
         _evt("is", "Server", {"Client": 0, "Server": 1}, 0.0, frozenset({"init"})),
         _evt(
-            "c_send", "Client", {"Client": 2, "Server": 0}, 1.0,
-            frozenset({"request"}), "send", target_process="Server",
+            "c_send",
+            "Client",
+            {"Client": 2, "Server": 0},
+            1.0,
+            frozenset({"request"}),
+            "send",
+            target_process="Server",
         ),
         _evt(
-            "s_recv", "Server", {"Client": 2, "Server": 2}, 2.0,
-            frozenset({"recv"}), "receive", source_process="Client",
+            "s_recv",
+            "Server",
+            {"Client": 2, "Server": 2},
+            2.0,
+            frozenset({"recv"}),
+            "receive",
+            source_process="Client",
         ),
     ]
 

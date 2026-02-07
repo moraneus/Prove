@@ -35,6 +35,7 @@ PROPERTIES = FIXTURES / "properties"
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _run_cli(*args: str, timeout: int = 30) -> subprocess.CompletedProcess[str]:
     """Invoke the PROVE CLI via ``python -m prove`` and return the result."""
     cmd = [sys.executable, "-m", "prove", *args]
@@ -85,8 +86,10 @@ class TestCLIIntegration:
         prop.write_text("TRUE\n")
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(TRACES / "simple_trace.csv"),
+            "-p",
+            str(prop),
+            "-t",
+            str(TRACES / "simple_trace.csv"),
         )
         assert result.returncode == 0
 
@@ -96,8 +99,10 @@ class TestCLIIntegration:
         prop.write_text("FALSE\n")
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(TRACES / "simple_trace.csv"),
+            "-p",
+            str(prop),
+            "-t",
+            str(TRACES / "simple_trace.csv"),
         )
         assert result.returncode == 1
 
@@ -107,8 +112,10 @@ class TestCLIIntegration:
         prop.write_text("TRUE\n")
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(tmp_path / "nonexistent.csv"),
+            "-p",
+            str(prop),
+            "-t",
+            str(tmp_path / "nonexistent.csv"),
         )
         assert result.returncode == 2
 
@@ -118,8 +125,10 @@ class TestCLIIntegration:
         prop.write_text("&&& bad syntax\n")
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(TRACES / "simple_trace.csv"),
+            "-p",
+            str(prop),
+            "-t",
+            str(TRACES / "simple_trace.csv"),
         )
         assert result.returncode == 2
 
@@ -129,9 +138,12 @@ class TestCLIIntegration:
         prop.write_text("TRUE\n")
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(TRACES / "simple_trace.csv"),
-            "-o", "silent",
+            "-p",
+            str(prop),
+            "-t",
+            str(TRACES / "simple_trace.csv"),
+            "-o",
+            "silent",
         )
         assert result.returncode == 0
         assert result.stdout.strip() == ""
@@ -142,9 +154,12 @@ class TestCLIIntegration:
         prop.write_text("TRUE\n")
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(TRACES / "simple_trace.csv"),
-            "-o", "normal",
+            "-p",
+            str(prop),
+            "-t",
+            str(TRACES / "simple_trace.csv"),
+            "-o",
+            "normal",
         )
         assert result.returncode == 0
         assert "SATISFIED" in result.stdout or "VIOLATED" in result.stdout
@@ -166,8 +181,10 @@ class TestCLIIntegration:
         prop.write_text("TRUE\n")
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(TRACES / "simple_trace.csv"),
+            "-p",
+            str(prop),
+            "-t",
+            str(TRACES / "simple_trace.csv"),
             "--visualize-ascii",
         )
         assert result.returncode == 0
@@ -182,9 +199,12 @@ class TestCLIIntegration:
         dot_path = tmp_path / "graph.dot"
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(TRACES / "simple_trace.csv"),
-            "--visualize", str(dot_path),
+            "-p",
+            str(prop),
+            "-t",
+            str(TRACES / "simple_trace.csv"),
+            "--visualize",
+            str(dot_path),
         )
         assert result.returncode == 0
         assert dot_path.exists()
@@ -197,8 +217,10 @@ class TestCLIIntegration:
         prop.write_text("TRUE\n")
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(TRACES / "simple_trace.csv"),
+            "-p",
+            str(prop),
+            "-t",
+            str(TRACES / "simple_trace.csv"),
             "--stats",
         )
         assert result.returncode == 0
@@ -210,8 +232,10 @@ class TestCLIIntegration:
         prop.write_text("TRUE\n")
 
         result = _run_cli(
-            "-p", str(prop),
-            "-t", str(TRACES / "simple_trace.csv"),
+            "-p",
+            str(prop),
+            "-t",
+            str(TRACES / "simple_trace.csv"),
             "--visualize-ascii",
             "--stats",
         )
@@ -421,12 +445,22 @@ class TestAPIIntegration:
             _make_event("i1", "P1", {"P1": 1, "P2": 0}, 0.0, frozenset({"init_P1"})),
             _make_event("i2", "P2", {"P1": 0, "P2": 1}, 0.0, frozenset({"init_P2"})),
             _make_event(
-                "e2", "P2", {"P1": 0, "P2": 2}, 1.0, frozenset({"q"}),
-                event_type="send", target_process="P1",
+                "e2",
+                "P2",
+                {"P1": 0, "P2": 2},
+                1.0,
+                frozenset({"q"}),
+                event_type="send",
+                target_process="P1",
             ),
             _make_event(
-                "e1", "P1", {"P1": 2, "P2": 2}, 3.0, frozenset({"p"}),
-                event_type="receive", source_process="P2",
+                "e1",
+                "P1",
+                {"P1": 2, "P2": 2},
+                3.0,
+                frozenset({"p"}),
+                event_type="receive",
+                source_process="P2",
             ),
         ]
 
@@ -522,8 +556,11 @@ class TestAPIIntegration:
         result = monitor.run(events)
 
         expected_keys = {
-            "node_count", "edge_count", "events_processed",
-            "nodes_removed", "max_summaries",
+            "node_count",
+            "edge_count",
+            "events_processed",
+            "nodes_removed",
+            "max_summaries",
         }
         assert expected_keys <= set(result.statistics.keys())
 

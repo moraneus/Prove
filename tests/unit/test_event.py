@@ -11,7 +11,6 @@ import pytest
 from prove.core.event import Event
 from prove.core.vector_clock import VectorClock
 
-
 PROCS = frozenset({"P1", "P2", "P3"})
 
 
@@ -125,16 +124,24 @@ class TestEventTypeChecks:
 
     def test_is_send(self) -> None:
         e = Event(
-            eid="s1", process="P1", vector_clock=_vc(1, 0, 0),
-            timestamp=0.0, event_type="send", target_process="P2",
+            eid="s1",
+            process="P1",
+            vector_clock=_vc(1, 0, 0),
+            timestamp=0.0,
+            event_type="send",
+            target_process="P2",
         )
         assert e.is_send()
         assert not e.is_local()
 
     def test_is_receive(self) -> None:
         e = Event(
-            eid="r1", process="P2", vector_clock=_vc(1, 1, 0),
-            timestamp=0.0, event_type="receive", source_process="P1",
+            eid="r1",
+            process="P2",
+            vector_clock=_vc(1, 1, 0),
+            timestamp=0.0,
+            event_type="receive",
+            source_process="P1",
         )
         assert e.is_receive()
         assert not e.is_local()

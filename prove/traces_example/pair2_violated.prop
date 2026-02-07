@@ -1,0 +1,4 @@
+# Pair 2 Property (VIOLATED)
+# "It was historically never the case that init was true"
+# But init IS true at the start
+H (!init)

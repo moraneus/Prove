@@ -86,16 +86,12 @@ class MonitorLogger:
     def verdict_satisfied(self) -> None:
         """Log a SATISFIED verdict (shown at NORMAL level and above)."""
         if self.level.value >= LogLevel.NORMAL.value:
-            self._write(
-                "SATISFIED: Property holds for at least one linearization"
-            )
+            self._write("SATISFIED: Property holds for at least one linearization")
 
     def verdict_violated(self) -> None:
         """Log a VIOLATED verdict (shown at NORMAL level and above)."""
         if self.level.value >= LogLevel.NORMAL.value:
-            self._write(
-                "VIOLATED: Property does not hold for any linearization"
-            )
+            self._write("VIOLATED: Property does not hold for any linearization")
 
     def statistics(self, stats: Dict[str, Any]) -> None:
         """
@@ -122,7 +118,10 @@ class MonitorLogger:
             self._write(f"[DEBUG] Processed {event_id} (nodes: {node_count})")
 
     def event_info(
-        self, eid: str, process: str, props: Iterable[str],
+        self,
+        eid: str,
+        process: str,
+        props: Iterable[str],
     ) -> None:
         """
         Log per-event info at VERBOSE level.
@@ -144,9 +143,7 @@ class MonitorLogger:
             frontier: Mapping from process name to maximal event ID.
         """
         if self.level.value >= LogLevel.VERBOSE.value:
-            entries = ", ".join(
-                f"{p}: {e}" for p, e in sorted(frontier.items())
-            )
+            entries = ", ".join(f"{p}: {e}" for p, e in sorted(frontier.items()))
             self._write(f"[FRONTIER] Maximal state: {{{entries}}}")
 
     def _write(self, message: str) -> None:

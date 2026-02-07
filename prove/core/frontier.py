@@ -35,9 +35,7 @@ class Frontier:
     process_to_event: MappingProxyType
 
     @classmethod
-    def from_mapping(
-        cls, mapping: Dict[str, Event]
-    ) -> Frontier:
+    def from_mapping(cls, mapping: Dict[str, Event]) -> Frontier:
         """
         Construct frontier from a process-to-event mapping.
 
@@ -137,10 +135,7 @@ class Frontier:
         Returns:
             Set of enabled events.
         """
-        return {
-            e for e in pending_events
-            if self.is_event_enabled(e, partial_order)
-        }
+        return {e for e in pending_events if self.is_event_enabled(e, partial_order)}
 
     def __eq__(self, other: object) -> bool:
         """Check equality based on the process-to-event mapping."""
@@ -153,7 +148,5 @@ class Frontier:
         return hash(self.events)
 
     def __repr__(self) -> str:
-        mapping_str = ", ".join(
-            f"{p}: {e.eid}" for p, e in sorted(self.process_to_event.items())
-        )
+        mapping_str = ", ".join(f"{p}: {e.eid}" for p, e in sorted(self.process_to_event.items()))
         return f"Frontier({{{mapping_str}}})"

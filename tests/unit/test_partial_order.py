@@ -29,6 +29,7 @@ def _vc3(p1: int, p2: int, p3: int) -> VectorClock:
 # Reusable event sets
 # -------------------------------------------------------------------- #
 
+
 def _two_process_events() -> list[Event]:
     """
     Two-process linear execution (P1 and P2, no messages):
@@ -37,10 +38,20 @@ def _two_process_events() -> list[Event]:
     Vector clocks are independent (no message exchange).
     """
     return [
-        Event(eid="iota_P1", process="P1", vector_clock=_vc2(1, 0), timestamp=0.0,
-              propositions=frozenset({"init_P1"})),
-        Event(eid="iota_P2", process="P2", vector_clock=_vc2(0, 1), timestamp=0.0,
-              propositions=frozenset({"init_P2"})),
+        Event(
+            eid="iota_P1",
+            process="P1",
+            vector_clock=_vc2(1, 0),
+            timestamp=0.0,
+            propositions=frozenset({"init_P1"}),
+        ),
+        Event(
+            eid="iota_P2",
+            process="P2",
+            vector_clock=_vc2(0, 1),
+            timestamp=0.0,
+            propositions=frozenset({"init_P2"}),
+        ),
         Event(eid="a1", process="P1", vector_clock=_vc2(2, 0), timestamp=1.0),
         Event(eid="b1", process="P2", vector_clock=_vc2(0, 2), timestamp=1.0),
         Event(eid="a2", process="P1", vector_clock=_vc2(3, 0), timestamp=2.0),
@@ -58,10 +69,22 @@ def _message_events() -> list[Event]:
     return [
         Event(eid="iota_P1", process="P1", vector_clock=_vc2(1, 0), timestamp=0.0),
         Event(eid="iota_P2", process="P2", vector_clock=_vc2(0, 1), timestamp=0.0),
-        Event(eid="send", process="P1", vector_clock=_vc2(2, 0), timestamp=1.0,
-              event_type="send", target_process="P2"),
-        Event(eid="recv", process="P2", vector_clock=_vc2(2, 2), timestamp=2.0,
-              event_type="receive", source_process="P1"),
+        Event(
+            eid="send",
+            process="P1",
+            vector_clock=_vc2(2, 0),
+            timestamp=1.0,
+            event_type="send",
+            target_process="P2",
+        ),
+        Event(
+            eid="recv",
+            process="P2",
+            vector_clock=_vc2(2, 2),
+            timestamp=2.0,
+            event_type="receive",
+            source_process="P1",
+        ),
         Event(eid="b2", process="P2", vector_clock=_vc2(2, 3), timestamp=3.0),
     ]
 
@@ -237,7 +260,7 @@ class TestTopologicalSort:
         assert len(topo) == len(events)
         # For each ordered pair, the predecessor must come first
         for i, ei in enumerate(topo):
-            for ej in topo[i + 1:]:
+            for ej in topo[i + 1 :]:
                 assert not po.is_before(ej, ei), f"{ej.eid} should not precede {ei.eid}"
 
     def test_respects_epsilon_ordering(self) -> None:
@@ -330,11 +353,23 @@ class TestThreeProcesses:
             Event(eid="i2", process="P2", vector_clock=_vc3(0, 1, 0), timestamp=0.0),
             Event(eid="i3", process="P3", vector_clock=_vc3(0, 0, 1), timestamp=0.0),
             # P1 sends to P2
-            Event(eid="s12", process="P1", vector_clock=_vc3(2, 0, 0), timestamp=1.0,
-                  event_type="send", target_process="P2"),
+            Event(
+                eid="s12",
+                process="P1",
+                vector_clock=_vc3(2, 0, 0),
+                timestamp=1.0,
+                event_type="send",
+                target_process="P2",
+            ),
             # P2 receives from P1
-            Event(eid="r12", process="P2", vector_clock=_vc3(2, 2, 0), timestamp=2.0,
-                  event_type="receive", source_process="P1"),
+            Event(
+                eid="r12",
+                process="P2",
+                vector_clock=_vc3(2, 2, 0),
+                timestamp=2.0,
+                event_type="receive",
+                source_process="P1",
+            ),
             # P3 is independent of P1-P2 exchange
             Event(eid="c1", process="P3", vector_clock=_vc3(0, 0, 2), timestamp=1.5),
         ]

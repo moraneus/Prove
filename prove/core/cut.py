@@ -32,9 +32,7 @@ class Cut:
 
     __slots__ = ("_events", "_partial_order")
 
-    def __init__(
-        self, events: Iterable[Event], partial_order: PartialOrder
-    ) -> None:
+    def __init__(self, events: Iterable[Event], partial_order: PartialOrder) -> None:
         """
         Initialize cut with given events and partial order.
 
@@ -109,9 +107,7 @@ class Cut:
         for candidate in process_events:
             is_maximal = True
             for other in process_events:
-                if other is not candidate and self._partial_order.is_before(
-                    candidate, other
-                ):
+                if other is not candidate and self._partial_order.is_before(candidate, other):
                     is_maximal = False
                     break
             if is_maximal:

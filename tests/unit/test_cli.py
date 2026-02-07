@@ -13,7 +13,6 @@ from pathlib import Path
 
 import pytest
 
-
 FIXTURES = Path(__file__).parent.parent / "fixtures"
 TRACES = FIXTURES / "traces"
 PROPERTIES = FIXTURES / "properties"
@@ -229,8 +228,12 @@ class TestVisualizeDot:
         """--visualize FILE.dot creates a DOT file."""
         dot_file = tmp_path / "graph.dot"
         result = _run_cli(
-            "-p", SIMPLE_PROP, "-t", SIMPLE_TRACE,
-            "--visualize", str(dot_file),
+            "-p",
+            SIMPLE_PROP,
+            "-t",
+            SIMPLE_TRACE,
+            "--visualize",
+            str(dot_file),
         )
         assert result.returncode in (0, 1)
         assert dot_file.exists()
@@ -240,7 +243,10 @@ class TestVisualizeDot:
     def test_visualize_stdout(self) -> None:
         """--visualize without file writes DOT to stdout."""
         result = _run_cli(
-            "-p", SIMPLE_PROP, "-t", SIMPLE_TRACE,
+            "-p",
+            SIMPLE_PROP,
+            "-t",
+            SIMPLE_TRACE,
             "--visualize",
         )
         assert result.returncode in (0, 1)
@@ -258,8 +264,12 @@ class TestCombinedFlags:
     def test_ascii_and_stats(self) -> None:
         """--visualize-ascii and --stats together."""
         result = _run_cli(
-            "-p", SIMPLE_PROP, "-t", SIMPLE_TRACE,
-            "--visualize-ascii", "--stats",
+            "-p",
+            SIMPLE_PROP,
+            "-t",
+            SIMPLE_TRACE,
+            "--visualize-ascii",
+            "--stats",
         )
         assert result.returncode in (0, 1)
         # Both should appear in output
@@ -268,15 +278,24 @@ class TestCombinedFlags:
     def test_verbose_and_stats(self) -> None:
         """Verbose output with stats."""
         result = _run_cli(
-            "-p", SIMPLE_PROP, "-t", SIMPLE_TRACE,
-            "-o", "verbose", "--stats",
+            "-p",
+            SIMPLE_PROP,
+            "-t",
+            SIMPLE_TRACE,
+            "-o",
+            "verbose",
+            "--stats",
         )
         assert result.returncode in (0, 1)
 
     def test_full_graph_flag(self) -> None:
         """--full-graph flag is accepted."""
         result = _run_cli(
-            "-p", SIMPLE_PROP, "-t", SIMPLE_TRACE,
-            "--visualize-ascii", "--full-graph",
+            "-p",
+            SIMPLE_PROP,
+            "-t",
+            SIMPLE_TRACE,
+            "--visualize-ascii",
+            "--full-graph",
         )
         assert result.returncode in (0, 1)

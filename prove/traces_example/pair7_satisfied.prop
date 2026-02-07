@@ -1,0 +1,4 @@
+# Pair 7 Property (SATISFIED)
+# "If second, then first was true at some point before"
+# With epsilon=0.3, first ≺ second due to time difference (0.5 > 0.3)
+second -> O first

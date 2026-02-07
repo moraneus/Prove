@@ -179,9 +179,7 @@ class TraceReader:
         # Validate required headers
         missing = _REQUIRED_HEADERS - headers
         if missing:
-            raise ValueError(
-                f"Missing required headers: {sorted(missing)}"
-            )
+            raise ValueError(f"Missing required headers: {sorted(missing)}")
 
         # Determine processes (for VC parsing)
         if directives.get("processes") is not None:
@@ -230,9 +228,7 @@ class TraceReader:
 
         missing = _REQUIRED_HEADERS - headers
         if missing:
-            errors.append(
-                f"Missing required headers: {sorted(missing)}"
-            )
+            errors.append(f"Missing required headers: {sorted(missing)}")
 
         return errors
 
@@ -349,9 +345,7 @@ class TraceReader:
             return 0
         return len(lines) - 1  # Subtract header row
 
-    def _parse_event_row(
-        self, row: dict, all_processes: FrozenSet[str]
-    ) -> Event:
+    def _parse_event_row(self, row: dict, all_processes: FrozenSet[str]) -> Event:
         """Parse a single CSV row into an Event."""
         eid = row["eid"].strip()
         process = row["processes"].strip()

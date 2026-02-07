@@ -1,0 +1,4 @@
+# Pair 8 Property (VIOLATED)
+# "a, b, and c are all true at the same time"
+# Never happens in this trace
+a && b && c

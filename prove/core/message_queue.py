@@ -90,8 +90,7 @@ class MessageQueueHandler:
         current = self._queues.get((sender, receiver), 0)
         if current <= 0:
             raise ValueError(
-                f"No pending message from '{sender}' to '{receiver}' "
-                f"(Γ = {current})"
+                f"No pending message from '{sender}' to '{receiver}' " f"(Γ = {current})"
             )
         new_queues = dict(self._queues)
         new_queues[(sender, receiver)] = current - 1

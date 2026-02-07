@@ -304,12 +304,21 @@ class TestComplexExpressions:
     def test_complex_safety_property(self, lexer: EPLTLLexer) -> None:
         types = _types(lexer, "(done & confirmed) -> ((valid S ready) & @initialized)")
         expected = [
-            "LPAREN", "PROP", "AND", "PROP", "RPAREN",
+            "LPAREN",
+            "PROP",
+            "AND",
+            "PROP",
+            "RPAREN",
             "IMPLIES",
             "LPAREN",
-            "LPAREN", "PROP", "SINCE", "PROP", "RPAREN",
+            "LPAREN",
+            "PROP",
+            "SINCE",
+            "PROP",
+            "RPAREN",
             "AND",
-            "YESTERDAY", "PROP",
+            "YESTERDAY",
+            "PROP",
             "RPAREN",
         ]
         assert types == expected
@@ -317,9 +326,7 @@ class TestComplexExpressions:
     def test_biconditional_with_once(self, lexer: EPLTLLexer) -> None:
         """TRUE S request represents 'Once request'."""
         types = _types(lexer, "locked <-> (TRUE S acquire)")
-        assert types == [
-            "PROP", "IFF", "LPAREN", "TRUE", "SINCE", "PROP", "RPAREN"
-        ]
+        assert types == ["PROP", "IFF", "LPAREN", "TRUE", "SINCE", "PROP", "RPAREN"]
 
 
 class TestKeywordVsProposition:

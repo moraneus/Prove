@@ -33,32 +33,37 @@ def _build_parser() -> argparse.ArgumentParser:
 
     required = parser.add_argument_group("required arguments")
     required.add_argument(
-        "-p", "--property",
+        "-p",
+        "--property",
         type=Path,
         required=True,
         help="Path to property file (.prop) containing EPLTL formula",
     )
     required.add_argument(
-        "-t", "--trace",
+        "-t",
+        "--trace",
         type=Path,
         required=True,
         help="Path to trace file (.csv)",
     )
 
     parser.add_argument(
-        "-e", "--epsilon",
+        "-e",
+        "--epsilon",
         type=float,
         default=None,
         help="Maximum clock skew (epsilon) in time units (default: infinity)",
     )
     parser.add_argument(
-        "-o", "--output",
+        "-o",
+        "--output",
         choices=["silent", "normal", "verbose"],
         default="normal",
         help="Output level (default: normal)",
     )
     parser.add_argument(
-        "-d", "--debug",
+        "-d",
+        "--debug",
         type=int,
         choices=[0, 1, 2, 3],
         default=0,
@@ -142,8 +147,7 @@ def _run(args: argparse.Namespace) -> None:
     # Parse property file
     prop_text = args.property.read_text().strip()
     formula_lines = [
-        line for line in prop_text.splitlines()
-        if line.strip() and not line.strip().startswith("#")
+        line for line in prop_text.splitlines() if line.strip() and not line.strip().startswith("#")
     ]
     if not formula_lines:
         print("Error: Property file is empty", file=sys.stderr)
@@ -170,15 +174,11 @@ def _run(args: argparse.Namespace) -> None:
         epsilon=eps,
         logger=logger,
     )
-    result = monitor._run_with_partial_order(
-        trace_data.events, trace_data.partial_order
-    )
+    result = monitor._run_with_partial_order(trace_data.events, trace_data.partial_order)
 
     # ASCII visualization
     if args.visualize_ascii:
-        po_viz = PartialOrderVisualizer(
-            trace_data.partial_order, epsilon=eps
-        )
+        po_viz = PartialOrderVisualizer(trace_data.partial_order, epsilon=eps)
         print()
         print(po_viz.render())
 

@@ -27,6 +27,7 @@ from prove.parser.lexer import EPLTLLexer
 
 class ParseError(Exception):
     """Exception raised for parsing errors."""
+
     pass
 
 
@@ -109,8 +110,7 @@ class _SLYParser(sly.Parser):
     def error(self, token):
         if token:
             raise ParseError(
-                f"Syntax error at '{token.value}' "
-                f"(type: {token.type}, index: {token.index})"
+                f"Syntax error at '{token.value}' " f"(type: {token.type}, index: {token.index})"
             )
         raise ParseError("Syntax error: unexpected end of formula")
 

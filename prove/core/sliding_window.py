@@ -143,7 +143,10 @@ class SlidingWindowGraph:
         return node
 
     def _add_edge(
-        self, source_id: int, event: Event, target_id: int,
+        self,
+        source_id: int,
+        event: Event,
+        target_id: int,
         new_edges: Optional[List[GraphEdge]] = None,
     ) -> None:
         """Add an edge from source to target labeled with event."""
@@ -224,9 +227,7 @@ class SlidingWindowGraph:
         # Step 6: Remove redundant nodes
         self._remove_redundant_nodes()
 
-    def _backward_propagate(
-        self, event: Event, start_id: int, new_edges: List[GraphEdge]
-    ) -> None:
+    def _backward_propagate(self, event: Event, start_id: int, new_edges: List[GraphEdge]) -> None:
         """
         Propagate event backward over independent edges (DFS).
 
@@ -248,9 +249,7 @@ class SlidingWindowGraph:
                 if existing_target is None:
                     # Create the commuted path: source --event--> r --edge_event--> join
                     source_node = self.nodes[source_id]
-                    r_frontier = source_node.frontier.successor(
-                        event, self.partial_order
-                    )
+                    r_frontier = source_node.frontier.successor(event, self.partial_order)
 
                     # Find or create the intermediate node
                     r_id = self._find_node_with_frontier(r_frontier)
@@ -262,9 +261,7 @@ class SlidingWindowGraph:
 
                     # Find the join node (where both paths meet)
                     r_node_obj = self.nodes[r_id]
-                    join_frontier = r_node_obj.frontier.successor(
-                        edge_event, self.partial_order
-                    )
+                    join_frontier = r_node_obj.frontier.successor(edge_event, self.partial_order)
                     join_id = self._find_node_with_frontier(join_frontier)
                     if join_id is None:
                         join_node = self._create_node(join_frontier)
@@ -354,20 +351,14 @@ class SlidingWindowGraph:
     def _remove_node(self, node_id: int) -> None:
         """Remove a node and all its edges from the graph."""
         # Remove all edges involving this node
-        edges_to_remove = {
-            e for e in self.edges if e.source == node_id or e.target == node_id
-        }
+        edges_to_remove = {e for e in self.edges if e.source == node_id or e.target == node_id}
         self.edges -= edges_to_remove
 
         # Clean up adjacency lists
         for ev, tid in self._outgoing.get(node_id, []):
-            self._incoming[tid] = [
-                (e, s) for e, s in self._incoming.get(tid, []) if s != node_id
-            ]
+            self._incoming[tid] = [(e, s) for e, s in self._incoming.get(tid, []) if s != node_id]
         for ev, sid in self._incoming.get(node_id, []):
-            self._outgoing[sid] = [
-                (e, t) for e, t in self._outgoing.get(sid, []) if t != node_id
-            ]
+            self._outgoing[sid] = [(e, t) for e, t in self._outgoing.get(sid, []) if t != node_id]
 
         del self._outgoing[node_id]
         del self._incoming[node_id]
@@ -377,9 +368,7 @@ class SlidingWindowGraph:
     # Verdict
     # ------------------------------------------------------------------ #
 
-    def get_verdict(
-        self, formula: Formula
-    ) -> Tuple[bool, Optional[List[Event]]]:
+    def get_verdict(self, formula: Formula) -> Tuple[bool, Optional[List[Event]]]:
         """
         Check if formula is satisfied at maximal frontier.
 
@@ -401,9 +390,7 @@ class SlidingWindowGraph:
 
     def get_statistics(self) -> Dict[str, Any]:
         """Return statistics about the graph."""
-        max_summaries = max(
-            (len(n.summaries) for n in self.nodes.values()), default=0
-        )
+        max_summaries = max((len(n.summaries) for n in self.nodes.values()), default=0)
         return {
             "node_count": len(self.nodes),
             "edge_count": len(self.edges),

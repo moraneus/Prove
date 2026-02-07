@@ -253,9 +253,7 @@ class TestConcurrentEvents:
         all_events = [iota1, iota2, iota3, e1, e2, e3]
         po = PartialOrder(all_events, epsilon=float("inf"))
         formula = Proposition("p")
-        g = SlidingWindowGraph(
-            PROCS3, {"P1": iota1, "P2": iota2, "P3": iota3}, formula, po
-        )
+        g = SlidingWindowGraph(PROCS3, {"P1": iota1, "P2": iota2, "P3": iota3}, formula, po)
 
         g.process_event(e1)
         g.process_event(e2)
@@ -304,9 +302,7 @@ class TestSummaryPropagation:
         g.process_event(e1)
         max_node = g.nodes[g.maximal_node_id]
         # At least one summary should have @p = True (p was true at iota1)
-        any_yesterday_true = any(
-            s.evaluate(formula) is True for s in max_node.summaries
-        )
+        any_yesterday_true = any(s.evaluate(formula) is True for s in max_node.summaries)
         assert any_yesterday_true is True
 
     def test_different_paths_may_produce_different_summaries(self) -> None:
@@ -510,12 +506,20 @@ class TestMessageCausality:
         iota1, iota2 = _make_two_proc_initial()
         # P1 sends message to P2
         send_e = _ev(
-            "send1", "P1", _vc2(2, 0), 1.0,
-            event_type="send", target_process="P2",
+            "send1",
+            "P1",
+            _vc2(2, 0),
+            1.0,
+            event_type="send",
+            target_process="P2",
         )
         recv_e = _ev(
-            "recv1", "P2", _vc2(2, 2), 2.0,
-            event_type="receive", source_process="P1",
+            "recv1",
+            "P2",
+            _vc2(2, 2),
+            2.0,
+            event_type="receive",
+            source_process="P1",
         )
         all_events = [iota1, iota2, send_e, recv_e]
         po = PartialOrder(all_events, epsilon=float("inf"))

@@ -130,10 +130,7 @@ class PartialOrder:
         immediate: Set[Event] = set()
         for p in preds:
             # p is immediate if no other predecessor of event is a successor of p
-            if not any(
-                other in preds and other != p
-                for other in self._succ_closure.get(p, set())
-            ):
+            if not any(other in preds and other != p for other in self._succ_closure.get(p, set())):
                 immediate.add(p)
         return frozenset(immediate)
 
@@ -204,9 +201,7 @@ class PartialOrder:
 
     def get_minimal_events(self) -> FrozenSet[Event]:
         """Return events with no predecessors (initial events)."""
-        return frozenset(
-            e for e in self._events if not self._pred_closure.get(e, set())
-        )
+        return frozenset(e for e in self._events if not self._pred_closure.get(e, set()))
 
     def get_enabled_events(self, processed: Set[Event]) -> Set[Event]:
         """

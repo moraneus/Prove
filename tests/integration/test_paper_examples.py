@@ -23,7 +23,6 @@ from prove.core.vector_clock import VectorClock
 from prove.parser.formula import parse_formula
 from prove.utils.trace_reader import TraceReader
 
-
 FIXTURES = Path(__file__).parent.parent / "fixtures"
 TRACES = FIXTURES / "traces"
 PROPERTIES = FIXTURES / "properties"
@@ -35,6 +34,7 @@ V2_FIGURE1_TRACE = TRACES / "paper_v2_figure1.csv"
 # ------------------------------------------------------------------ #
 # Helpers
 # ------------------------------------------------------------------ #
+
 
 def _event_by_eid(events: list[Event], eid: str) -> Event:
     """Look up a single event by its identifier."""
@@ -208,9 +208,9 @@ class TestFigure1ThreeProcesses:
         position = {e.eid: i for i, e in enumerate(sorted_events)}
         for e in self.events:
             for s in self.po.successors(e):
-                assert position[e.eid] < position[s.eid], (
-                    f"Expected {e.eid} before {s.eid} in topological sort"
-                )
+                assert (
+                    position[e.eid] < position[s.eid]
+                ), f"Expected {e.eid} before {s.eid} in topological sort"
 
         # Verify using the partial order's own validator
         assert self.po.is_valid_linearization(sorted_events)
@@ -272,9 +272,7 @@ class TestFigure1ThreeProcesses:
         # Create a temporary property file
         import tempfile
 
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".prop", delete=False
-        ) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".prop", delete=False) as f:
             f.write("# Once init_P1\nTRUE S init_P1\n")
             prop_path = Path(f.name)
 
@@ -408,9 +406,9 @@ class TestV2Figure1EpsilonTiming:
             ("alpha2", "beta3"),
         ]
         for e1_id, e2_id in ordered_pairs:
-            assert self.po.is_before(ev[e1_id], ev[e2_id]), (
-                f"Expected {e1_id} < {e2_id} in partial order"
-            )
+            assert self.po.is_before(
+                ev[e1_id], ev[e2_id]
+            ), f"Expected {e1_id} < {e2_id} in partial order"
 
         # Pairs that remain concurrent (cross-process only)
         concurrent_pairs = [
@@ -421,9 +419,9 @@ class TestV2Figure1EpsilonTiming:
             ("alpha3", "beta3"),
         ]
         for e1_id, e2_id in concurrent_pairs:
-            assert self.po.are_concurrent(ev[e1_id], ev[e2_id]), (
-                f"Expected {e1_id} and {e2_id} to be concurrent"
-            )
+            assert self.po.are_concurrent(
+                ev[e1_id], ev[e2_id]
+            ), f"Expected {e1_id} and {e2_id} to be concurrent"
 
     # ----------------------------------------------------------------
     # Property verification
@@ -520,29 +518,47 @@ class TestGraphConstruction:
         procs = frozenset({"P1", "P2"})
 
         self.iota_p1 = _make_event(
-            "iota_P1", "P1", {"P1": 1, "P2": 0}, 0.0,
+            "iota_P1",
+            "P1",
+            {"P1": 1, "P2": 0},
+            0.0,
             frozenset({"init"}),
         )
         self.iota_p2 = _make_event(
-            "iota_P2", "P2", {"P1": 0, "P2": 1}, 0.0,
+            "iota_P2",
+            "P2",
+            {"P1": 0, "P2": 1},
+            0.0,
             frozenset({"init"}),
         )
         self.alpha1 = _make_event(
-            "alpha1", "P1", {"P1": 2, "P2": 0}, 1.0,
+            "alpha1",
+            "P1",
+            {"P1": 2, "P2": 0},
+            1.0,
             frozenset({"ready"}),
         )
         self.beta1 = _make_event(
-            "beta1", "P2", {"P1": 0, "P2": 2}, 1.5,
+            "beta1",
+            "P2",
+            {"P1": 0, "P2": 2},
+            1.5,
             frozenset({"waiting"}),
         )
         self.alpha2 = _make_event(
-            "alpha2", "P1", {"P1": 3, "P2": 0}, 2.0,
+            "alpha2",
+            "P1",
+            {"P1": 3, "P2": 0},
+            2.0,
             frozenset({"done"}),
         )
 
         self.all_events = [
-            self.iota_p1, self.iota_p2,
-            self.alpha1, self.beta1, self.alpha2,
+            self.iota_p1,
+            self.iota_p2,
+            self.alpha1,
+            self.beta1,
+            self.alpha2,
         ]
         self.processes = procs
         self.po = PartialOrder(self.all_events, epsilon=float("inf"))

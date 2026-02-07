@@ -1,0 +1,12 @@
+# Pair 7: Epsilon Ordering Test
+# Two processes with small epsilon - time orders events
+# With epsilon=0.3, events at t=1.0 and t=1.5 are ordered by time
+# system_processes: P1|P2
+# epsilon: 0.3
+
+eid,processes,vc,timestamp,props,event_type,msg_partner
+iota_p1,P1,P1:1;P2:0,0.0,init,,
+iota_p2,P2,P1:0;P2:1,0.0,init,,
+e1,P1,P1:2;P2:0,1.0,first,,
+e2,P2,P1:0;P2:2,1.5,second,,
+e3,P1,P1:3;P2:0,2.0,done,,

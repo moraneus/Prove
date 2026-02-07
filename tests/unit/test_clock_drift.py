@@ -132,12 +132,10 @@ class TestFilterConcurrentEvents:
         h = ClockDriftHandler(epsilon=2.0)
         ref = _evt("ref", "P1", 5.0)
         e_before = _evt("eb", "P2", 1.0)  # 5.0 - 1.0 = 4.0 > 2.0 → before
-        e_after = _evt("ea", "P3", 9.0)   # 9.0 - 5.0 = 4.0 > 2.0 → after
-        e_conc = _evt("ec", "P2", 4.0)    # 5.0 - 4.0 = 1.0 ≤ 2.0 → concurrent
+        e_after = _evt("ea", "P3", 9.0)  # 9.0 - 5.0 = 4.0 > 2.0 → after
+        e_conc = _evt("ec", "P2", 4.0)  # 5.0 - 4.0 = 1.0 ≤ 2.0 → concurrent
 
-        before, after, concurrent = h.filter_concurrent_events(
-            [e_before, e_after, e_conc], ref
-        )
+        before, after, concurrent = h.filter_concurrent_events([e_before, e_after, e_conc], ref)
         assert e_before in before
         assert e_after in after
         assert e_conc in concurrent

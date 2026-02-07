@@ -11,7 +11,6 @@ import pytest
 
 from prove.utils.logger import LogLevel, MonitorLogger
 
-
 # ---------------------------------------------------------------------------
 # Tests: Log Level Filtering
 # ---------------------------------------------------------------------------

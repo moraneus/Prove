@@ -133,9 +133,7 @@ class VectorClock:
         """
         if not isinstance(other, VectorClock):
             return NotImplemented
-        return (self <= other) and any(
-            self._clock[p] < other._clock[p] for p in self._processes
-        )
+        return (self <= other) and any(self._clock[p] < other._clock[p] for p in self._processes)
 
     def is_concurrent_with(self, other: VectorClock) -> bool:
         """

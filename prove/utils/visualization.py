@@ -51,24 +51,19 @@ class GraphVisualizer:
         """
         lines: List[str] = ["digraph SlidingWindowGraph {"]
         lines.append("  rankdir=TB;")
-        lines.append('  node [shape=box, style=filled, fillcolor=lightyellow];')
+        lines.append("  node [shape=box, style=filled, fillcolor=lightyellow];")
 
         for nid, node in self.graph.nodes.items():
-            events_str = ", ".join(
-                sorted(e.eid for e in node.frontier.events)
-            )
+            events_str = ", ".join(sorted(e.eid for e in node.frontier.events))
             n_summaries = len(node.summaries)
             label = f"F{nid}\\n{{{events_str}}}\\n({n_summaries} summaries)"
             style = ""
             if nid == self.graph.maximal_node_id:
-                style = ', fillcolor=lightblue, penwidth=2'
+                style = ", fillcolor=lightblue, penwidth=2"
             lines.append(f'  n{nid} [label="{label}"{style}];')
 
         for edge in self.graph.edges:
-            lines.append(
-                f'  n{edge.source} -> n{edge.target} '
-                f'[label="{edge.event.eid}"];'
-            )
+            lines.append(f"  n{edge.source} -> n{edge.target} " f'[label="{edge.event.eid}"];')
 
         lines.append("}")
         return "\n".join(lines)
@@ -97,14 +92,14 @@ class GraphVisualizer:
             marker = " *" if nid == self.graph.maximal_node_id else ""
             label = f"[F{nid}] {{{events_str}}} ({len(node.summaries)} sum){marker}"
             if len(label) > max_width:
-                label = label[:max_width - 3] + "..."
+                label = label[: max_width - 3] + "..."
             lines.append(label)
 
             # Show outgoing edges
             for ev, tid in self.graph._outgoing.get(nid, []):
                 edge_label = f"  --{ev.eid}--> [F{tid}]"
                 if len(edge_label) > max_width:
-                    edge_label = edge_label[:max_width - 3] + "..."
+                    edge_label = edge_label[: max_width - 3] + "..."
                 lines.append(edge_label)
 
         return "\n".join(lines)
@@ -118,21 +113,25 @@ class GraphVisualizer:
         """
         nodes: List[Dict[str, Any]] = []
         for nid, node in self.graph.nodes.items():
-            nodes.append({
-                "id": nid,
-                "frontier": sorted(e.eid for e in node.frontier.events),
-                "summaries": len(node.summaries),
-                "covered_processes": sorted(node.covered_processes),
-                "is_maximal": nid == self.graph.maximal_node_id,
-            })
+            nodes.append(
+                {
+                    "id": nid,
+                    "frontier": sorted(e.eid for e in node.frontier.events),
+                    "summaries": len(node.summaries),
+                    "covered_processes": sorted(node.covered_processes),
+                    "is_maximal": nid == self.graph.maximal_node_id,
+                }
+            )
 
         edges: List[Dict[str, Any]] = []
         for edge in self.graph.edges:
-            edges.append({
-                "source": edge.source,
-                "target": edge.target,
-                "event": edge.event.eid,
-            })
+            edges.append(
+                {
+                    "source": edge.source,
+                    "target": edge.target,
+                    "event": edge.event.eid,
+                }
+            )
 
         return json.dumps({"nodes": nodes, "edges": edges}, indent=2)
 
@@ -167,8 +166,7 @@ class GraphVisualizer:
                 raise RuntimeError(f"Graphviz error: {result.stderr}")
         except FileNotFoundError:
             raise RuntimeError(
-                "Graphviz 'dot' command not found. "
-                "Install Graphviz to render PNG files."
+                "Graphviz 'dot' command not found. " "Install Graphviz to render PNG files."
             )
 
 
@@ -326,8 +324,13 @@ class PartialOrderVisualizer:
                 src_col = proc_col[src.process]
                 tgt_col = proc_col[tgt.process]
                 annotation = self._render_cross_arrow(
-                    src, tgt, reason, src_col, tgt_col,
-                    col_width, n_procs,
+                    src,
+                    tgt,
+                    reason,
+                    src_col,
+                    tgt_col,
+                    col_width,
+                    n_procs,
                 )
                 lines.append(annotation)
 
@@ -372,7 +375,7 @@ class PartialOrderVisualizer:
             for src, tgt, reason in cross_orderings:
                 entry = f"  {src.eid} ≺ {tgt.eid}  ({reason})"
                 if len(entry) > max_width:
-                    entry = entry[:max_width - 3] + "..."
+                    entry = entry[: max_width - 3] + "..."
                 lines.append(entry)
         else:
             lines.append("No cross-process orderings.")
@@ -449,9 +452,7 @@ class PartialOrderVisualizer:
 
         return "".join(line).rstrip()
 
-    def _find_cross_process_orderings(
-        self, events: List[Event]
-    ) -> List[Tuple[Event, Event, str]]:
+    def _find_cross_process_orderings(self, events: List[Event]) -> List[Tuple[Event, Event, str]]:
         """
         Find all direct cross-process orderings.
 
@@ -494,10 +495,7 @@ class PartialOrderVisualizer:
         )
 
         time_diff = e2.timestamp - e1.timestamp
-        eps_ordered = (
-            self.epsilon != float("inf")
-            and time_diff > self.epsilon
-        )
+        eps_ordered = self.epsilon != float("inf") and time_diff > self.epsilon
 
         if vc_ordered and eps_ordered:
             return f"VC, Δt={time_diff:.1f}>ε={self.epsilon:.1f}"
@@ -508,9 +506,7 @@ class PartialOrderVisualizer:
         else:
             return "VC"
 
-    def _format_cross_process_edge(
-        self, source: Event, target: Event, reason: str
-    ) -> str:
+    def _format_cross_process_edge(self, source: Event, target: Event, reason: str) -> str:
         """
         Format a single cross-process ordering annotation.
 

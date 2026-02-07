@@ -12,6 +12,7 @@ import sly
 
 class LexerError(Exception):
     """Exception raised for lexical analysis errors."""
+
     pass
 
 
@@ -30,11 +31,18 @@ class EPLTLLexer(sly.Lexer):
     """
 
     tokens = {
-        TRUE, FALSE,
+        TRUE,
+        FALSE,
         PROP,
-        NOT, YESTERDAY,
-        AND, OR, IMPLIES, IFF, SINCE,
-        LPAREN, RPAREN,
+        NOT,
+        YESTERDAY,
+        AND,
+        OR,
+        IMPLIES,
+        IFF,
+        SINCE,
+        LPAREN,
+        RPAREN,
     }
 
     # Ignored characters
@@ -114,6 +122,4 @@ class EPLTLLexer(sly.Lexer):
 
     def error(self, t):
         """Handle invalid characters."""
-        raise LexerError(
-            f"Invalid character '{t.value[0]}' at index {self.index}"
-        )
+        raise LexerError(f"Invalid character '{t.value[0]}' at index {self.index}")

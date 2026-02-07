@@ -1,0 +1,4 @@
+# Pair 4 Property (VIOLATED)
+# "If step3, then init was true in the previous state"
+# But step2 was in the previous state, not init
+step3 -> @init

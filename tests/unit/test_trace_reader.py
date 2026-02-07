@@ -13,7 +13,6 @@ from prove.core.event import Event
 from prove.core.vector_clock import VectorClock
 from prove.utils.trace_reader import TraceData, TraceMetadata, TraceReader
 
-
 FIXTURES = Path(__file__).parent.parent / "fixtures"
 TRACES = FIXTURES / "traces"
 
@@ -169,9 +168,7 @@ class TestEpsilonTrace:
         # With epsilon=2: t(beta2) - t(alpha1) = 5.5 - 2.5 = 3.0 > 2
         # So alpha1 ≺ beta2
         by_eid = {e.eid: e for e in data.events}
-        assert data.partial_order.is_before(
-            by_eid["alpha1"], by_eid["beta2"]
-        )
+        assert data.partial_order.is_before(by_eid["alpha1"], by_eid["beta2"])
 
 
 # ---------------------------------------------------------------------------
@@ -253,8 +250,7 @@ class TestEdgeCases:
         """Empty props field results in empty frozenset."""
         trace = tmp_path / "trace.csv"
         trace.write_text(
-            "eid,processes,vc,timestamp,props,event_type,msg_partner\n"
-            "e1,P1,P1:1,0.0,,local,\n"
+            "eid,processes,vc,timestamp,props,event_type,msg_partner\n" "e1,P1,P1:1,0.0,,local,\n"
         )
         reader = TraceReader(trace)
         events = reader.read_events()

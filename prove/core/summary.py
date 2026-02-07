@@ -181,18 +181,14 @@ class Summary:
 
     def __hash__(self) -> int:
         # Hash based on sorted (formula_str, value) pairs for stability
-        return hash(tuple(
-            (str(f), v) for f, v in sorted(self.values, key=lambda x: str(x[0]))
-        ))
+        return hash(tuple((str(f), v) for f, v in sorted(self.values, key=lambda x: str(x[0]))))
 
     def _as_dict(self) -> dict[str, bool]:
         """Convert to a string-keyed dict for comparison."""
         return {str(f): v for f, v in self.values}
 
     def __repr__(self) -> str:
-        entries = ", ".join(
-            f"{f}: {v}" for f, v in sorted(self.values, key=lambda x: str(x[0]))
-        )
+        entries = ", ".join(f"{f}: {v}" for f, v in sorted(self.values, key=lambda x: str(x[0])))
         return f"Summary({{{entries}}})"
 
 
@@ -217,8 +213,7 @@ def _topological_sort(formula: Formula) -> list[Formula]:
             visit(f.operand)
         elif isinstance(f, Yesterday):
             visit(f.operand)
-        elif isinstance(f, (Conjunction, Disjunction, Implication,
-                            Biconditional, Since)):
+        elif isinstance(f, (Conjunction, Disjunction, Implication, Biconditional, Since)):
             visit(f.left)
             visit(f.right)
 

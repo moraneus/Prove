@@ -15,7 +15,6 @@ from prove.core.vector_clock import VectorClock
 from prove.parser.formula import parse_formula
 from prove.utils.logger import LogLevel, MonitorLogger
 
-
 FIXTURES = Path(__file__).parent.parent / "fixtures"
 TRACES = FIXTURES / "traces"
 PROPERTIES = FIXTURES / "properties"
@@ -24,6 +23,7 @@ PROPERTIES = FIXTURES / "properties"
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
+
 
 def _make_event(
     eid: str,
@@ -71,6 +71,7 @@ class TestMonitorInitialization:
     def test_create_with_logger(self) -> None:
         """Monitor accepts an optional logger."""
         from io import StringIO
+
         buf = StringIO()
         logger = MonitorLogger(level=LogLevel.DEBUG, stream=buf)
         formula = parse_formula("ready")
@@ -104,9 +105,7 @@ class TestSequentialProcessing:
         events = [
             _make_event("i1", "P1", {"P1": 1}, 0.0, frozenset({"ready"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is True
 
@@ -116,9 +115,7 @@ class TestSequentialProcessing:
         events = [
             _make_event("i1", "P1", {"P1": 1}, 0.0, frozenset({"other"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is False
 
@@ -130,9 +127,7 @@ class TestSequentialProcessing:
             _make_event("e2", "P1", {"P1": 2}, 1.0, frozenset({"working"})),
             _make_event("e3", "P1", {"P1": 3}, 2.0, frozenset({"done"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is True
 
@@ -152,9 +147,7 @@ class TestConcurrentEvents:
             _make_event("i1", "P1", {"P1": 1, "P2": 0}, 0.0, frozenset({"a"})),
             _make_event("i2", "P2", {"P1": 0, "P2": 1}, 0.0, frozenset({"b"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1", "P2"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1", "P2"], epsilon=float("inf"))
         result = monitor.run(events)
         # After processing both initial events, the frontier has both
         # propositions visible in the global state.
@@ -169,9 +162,7 @@ class TestConcurrentEvents:
             _make_event("e1", "P1", {"P1": 2, "P2": 0}, 1.0, frozenset({"a"})),
             _make_event("e2", "P2", {"P1": 0, "P2": 2}, 1.0, frozenset({"b"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1", "P2"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1", "P2"], epsilon=float("inf"))
         result = monitor.run(events)
         assert isinstance(result, MonitorResult)
 
@@ -192,9 +183,7 @@ class TestSinceOperator:
             _make_event("e2", "P1", {"P1": 2}, 1.0, frozenset({"p"})),
             _make_event("e3", "P1", {"P1": 3}, 2.0, frozenset({"p"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is True
 
@@ -205,9 +194,7 @@ class TestSinceOperator:
             _make_event("e1", "P1", {"P1": 1}, 0.0, frozenset({"p"})),
             _make_event("e2", "P1", {"P1": 2}, 1.0, frozenset({"p"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is False
 
@@ -227,9 +214,7 @@ class TestYesterdayOperator:
             _make_event("e1", "P1", {"P1": 1}, 0.0, frozenset({"ready"})),
             _make_event("e2", "P1", {"P1": 2}, 1.0, frozenset()),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is True
 
@@ -239,9 +224,7 @@ class TestYesterdayOperator:
         events = [
             _make_event("e1", "P1", {"P1": 1}, 0.0, frozenset({"ready"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is False
 
@@ -264,9 +247,7 @@ class TestEpsilonOrdering:
             _make_event("e2", "P2", {"P1": 0, "P2": 2}, 5.0, frozenset({"b"})),
         ]
         # With epsilon=2: t(e2)-t(e1) = 4.0 > 2, so e1 ≺ e2
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1", "P2"], epsilon=2.0
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1", "P2"], epsilon=2.0)
         result = monitor.run(events)
         assert isinstance(result, MonitorResult)
 
@@ -355,9 +336,7 @@ class TestFinalizeAndStatistics:
             _make_event("e2", "P1", {"P1": 2}, 1.0, frozenset({"done"})),
             _make_event("e3", "P1", {"P1": 3}, 2.0, frozenset({"ready"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert "events_processed" in result.statistics
         # Initial event is loaded into graph directly, not counted by process_event
@@ -372,9 +351,7 @@ class TestFinalizeAndStatistics:
         events2 = [
             _make_event("e1", "P1", {"P1": 1}, 0.0, frozenset({"other"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
 
         r1 = monitor.run(events1)
         assert r1.satisfied is True
@@ -400,9 +377,7 @@ class TestComplexFormulas:
             _make_event("e1", "P1", {"P1": 1}, 0.0, frozenset({"ok"})),
             _make_event("e2", "P1", {"P1": 2}, 1.0, frozenset({"ok"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is True
 
@@ -412,8 +387,6 @@ class TestComplexFormulas:
         events = [
             _make_event("e1", "P1", {"P1": 1}, 0.0, frozenset({"ok"})),
         ]
-        monitor = EPLTLMonitor(
-            formula=formula, processes=["P1"], epsilon=float("inf")
-        )
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is True

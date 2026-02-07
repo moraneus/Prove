@@ -1,0 +1,4 @@
+# Pair 3 Property (VIOLATED)
+# "request and satisfied are both true at the same time"
+# Never happens - they occur at different points
+request && satisfied

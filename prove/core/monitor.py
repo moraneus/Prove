@@ -134,10 +134,7 @@ class EPLTLMonitor:
 
         # Log the maximal frontier
         max_node = self._graph.nodes[self._graph.maximal_node_id]
-        frontier_map = {
-            e.process: e.eid
-            for e in max_node.frontier.events
-        }
+        frontier_map = {e.process: e.eid for e in max_node.frontier.events}
         self.logger.frontier_info(frontier_map)
 
         if is_satisfied:
@@ -184,7 +181,8 @@ class EPLTLMonitor:
         prop_text = property_file.read_text().strip()
         # Remove comment lines
         formula_lines = [
-            line for line in prop_text.splitlines()
+            line
+            for line in prop_text.splitlines()
             if line.strip() and not line.strip().startswith("#")
         ]
         formula_str = " ".join(formula_lines)
@@ -194,7 +192,9 @@ class EPLTLMonitor:
         reader = TraceReader(trace_file)
         trace_data = reader.read_all(epsilon=epsilon)
 
-        eps = trace_data.metadata.epsilon if trace_data.metadata.epsilon is not None else float("inf")
+        eps = (
+            trace_data.metadata.epsilon if trace_data.metadata.epsilon is not None else float("inf")
+        )
         if epsilon is not None:
             eps = epsilon
 
@@ -217,12 +217,8 @@ class EPLTLMonitor:
             MonitorResult with verdict and statistics.
         """
         if self._loaded_events is None:
-            raise RuntimeError(
-                "No trace loaded. Use from_files() to create monitor."
-            )
-        return self._run_with_partial_order(
-            self._loaded_events, self._loaded_partial_order
-        )
+            raise RuntimeError("No trace loaded. Use from_files() to create monitor.")
+        return self._run_with_partial_order(self._loaded_events, self._loaded_partial_order)
 
     def _run_with_partial_order(
         self,
@@ -267,9 +263,7 @@ class EPLTLMonitor:
         """
         procs = sorted(self.processes)
         eps_str = "inf" if self.epsilon == float("inf") else str(self.epsilon)
-        self.logger.info(
-            f"Loaded {len(events)} events from {len(procs)} processes"
-        )
+        self.logger.info(f"Loaded {len(events)} events from {len(procs)} processes")
         self.logger.info(f"Processes: {', '.join(procs)}")
         self.logger.info(f"Epsilon: {eps_str}")
         self.logger.info(f"Verifying formula: {self.formula}")
@@ -288,7 +282,9 @@ class EPLTLMonitor:
         # Log initial events
         for event in initial_events.values():
             self.logger.event_info(
-                event.eid, event.process, event.propositions,
+                event.eid,
+                event.process,
+                event.propositions,
             )
 
         # Process non-initial events in topological order
@@ -298,17 +294,19 @@ class EPLTLMonitor:
 
         for event in non_initial:
             self.logger.event_info(
-                event.eid, event.process, event.propositions,
+                event.eid,
+                event.process,
+                event.propositions,
             )
-            self.logger.event_processed(
-                event.eid, len(self._graph.nodes)
-            )
+            self.logger.event_processed(event.eid, len(self._graph.nodes))
             self._graph.process_event(event)
 
         return self.finalize()
 
     def _find_initial_events(
-        self, events: List[Event], po: PartialOrder,
+        self,
+        events: List[Event],
+        po: PartialOrder,
     ) -> Dict[str, Event]:
         """
         Find the initial event for each process.

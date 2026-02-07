@@ -1,0 +1,10 @@
+# Pair 6: Historically Operator Test
+# Single process with no errors throughout
+# system_processes: P1
+# epsilon: 1.0
+
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,init|ok,,
+e1,P1,P1:2,1.0,running|ok,,
+e2,P1,P1:3,2.0,running|ok,,
+e3,P1,P1:4,3.0,done|ok,,

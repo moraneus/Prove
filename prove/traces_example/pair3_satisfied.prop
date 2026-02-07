@@ -1,0 +1,3 @@
+# Pair 3 Property (SATISFIED)
+# "If satisfied, then request was true at some point before"
+satisfied -> O request
