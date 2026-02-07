@@ -211,8 +211,9 @@ class PartialOrderVisualizer:
         1. Header with process names and epsilon
         2. Events in timestamp order, placed in process columns
         3. Intra-process vertical arrows
-        4. Cross-process ordering annotations
-        5. Footer listing all cross-process orderings
+        4. Inline cross-process ordering annotations between groups
+        5. Propositions shown next to event names
+        6. Footer listing all cross-process orderings
 
         Args:
             max_width: Maximum line width.
@@ -241,6 +242,11 @@ class PartialOrderVisualizer:
 
         # Collect cross-process orderings
         cross_orderings = self._find_cross_process_orderings(events)
+
+        # Build lookup: target event eid -> list of (source, target, reason)
+        incoming_orderings: Dict[str, List[Tuple[Event, Event, str]]] = defaultdict(list)
+        for src, tgt, reason in cross_orderings:
+            incoming_orderings[tgt.eid].append((src, tgt, reason))
 
         # Build output lines
         lines: List[str] = []
@@ -284,6 +290,11 @@ class PartialOrderVisualizer:
 
         first_group = True
         for _ts, group in ts_groups:
+            # Collect cross-process annotations targeting events in this group
+            group_annotations: List[Tuple[Event, Event, str]] = []
+            for e in group:
+                group_annotations.extend(incoming_orderings.get(e.eid, []))
+
             # Intra-process arrows before this row (if not first)
             if not first_group:
                 arrow_line = ""
@@ -310,14 +321,30 @@ class PartialOrderVisualizer:
                 if stripped2.strip():
                     lines.append(stripped2)
 
+            # Inline cross-process arrows before the event name
+            for src, tgt, reason in group_annotations:
+                src_col = proc_col[src.process]
+                tgt_col = proc_col[tgt.process]
+                annotation = self._render_cross_arrow(
+                    src, tgt, reason, src_col, tgt_col,
+                    col_width, n_procs,
+                )
+                lines.append(annotation)
+
             first_group = False
 
-            # Event name line
+            # Event name + propositions line
             name_line = ""
             for p in processes:
                 evts_in_col = [e for e in group if e.process == p]
                 if evts_in_col:
-                    name_line += evts_in_col[0].eid.center(col_width)
+                    ev = evts_in_col[0]
+                    if ev.propositions:
+                        props = ", ".join(sorted(ev.propositions))
+                        label = f"{ev.eid}  {{{props}}}"
+                    else:
+                        label = ev.eid
+                    name_line += label.center(col_width)
                 else:
                     name_line += " " * col_width
             lines.append(name_line.rstrip())
@@ -351,6 +378,76 @@ class PartialOrderVisualizer:
             lines.append("No cross-process orderings.")
 
         return "\n".join(lines)
+
+    def _render_cross_arrow(
+        self,
+        src: Event,
+        tgt: Event,
+        reason: str,
+        src_col: int,
+        tgt_col: int,
+        col_width: int,
+        n_procs: int,
+    ) -> str:
+        """
+        Render an inline cross-process arrow annotation.
+
+        Draws a horizontal arrow from the source column to the target
+        column, annotated with the ordering reason.
+
+        Args:
+            src: Source event.
+            tgt: Target event.
+            reason: Ordering reason string.
+            src_col: Column index of source process.
+            tgt_col: Column index of target process.
+            col_width: Width of each process column.
+            n_procs: Number of processes.
+
+        Returns:
+            Formatted annotation line.
+        """
+        total_width = col_width * n_procs
+        line = list(" " * total_width)
+
+        # Column center positions
+        src_center = src_col * col_width + col_width // 2
+        tgt_center = tgt_col * col_width + col_width // 2
+
+        left = min(src_center, tgt_center)
+        right = max(src_center, tgt_center)
+
+        # Fill the arrow span
+        for i in range(left, right + 1):
+            if i < total_width:
+                line[i] = "─"
+
+        # Place endpoints and direction
+        if src_col < tgt_col:
+            if src_center < total_width:
+                line[src_center] = "╰"
+            if tgt_center < total_width:
+                line[tgt_center] = "→"
+        else:
+            if tgt_center < total_width:
+                line[tgt_center] = "←"
+            if src_center < total_width:
+                line[src_center] = "╯"
+
+        # Place the annotation label in the middle
+        label = f" {src.eid} ≺ {tgt.eid} ({reason}) "
+        mid = (left + right) // 2
+        label_start = mid - len(label) // 2
+        # Clamp within the arrow span
+        label_start = max(left + 1, min(label_start, right - len(label)))
+        if label_start < 0:
+            label_start = 0
+        for i, ch in enumerate(label):
+            pos = label_start + i
+            if 0 <= pos < total_width:
+                line[pos] = ch
+
+        return "".join(line).rstrip()
 
     def _find_cross_process_orderings(
         self, events: List[Event]

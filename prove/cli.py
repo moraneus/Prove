@@ -163,14 +163,6 @@ def _run(args: argparse.Namespace) -> None:
     else:
         eps = float("inf")
 
-    # Log trace info
-    logger.info(
-        f"Property: {formula_str}",
-        Trace=f"{args.trace} ({trace_data.metadata.event_count} events, "
-              f"{len(trace_data.metadata.processes)} processes)",
-        Epsilon=f"{eps}",
-    )
-
     # Create and run monitor
     monitor = EPLTLMonitor(
         formula=formula,
@@ -213,8 +205,8 @@ def _run(args: argparse.Namespace) -> None:
                 else:
                     viz.save_dot(filepath)
 
-    # Statistics
-    if args.stats:
+    # Statistics (skip if verbose already printed them)
+    if args.stats and log_level.value < LogLevel.VERBOSE.value:
         print()
         print("=== Statistics ===")
         for key, value in result.statistics.items():

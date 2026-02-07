@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import sys
 from enum import Enum
-from typing import Any, Dict, TextIO
+from typing import Any, Dict, Iterable, TextIO
 
 
 class LogLevel(Enum):
@@ -79,7 +79,7 @@ class MonitorLogger:
             **kwargs: Additional key-value pairs to include.
         """
         if self.level.value >= LogLevel.VERBOSE.value:
-            self._write(message)
+            self._write(f"[INFO] {message}")
             for k, v in kwargs.items():
                 self._write(f"  {k}: {v}")
 
@@ -120,6 +120,34 @@ class MonitorLogger:
         """
         if self.level.value >= LogLevel.DEBUG.value:
             self._write(f"[DEBUG] Processed {event_id} (nodes: {node_count})")
+
+    def event_info(
+        self, eid: str, process: str, props: Iterable[str],
+    ) -> None:
+        """
+        Log per-event info at VERBOSE level.
+
+        Args:
+            eid: Event identifier.
+            process: Process the event belongs to.
+            props: Propositions true after this event.
+        """
+        if self.level.value >= LogLevel.VERBOSE.value:
+            props_str = ", ".join(sorted(props)) if props else "(none)"
+            self._write(f"[EVENT] {eid} @ process {process}, props: {props_str}")
+
+    def frontier_info(self, frontier: Dict[str, str]) -> None:
+        """
+        Log the maximal frontier state at VERBOSE level.
+
+        Args:
+            frontier: Mapping from process name to maximal event ID.
+        """
+        if self.level.value >= LogLevel.VERBOSE.value:
+            entries = ", ".join(
+                f"{p}: {e}" for p, e in sorted(frontier.items())
+            )
+            self._write(f"[FRONTIER] Maximal state: {{{entries}}}")
 
     def _write(self, message: str) -> None:
         """Write a line to the output stream."""

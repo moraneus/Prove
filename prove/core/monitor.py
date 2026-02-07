@@ -109,38 +109,8 @@ class EPLTLMonitor:
                 statistics={"events_processed": 0},
             )
 
-        self.logger.info(f"Processing {len(event_list)} events...")
-
-        # Step 1: Compute complete partial order
         po = PartialOrder(event_list, self.epsilon)
-
-        # Step 2: Identify initial events (one per process)
-        initial_events = self._find_initial_events(event_list, po)
-
-        # Step 3: Initialize sliding window graph
-        self._graph = SlidingWindowGraph(
-            processes=self.processes,
-            initial_events=initial_events,
-            formula=self.formula,
-            partial_order=po,
-        )
-
-        # Step 4: Get processing order (topological sort)
-        processing_order = po.topological_sort()
-
-        # Step 5: Skip initial events (already in the graph)
-        initial_set = set(initial_events.values())
-        non_initial = [e for e in processing_order if e not in initial_set]
-
-        # Step 6: Process non-initial events
-        for event in non_initial:
-            self.logger.event_processed(
-                event.eid, len(self._graph.nodes)
-            )
-            self._graph.process_event(event)
-
-        # Step 7: Get verdict
-        return self.finalize()
+        return self._execute(event_list, po)
 
     def finalize(self) -> MonitorResult:
         """
@@ -161,6 +131,14 @@ class EPLTLMonitor:
 
         is_satisfied, witness = self._graph.get_verdict(self.formula)
         stats = self._graph.get_statistics()
+
+        # Log the maximal frontier
+        max_node = self._graph.nodes[self._graph.maximal_node_id]
+        frontier_map = {
+            e.process: e.eid
+            for e in max_node.frontier.events
+        }
+        self.logger.frontier_info(frontier_map)
 
         if is_satisfied:
             verdict = "SATISFIED: Property holds for at least one linearization"
@@ -269,9 +247,32 @@ class EPLTLMonitor:
                 statistics={"events_processed": 0},
             )
 
-        self.logger.info(f"Processing {len(events)} events...")
-
         po = partial_order or PartialOrder(events, self.epsilon)
+        return self._execute(events, po)
+
+    def _execute(
+        self,
+        events: List[Event],
+        po: PartialOrder,
+    ) -> MonitorResult:
+        """
+        Core execution: log, build graph, process events, finalize.
+
+        Args:
+            events: All events.
+            po: Complete partial order.
+
+        Returns:
+            MonitorResult.
+        """
+        procs = sorted(self.processes)
+        eps_str = "inf" if self.epsilon == float("inf") else str(self.epsilon)
+        self.logger.info(
+            f"Loaded {len(events)} events from {len(procs)} processes"
+        )
+        self.logger.info(f"Processes: {', '.join(procs)}")
+        self.logger.info(f"Epsilon: {eps_str}")
+        self.logger.info(f"Verifying formula: {self.formula}")
 
         # Identify initial events
         initial_events = self._find_initial_events(events, po)
@@ -284,12 +285,21 @@ class EPLTLMonitor:
             partial_order=po,
         )
 
+        # Log initial events
+        for event in initial_events.values():
+            self.logger.event_info(
+                event.eid, event.process, event.propositions,
+            )
+
         # Process non-initial events in topological order
         processing_order = po.topological_sort()
         initial_set = set(initial_events.values())
         non_initial = [e for e in processing_order if e not in initial_set]
 
         for event in non_initial:
+            self.logger.event_info(
+                event.eid, event.process, event.propositions,
+            )
             self.logger.event_processed(
                 event.eid, len(self._graph.nodes)
             )
