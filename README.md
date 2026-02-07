@@ -58,6 +58,131 @@ prove -p PROPERTY -t TRACE [options]
 
 **Exit codes:** `0` = property satisfied, `1` = property violated, `2` = error
 
+### Verbose Output (`-o verbose`)
+
+The verbose output mode prints structured, tagged lines showing the full verification pipeline:
+
+```
+[INFO] Loaded 7 events from 2 processes
+[INFO] Processes: Client, Server
+[INFO] Epsilon: 0.0
+[INFO] Verifying formula: response -> (TRUE S request)
+[EVENT] iota_Client @ process Client, props: idle
+[EVENT] iota_Server @ process Server, props: idle
+[EVENT] c_send @ process Client, props: request
+[EVENT] s_recv @ process Server, props: busy
+[EVENT] s_process @ process Server, props: processing
+[EVENT] s_send @ process Server, props: response
+[EVENT] c_recv @ process Client, props: satisfied
+[FRONTIER] Maximal state: {Client: c_recv, Server: s_send}
+SATISFIED: Property holds for at least one linearization
+```
+
+| Tag | Meaning |
+|-----|---------|
+| `[INFO]` | Loaded trace metadata, process list, epsilon, and formula |
+| `[EVENT]` | Per-event progress showing process and active propositions |
+| `[FRONTIER]` | The maximal frontier (last event per process) at verification end |
+
+### ASCII Visualization (`--visualize-ascii`)
+
+The `--visualize-ascii` flag prints a timeline diagram of the partial order execution, making causal relationships between events easy to understand at a glance.
+
+```bash
+prove -p formula.prop -t trace.csv -e 2.0 --visualize-ascii
+```
+
+#### How to Read the Diagram
+
+The diagram has three sections: **header**, **timeline**, and **footer**.
+
+**Header** -- Shows process names as column headers, a separator line, and the epsilon value:
+
+```
+      Client          Server
+────────────────────────────────
+(epsilon = 2.0)
+```
+
+**Timeline** -- Events are placed in their process column, ordered top-to-bottom by timestamp:
+
+```
+    iota_Client      iota_Server
+      (t=0.0)          (t=0.0)
+        |                |          <-- intra-process arrows
+        v                v
+      c_send  {request}  s_recv  {busy}
+      (t=1.0)          (t=2.0)
+```
+
+Each event shows:
+- **Event name** centered in its process column
+- **Propositions** in curly braces next to the name (e.g., `{request}`)
+- **Timestamp** below the name (e.g., `(t=1.0)`)
+- **Vertical arrows** (`|` and `v`) connecting consecutive events on the same process
+
+**Cross-process ordering arrows** appear between event rows when one event on a process is ordered before an event on another process. These arrows show **why** the ordering exists:
+
+```
+        c_send
+       (t=1.0)
+          ╰── c_send ≺ s_recv (VC) ──→
+                              s_recv
+                             (t=2.0)
+```
+
+| Arrow | Direction |
+|-------|-----------|
+| `╰──...──→` | Left-to-right: source process is left of target |
+| `←──...──╯` | Right-to-left: source process is right of target |
+
+The annotation between the arrows explains the ordering reason:
+
+| Annotation | Meaning |
+|------------|---------|
+| `(VC)` | **Vector clock ordering** -- the source event's vector clock is strictly less than the target's (typically from message send/receive pairs) |
+| `(dt=X.X>eps=Y.Y)` | **Epsilon ordering** -- the timestamp difference exceeds the clock skew bound, so the events are definitely ordered by time |
+| `(VC, dt=X.X>eps=Y.Y)` | Both orderings apply simultaneously |
+
+**Footer** -- Lists all cross-process orderings as a summary:
+
+```
+────────────────────────────────
+Cross-process orderings:
+  c_send ≺ s_recv  (VC)
+  s_send ≺ c_recv  (VC)
+```
+
+#### Full Example
+
+Given a two-process client-server trace with message passing (`epsilon = 0.0`):
+
+```
+         Client              Server
+──────────────────────────────────────────
+(epsilon = 0.0)
+
+      iota_Client  {idle}   iota_Server  {idle}
+        (t=0.0)               (t=0.0)
+           |                     |
+           v                     v
+        c_send  {request}     s_recv  {busy}
+        (t=1.0)               (t=2.0)
+           ╰── c_send ≺ s_recv (VC) ──→
+           |                     |
+           v                     v
+        c_recv  {satisfied}  s_send  {response}
+        (t=5.0)               (t=4.0)
+      ←── s_send ≺ c_recv (VC) ──╯
+
+──────────────────────────────────────────
+Cross-process orderings:
+  c_send ≺ s_recv  (VC)
+  s_send ≺ c_recv  (VC)
+```
+
+Reading this diagram: `c_send` on Client causally precedes `s_recv` on Server (via vector clock / message passing), and `s_send` on Server causally precedes `c_recv` on Client. Events within the same column (same process) are totally ordered top-to-bottom.
+
 ## Trace File Format
 
 CSV with one event per row:
