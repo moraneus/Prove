@@ -182,10 +182,6 @@ def _run(args: argparse.Namespace) -> None:
         trace_data.events, trace_data.partial_order
     )
 
-    # Print verdict (unless silent)
-    if args.output != "silent":
-        print(result.verdict)
-
     # ASCII visualization
     if args.visualize_ascii:
         po_viz = PartialOrderVisualizer(
