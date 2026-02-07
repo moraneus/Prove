@@ -1,0 +1,12 @@
+Example 41: Minimal Single Event (Edge Case)
+===============================================
+Processes: P1
+Events: 1
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The absolute minimum trace: one process, one event. The property simply
+checks if "alive" holds. This tests the tool's behavior with the smallest
+possible input.
+
+Edge case: minimal trace size.

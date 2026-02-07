@@ -1,0 +1,12 @@
+Example 08: Complex Boolean
+==============================
+Processes: P1
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Event e2 has both propositions "a" and "b" true simultaneously. The property
+checks that at some point in the past, both a and b held at the same time.
+This is satisfied at e2.
+
+This tests conjunction within a temporal operator.

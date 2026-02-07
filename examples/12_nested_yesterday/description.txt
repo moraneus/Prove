@@ -1,0 +1,12 @@
+Example 12: Nested Yesterday
+==============================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Tests the nested Yesterday operator @@phi, which looks two steps back.
+At event e4 (prop "e"), @@ looks back to e2 which has prop "c".
+So "e -> @@c" is satisfied.
+
+This tests double application of the Yesterday operator.

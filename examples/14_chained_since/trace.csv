@@ -1,0 +1,9 @@
+# Two independent Since conditions
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,a|c,local,
+e1,P1,P1:2,1.0,b|d,local,
+e2,P1,P1:3,2.0,b|d,local,
+e3,P1,P1:4,3.0,b|d,local,
+e4,P1,P1:5,4.0,b|d,local,
+e5,P1,P1:6,5.0,done,local,

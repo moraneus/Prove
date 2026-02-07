@@ -1,0 +1,13 @@
+Example 16: Historically + Implication
+========================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Uses the Historically pattern H(phi) = !(TRUE S !phi) with phi being
+"request -> @idle". At every point where "request" holds (e1 and e3),
+the previous state had "idle" (e0 and e2 respectively). So the
+implication holds at every step, and Historically is satisfied.
+
+This tests Historically combined with implication and Yesterday.

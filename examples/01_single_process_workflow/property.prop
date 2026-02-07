@@ -1,0 +1,2 @@
+# If done, then working was true at some point in the past
+done -> (TRUE S working)

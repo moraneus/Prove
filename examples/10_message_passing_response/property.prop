@@ -1,0 +1,2 @@
+# Response property: every response was preceded by a request
+response -> (TRUE S request)

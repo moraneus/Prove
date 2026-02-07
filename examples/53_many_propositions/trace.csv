@@ -1,0 +1,8 @@
+# Events with many propositions (8+)
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,a|b|c|d|e|f|g|h,local,
+e1,P1,P1:2,1.0,a|b|c|d,local,
+e2,P1,P1:3,2.0,e|f|g|h,local,
+e3,P1,P1:4,3.0,a|c|e|g,local,
+e4,P1,P1:5,4.0,b|d|f|h,local,

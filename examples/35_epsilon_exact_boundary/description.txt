@@ -1,0 +1,13 @@
+Example 35: Epsilon Exact Boundary
+=====================================
+Processes: P1, P2
+Events: 6
+Epsilon: 2.0
+Expected verdict: SATISFIED
+
+The time difference between e1 (t=1.0) and e2 (t=3.0) is exactly 2.0,
+which equals epsilon. The ordering rule requires dt > epsilon (strict
+inequality), so dt=2.0 does NOT force ordering. Events e1 and e2 remain
+concurrent, and their propositions can coexist in a global state.
+
+This tests the exact boundary condition of epsilon ordering (strict >).

@@ -1,0 +1,7 @@
+# Standard trace, but property is trivially FALSE
+# system_processes: P1|P2
+eid,processes,vc,timestamp,props,event_type,msg_partner
+i1,P1,P1:1;P2:0,0.0,init,local,
+i2,P2,P1:0;P2:1,0.0,init,local,
+e1,P1,P1:2;P2:0,1.0,a,local,
+e2,P2,P1:0;P2:2,2.0,b,local,

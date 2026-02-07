@@ -1,0 +1,2 @@
+# Final implies both sent and received happened before
+final -> ((TRUE S sent) & (TRUE S received))

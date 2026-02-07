@@ -1,0 +1,14 @@
+Example 05: Since Operator
+============================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Tests the Since operator (phi S psi). "start" is true at e0, then "running"
+is true at e1-e3, then "stop" at e4. At event e3, "running S start" holds
+because "start" was true at e0 and "running" has been continuous since.
+
+At the final state (e4), the formula evaluates based on the last event's
+propositions. Since "running" is no longer true at e4, the Since breaks --
+but it WAS true at e3, so there exists a path where it holds.

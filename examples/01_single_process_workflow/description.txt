@@ -1,0 +1,13 @@
+Example 01: Single Process Workflow
+====================================
+Processes: P1
+Events: 3
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A minimal single-process trace with three sequential events: init, working,
+done. The property checks that whenever "done" holds, "working" must have
+held at some earlier point. Since the events occur in order init -> working
+-> done, the property is satisfied.
+
+This tests the basic Once (TRUE S phi) temporal pattern.

@@ -1,0 +1,11 @@
+# Multiple messages from P1 to P2 (FIFO)
+# system_processes: P1|P2
+eid,processes,vc,timestamp,props,event_type,msg_partner
+iota_p1,P1,P1:1;P2:0,0.0,idle,local,
+iota_p2,P2,P1:0;P2:1,0.0,idle,local,
+s1,P1,P1:2;P2:0,1.0,msg1,send,P2
+s2,P1,P1:3;P2:0,2.0,msg2,send,P2
+s3,P1,P1:4;P2:0,3.0,msg3,send,P2
+r1,P2,P1:2;P2:2,4.0,got1,receive,P1
+r2,P2,P1:3;P2:3,5.0,got2,receive,P1
+r3,P2,P1:4;P2:4,6.0,got3,receive,P1

@@ -1,3 +1,0 @@
-# Pair 4 Property (SATISFIED)
-# "If step3, then step2 was true in the previous state"
-step3 -> @step2

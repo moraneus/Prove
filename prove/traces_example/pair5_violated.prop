@@ -1,4 +1,0 @@
-# Pair 5 Property (VIOLATED)
-# "stop has been true since start"
-# stop only becomes true at the end, not continuously since start
-stop S start

@@ -1,0 +1,12 @@
+Example 40: Epsilon with Messages
+====================================
+Processes: P1, P2
+Events: 8
+Epsilon: 1.0
+Expected verdict: SATISFIED
+
+Combines message causality (s1->r1) with epsilon ordering (time gaps > 1
+between processes). msg_sent precedes msg_recv by VC, and local_c (t=6)
+precedes done (t=8) by epsilon (dt=2 > eps=1).
+
+This tests the interplay between vector clock and epsilon orderings.

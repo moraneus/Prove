@@ -1,0 +1,13 @@
+# Long alternating send/receive chain between P1 and P2
+# system_processes: P1|P2
+eid,processes,vc,timestamp,props,event_type,msg_partner
+i1,P1,P1:1;P2:0,0.0,start,local,
+i2,P2,P1:0;P2:1,0.0,start,local,
+a1,P1,P1:2;P2:0,1.0,step,send,P2
+b1,P2,P1:2;P2:2,2.0,step,receive,P1
+b2,P2,P1:2;P2:3,3.0,step,send,P1
+a2,P1,P1:3;P2:3,4.0,step,receive,P2
+a3,P1,P1:4;P2:3,5.0,step,send,P2
+b3,P2,P1:4;P2:4,6.0,step,receive,P1
+b4,P2,P1:4;P2:5,7.0,step,send,P1
+a4,P1,P1:5;P2:5,8.0,final,receive,P2

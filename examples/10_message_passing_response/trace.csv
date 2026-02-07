@@ -1,0 +1,10 @@
+# Message passing with response property
+# system_processes: Client|Server
+eid,processes,vc,timestamp,props,event_type,msg_partner
+iota_Client,Client,Client:1;Server:0,0.0,init,local,
+iota_Server,Server,Client:0;Server:1,0.0,init,local,
+c_send,Client,Client:2;Server:0,1.0,request,send,Server
+s_recv,Server,Client:2;Server:2,2.0,request_recv,receive,Client
+s_process,Server,Client:2;Server:3,3.0,processing,local,
+s_send,Server,Client:2;Server:4,4.0,response,send,Client
+c_recv,Client,Client:3;Server:4,5.0,done,receive,Server

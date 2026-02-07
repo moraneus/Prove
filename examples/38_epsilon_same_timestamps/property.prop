@@ -1,0 +1,2 @@
+# All events concurrent: a and d can coexist in some state
+TRUE S (a & d)

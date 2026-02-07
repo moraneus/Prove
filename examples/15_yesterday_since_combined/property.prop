@@ -1,0 +1,12 @@
+# At e4: yesterday (p S q) should be true because at e3 the Since held
+# At e3: p S q is false (p not true at e3, only check is)
+# At e2: p S q is true (p at e1,e2, q at e0)
+# So @(p S q) at e4 checks e3, where p S q depends on e3's props
+# At e3 props={check}, p is false, so p S q requires q to be true NOW or
+# p to be true now AND p S q was true before. Neither holds. So @(p S q) at e4 = false.
+# Let's adjust: we want this SATISFIED, so let's check at e3
+# Actually: final -> @(p S q) -- at e4, check if yesterday (p S q).
+# Yesterday = e3. At e3, p S q: q not true at e3, p not true at e3, but
+# p S q was true at e2 and p is NOT true at e3 => false.
+# So this property is VIOLATED.
+final -> @(p S q)

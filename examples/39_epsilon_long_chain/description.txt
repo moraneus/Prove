@@ -1,0 +1,12 @@
+Example 39: Epsilon Creates Long Chain
+=========================================
+Processes: P1, P2, P3
+Events: 9
+Epsilon: 0.5
+Expected verdict: SATISFIED
+
+With epsilon=0.5, consecutive events across processes (1s apart each) form
+a time-based chain: e1(t=1) -> e2(t=2) -> e3(t=3) -> e4(t=4) -> e5(t=5)
+-> e6(t=6). The property checks that step1 preceded step6.
+
+This tests how small epsilon creates long cross-process causal chains.

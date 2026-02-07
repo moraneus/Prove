@@ -1,0 +1,13 @@
+Example 34: Epsilon Full Concurrency
+=======================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+With epsilon=infinity, timestamps never force ordering between independent
+processes. Even though e2 has timestamp 100 while e1 has timestamp 1, they
+remain concurrent (no vector clock relationship, no message). A frontier
+can contain both e1 and e2 simultaneously.
+
+This tests the extreme case of infinite epsilon (maximum concurrency).

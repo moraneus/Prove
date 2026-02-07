@@ -1,0 +1,2 @@
+# With epsilon=0, events are totally ordered by time, so b follows a
+b -> @a

@@ -1,0 +1,2 @@
+# Both exchanges completed
+(TRUE S done_a) & (TRUE S done_b)

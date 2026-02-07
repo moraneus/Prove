@@ -1,4 +1,0 @@
-# Invariant property: valid has always been true
-# Uses the "Historically" pattern: !(TRUE S !valid)
-# This is violated if valid was ever false.
-!(TRUE S !valid)

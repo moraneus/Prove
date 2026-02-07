@@ -1,0 +1,2 @@
+# Historically: whenever request is true, the previous state was idle
+!(TRUE S !(request -> @idle))

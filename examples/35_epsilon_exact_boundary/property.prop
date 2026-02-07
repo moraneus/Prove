@@ -1,0 +1,2 @@
+# a and b can coexist because dt=2.0 is NOT > epsilon=2.0 (boundary)
+TRUE S (a & b)

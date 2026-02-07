@@ -1,0 +1,2 @@
+# Step6 at the end: all earlier steps happened before it
+step6 -> (TRUE S step1)

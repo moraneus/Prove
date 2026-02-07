@@ -1,0 +1,13 @@
+Example 25: Multiple Messages Same Direction
+===============================================
+Processes: P1, P2
+Events: 8
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends three messages to P2 in sequence (msg1, msg2, msg3). P2 receives
+them in FIFO order. The property checks that receiving the third message
+implies the first was sent earlier. FIFO ordering and vector clocks ensure
+this causal chain.
+
+This tests FIFO message ordering with multiple messages.

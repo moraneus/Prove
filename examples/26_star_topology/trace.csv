@@ -1,0 +1,15 @@
+# Star topology: Hub sends to three spokes
+# system_processes: Hub|S1|S2|S3
+eid,processes,vc,timestamp,props,event_type,msg_partner
+i_hub,Hub,Hub:1;S1:0;S2:0;S3:0,0.0,init,local,
+i_s1,S1,Hub:0;S1:1;S2:0;S3:0,0.0,init,local,
+i_s2,S2,Hub:0;S1:0;S2:1;S3:0,0.0,init,local,
+i_s3,S3,Hub:0;S1:0;S2:0;S3:1,0.0,init,local,
+h_s1,Hub,Hub:2;S1:0;S2:0;S3:0,1.0,broadcast,send,S1
+h_s2,Hub,Hub:3;S1:0;S2:0;S3:0,1.5,broadcast,send,S2
+h_s3,Hub,Hub:4;S1:0;S2:0;S3:0,2.0,broadcast,send,S3
+s1_r,S1,Hub:2;S1:2;S2:0;S3:0,3.0,received,receive,Hub
+s2_r,S2,Hub:3;S1:0;S2:2;S3:0,3.5,received,receive,Hub
+s3_r,S3,Hub:4;S1:0;S2:0;S3:2,4.0,received,receive,Hub
+s1_ack,S1,Hub:2;S1:3;S2:0;S3:0,5.0,ack,local,
+s2_ack,S2,Hub:3;S1:0;S2:3;S3:0,5.5,ack,local,

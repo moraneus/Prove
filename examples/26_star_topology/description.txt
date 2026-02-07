@@ -1,0 +1,12 @@
+Example 26: Star Topology
+===========================
+Processes: Hub, S1, S2, S3
+Events: 12
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A hub process broadcasts to three spoke processes. Each spoke receives the
+message and acknowledges. The property checks that "received" occurred at
+some point -- which it did (at s1_r, s2_r, or s3_r).
+
+This tests a four-process star topology with one-to-many messaging.

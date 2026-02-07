@@ -1,0 +1,6 @@
+# Yesterday at the initial state (should be false)
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,start,local,
+e1,P1,P1:2,1.0,middle,local,
+e2,P1,P1:3,2.0,end,local,

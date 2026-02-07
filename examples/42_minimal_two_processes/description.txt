@@ -1,0 +1,12 @@
+Example 42: Minimal Two Processes (Edge Case)
+================================================
+Processes: P1, P2
+Events: 2
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The minimal two-process trace: just one initial event per process. Both
+events are concurrent (same timestamp, no messages). The property "up"
+is satisfied because both initial events have "up" as a proposition.
+
+Edge case: minimal multi-process trace.

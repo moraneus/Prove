@@ -1,0 +1,8 @@
+# Since where the right operand (trigger) is never true
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,a,local,
+e1,P1,P1:2,1.0,a,local,
+e2,P1,P1:3,2.0,a,local,
+e3,P1,P1:4,3.0,a,local,
+e4,P1,P1:5,4.0,a,local,

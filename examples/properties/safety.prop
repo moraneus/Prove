@@ -1,4 +1,0 @@
-# Safety property: if done, then confirmed was true since ready was true
-# This verifies that every "done" state was preceded by "ready" becoming
-# true, and "confirmed" has held continuously since then.
-done -> (confirmed S ready)

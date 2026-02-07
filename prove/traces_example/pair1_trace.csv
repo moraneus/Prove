@@ -1,9 +1,0 @@
-# Pair 1: Single Process Workflow
-# Process goes: init -> working -> done
-# system_processes: P1
-# epsilon: 1.0
-
-eid,processes,vc,timestamp,props,event_type,msg_partner
-e0,P1,P1:1,0.0,init,,
-e1,P1,P1:2,1.0,working,,
-e2,P1,P1:3,2.0,done,,

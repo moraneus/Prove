@@ -1,0 +1,13 @@
+Example 09: Two-Process Safety
+================================
+Processes: P1, P2
+Events: 5
+Epsilon: 2.0
+Expected verdict: VIOLATED
+
+P1 goes through init -> ready -> confirmed, while P2 goes init -> done.
+The property requires that whenever "done" holds, "confirmed" must have
+been true since "ready". However, "done" on P2 occurs before "confirmed"
+on P1 in some linearizations, so the property is violated.
+
+This tests a cross-process safety property.

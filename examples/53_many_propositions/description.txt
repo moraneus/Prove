@@ -1,0 +1,12 @@
+Example 53: Many Propositions (Edge Case)
+============================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Event e0 has 8 propositions (a through h) all true simultaneously. Later
+events split these across different subsets. The property checks that all 8
+were simultaneously true at some past point -- which they were at e0.
+
+Edge case: large number of propositions per event.

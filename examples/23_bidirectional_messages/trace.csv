@@ -1,0 +1,11 @@
+# Bidirectional ping-pong messages between two processes
+# system_processes: P1|P2
+eid,processes,vc,timestamp,props,event_type,msg_partner
+iota_p1,P1,P1:1;P2:0,0.0,idle,local,
+iota_p2,P2,P1:0;P2:1,0.0,idle,local,
+p1_send,P1,P1:2;P2:0,1.0,ping,send,P2
+p2_recv,P2,P1:2;P2:2,2.0,got_ping,receive,P1
+p2_send,P2,P1:2;P2:3,3.0,pong,send,P1
+p1_recv,P1,P1:3;P2:3,4.0,got_pong,receive,P2
+p1_done,P1,P1:4;P2:3,5.0,done,local,
+p2_done,P2,P1:2;P2:4,5.5,done,local,

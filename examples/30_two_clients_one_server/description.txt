@@ -1,0 +1,13 @@
+Example 30: Two Clients, One Server
+======================================
+Processes: C1, C2, Server
+Events: 14
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Two clients independently request service from a single server. The server
+handles them sequentially (C1 first, then C2). The property checks that
+"served" occurred at some point and is currently true. Both clients
+reach the "served" state through their respective message exchanges.
+
+This tests multi-client single-server message patterns.

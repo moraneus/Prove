@@ -1,0 +1,13 @@
+Example 07: Epsilon Ordering
+==============================
+Processes: P1, P2
+Events: 5
+Epsilon: 0.3
+Expected verdict: SATISFIED
+
+With epsilon=0.3, the time difference between e1 (t=1.0) and e2 (t=1.5)
+is 0.5 > 0.3, so e1 is forced to precede e2. This means in every
+linearization, "first" appears before "second", making the Once property
+satisfied.
+
+This tests epsilon-based temporal ordering between independent processes.

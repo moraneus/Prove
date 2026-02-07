@@ -1,0 +1,12 @@
+Example 36: Epsilon Three Processes
+======================================
+Processes: P1, P2, P3
+Events: 9
+Epsilon: 1.0
+Expected verdict: SATISFIED
+
+With epsilon=1.0, events with timestamp differences > 1.0 are ordered.
+e1(t=1) precedes e2(t=3) precedes e3(t=5) across all processes. At e3,
+both "a" (from e1) and "b" (from e2) have already occurred.
+
+This tests epsilon ordering across three independent processes.

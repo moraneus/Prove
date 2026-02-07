@@ -1,0 +1,13 @@
+Example 38: Epsilon with Same Timestamps
+==========================================
+Processes: P1, P2
+Events: 6
+Epsilon: 0.5
+Expected verdict: SATISFIED
+
+All events have timestamp 0.0, so no time difference exceeds epsilon.
+Even with epsilon=0.5, zero time differences don't force any ordering.
+Cross-process events remain fully concurrent, and any combination of
+propositions from different processes can coexist in a global state.
+
+This edge case tests epsilon with identical timestamps.

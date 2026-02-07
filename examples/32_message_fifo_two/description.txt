@@ -1,0 +1,12 @@
+Example 32: FIFO Message Ordering
+====================================
+Processes: P1, P2
+Events: 8
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends two messages to P2. FIFO ordering guarantees the first message
+is received before the second. The property verifies this: receiving the
+second message implies the first was already received.
+
+This tests FIFO ordering guarantees with multiple messages.

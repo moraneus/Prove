@@ -1,0 +1,13 @@
+Example 22: Complex Nested Formula
+=====================================
+Processes: P1
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+At e1, "ready" is true and @initialized checks e0 which has "initialized" --
+so "ready & @initialized" is true at e1. From e2 onward, "confirmed" is true
+continuously. At e5 (done|confirmed), "confirmed S (ready & @initialized)"
+holds because confirmed has been true since the anchor at e1.
+
+This tests deep nesting of temporal and boolean operators.

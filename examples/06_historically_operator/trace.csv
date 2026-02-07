@@ -1,0 +1,7 @@
+# Historically: ok has always been true
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,init|ok,local,
+e1,P1,P1:2,1.0,running|ok,local,
+e2,P1,P1:3,2.0,running|ok,local,
+e3,P1,P1:4,3.0,done|ok,local,

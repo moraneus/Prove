@@ -1,0 +1,2 @@
+# Done implies both msg_sent (VC) and local_a (epsilon) happened before
+done -> ((TRUE S msg_sent) & (TRUE S local_c))

@@ -1,0 +1,12 @@
+Example 06: Historically Operator
+===================================
+Processes: P1
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Every event in the trace has "ok" as a proposition. The Historically
+pattern !(TRUE S !phi) checks that phi has been true at every point.
+Since ok is never false, the property is satisfied.
+
+This tests the Historically (H) derived operator: H phi = !(TRUE S !phi).

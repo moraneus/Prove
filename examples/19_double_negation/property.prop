@@ -1,0 +1,4 @@
+# Double negation of active should equal active at last state
+# At e3, active is false, so !!active is false -> property is the equiv
+# check that !!done holds at the end (done is true at e3)
+!!done

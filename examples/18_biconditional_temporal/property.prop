@@ -1,0 +1,2 @@
+# locked if and only if acquire happened at some point
+locked <-> (TRUE S acquire)

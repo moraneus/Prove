@@ -1,0 +1,13 @@
+Example 11: Three-Process Paper Example
+=========================================
+Processes: P1, P2, P3
+Events: 9
+Epsilon: 2.0
+Expected verdict: SATISFIED
+
+Based on the paper's Appendix B example. Three processes where P1 sends a
+message to P2 (alpha1 -> beta1), P3 operates independently. The property
+checks that receiving the message (r1) implies the send (send_msg) happened
+earlier. Vector clock causality guarantees this.
+
+This tests a three-process trace with mixed message passing and independence.

@@ -1,0 +1,12 @@
+Example 45: Property FALSE Constant (Edge Case)
+==================================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+The property is the constant FALSE, which is violated regardless of the
+trace content. This tests the tool's handling of trivial contradictory
+properties.
+
+Edge case: contradictory property.

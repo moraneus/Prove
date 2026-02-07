@@ -1,0 +1,13 @@
+Example 28: Gather Pattern
+============================
+Processes: P1, P2, P3
+Events: 9
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P2 and P3 independently compute results and send them to P1 (gather).
+When P1 has received both ("all_done"), the property checks that both
+"result_b" and "result_c" occurred in the past. The causal ordering from
+messages guarantees both results were produced before the gather completes.
+
+This tests a many-to-one gather/reduce communication pattern.

@@ -1,0 +1,12 @@
+Example 37: Epsilon Mixed with VC
+====================================
+Processes: P1, P2
+Events: 8
+Epsilon: 1.0
+Expected verdict: SATISFIED
+
+Combines vector clock ordering (s1->r1 via message) with epsilon ordering
+(time gaps > 1.0 between processes). The property checks that both "sent"
+and "received" precede "final" -- guaranteed by both VC and epsilon.
+
+This tests the combination of vector clock and epsilon orderings.

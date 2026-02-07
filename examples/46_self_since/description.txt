@@ -1,0 +1,12 @@
+Example 46: Self-Since (Edge Case)
+=====================================
+Processes: P1
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+"active S active" is equivalent to "active" being true at the current state
+(since phi S psi is immediately satisfied when psi holds now). At the final
+state e3, "active" is false (only "done" holds), so the property is violated.
+
+Edge case: Since operator with identical operands.

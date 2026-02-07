@@ -1,0 +1,2 @@
+# If step3, then step2 was true in the immediately previous state
+step3 -> @step2

@@ -1,0 +1,13 @@
+# Proposition toggles between true and false
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,toggle,local,
+e1,P1,P1:2,1.0,,local,
+e2,P1,P1:3,2.0,toggle,local,
+e3,P1,P1:4,3.0,,local,
+e4,P1,P1:5,4.0,toggle,local,
+e5,P1,P1:6,5.0,,local,
+e6,P1,P1:7,6.0,toggle,local,
+e7,P1,P1:8,7.0,,local,
+e8,P1,P1:9,8.0,toggle,local,
+e9,P1,P1:10,9.0,final,local,

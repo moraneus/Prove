@@ -1,0 +1,2 @@
+# Safety: if done, confirmed has been true since ready
+done -> (confirmed S ready)

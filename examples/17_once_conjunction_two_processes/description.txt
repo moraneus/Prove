@@ -1,0 +1,13 @@
+Example 17: Once Conjunction Across Processes
+===============================================
+Processes: P1, P2
+Events: 6
+Epsilon: 10.0
+Expected verdict: SATISFIED
+
+P1 has "ready" at e1 and P2 has "willing" at e2. With epsilon=10, these
+events are concurrent. There exists a linearization where the frontier
+contains both e1 and e2, making "ready & willing" true in that global
+state. The existential Once pattern is therefore satisfied.
+
+This tests the Once operator with propositions from different processes.

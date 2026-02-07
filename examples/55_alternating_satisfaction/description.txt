@@ -1,0 +1,13 @@
+Example 55: Alternating Satisfaction (Edge Case)
+===================================================
+Processes: P1
+Events: 10
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The "toggle" proposition alternates between true (even events) and false
+(odd events) over 10 events. The Once property (TRUE S toggle) checks
+if toggle was ever true, which it was many times. Even at the final state
+(e9, no toggle), the Once remembers past truth.
+
+Edge case: rapidly alternating proposition truth values.

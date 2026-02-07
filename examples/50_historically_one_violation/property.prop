@@ -1,0 +1,2 @@
+# Historically ok: fails because ok is false at e2
+!(TRUE S !ok)

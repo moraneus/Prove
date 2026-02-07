@@ -1,0 +1,13 @@
+# Five independent processes
+# system_processes: P1|P2|P3|P4|P5
+eid,processes,vc,timestamp,props,event_type,msg_partner
+i1,P1,P1:1;P2:0;P3:0;P4:0;P5:0,0.0,ready,local,
+i2,P2,P1:0;P2:1;P3:0;P4:0;P5:0,0.0,ready,local,
+i3,P3,P1:0;P2:0;P3:1;P4:0;P5:0,0.0,ready,local,
+i4,P4,P1:0;P2:0;P3:0;P4:1;P5:0,0.0,ready,local,
+i5,P5,P1:0;P2:0;P3:0;P4:0;P5:1,0.0,ready,local,
+e1,P1,P1:2;P2:0;P3:0;P4:0;P5:0,1.0,working,local,
+e2,P2,P1:0;P2:2;P3:0;P4:0;P5:0,1.0,working,local,
+e3,P3,P1:0;P2:0;P3:2;P4:0;P5:0,1.0,working,local,
+e4,P4,P1:0;P2:0;P3:0;P4:2;P5:0,1.0,working,local,
+e5,P5,P1:0;P2:0;P3:0;P4:0;P5:2,1.0,working,local,

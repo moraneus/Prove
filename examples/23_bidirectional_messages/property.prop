@@ -1,0 +1,2 @@
+# Got pong implies ping happened before
+got_pong -> (TRUE S ping)

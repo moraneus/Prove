@@ -1,0 +1,8 @@
+# Yesterday applied to Since: @(p S q)
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,q,local,
+e1,P1,P1:2,1.0,p,local,
+e2,P1,P1:3,2.0,p,local,
+e3,P1,P1:4,3.0,check,local,
+e4,P1,P1:5,4.0,final,local,

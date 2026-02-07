@@ -1,0 +1,8 @@
+# Historically fails because of a single violation
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,ok,local,
+e1,P1,P1:2,1.0,ok,local,
+e2,P1,P1:3,2.0,broken,local,
+e3,P1,P1:4,3.0,ok,local,
+e4,P1,P1:5,4.0,ok,local,

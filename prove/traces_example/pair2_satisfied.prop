@@ -1,4 +1,0 @@
-# Pair 2 Property (SATISFIED)
-# "At some point, both a and b were true in some global state"
-# Due to concurrency, there exists a linearization where a and b coexist
-O (a && b)

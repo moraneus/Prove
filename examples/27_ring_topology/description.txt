@@ -1,0 +1,12 @@
+Example 27: Ring Topology
+===========================
+Processes: P1, P2, P3
+Events: 9
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A token-passing ring: P1 sends a token to P2, which forwards to P3, which
+sends back to P1. The property checks that completing the cycle implies the
+token existed earlier. The causal chain P1->P2->P3->P1 guarantees this.
+
+This tests ring topology message passing.

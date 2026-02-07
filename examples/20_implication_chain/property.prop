@@ -1,0 +1,2 @@
+# If a then b, and if b then c (both must hold)
+(a -> b) & (b -> c)

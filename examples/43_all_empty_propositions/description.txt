@@ -1,0 +1,12 @@
+Example 43: All Empty Propositions (Edge Case)
+=================================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+No event has any propositions. The property "!active" holds because "active"
+is never true in any state. This tests the tool's handling of empty
+proposition sets.
+
+Edge case: traces with no propositions.

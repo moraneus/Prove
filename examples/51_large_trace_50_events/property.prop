@@ -1,0 +1,2 @@
+# End implies start was true at some point (50 events apart)
+end -> (TRUE S start)

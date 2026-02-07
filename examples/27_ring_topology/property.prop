@@ -1,0 +1,2 @@
+# Cycle complete implies token was originated by P1
+cycle_complete -> (TRUE S token)

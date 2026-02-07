@@ -1,0 +1,2 @@
+# If satisfied, then request was true at some point in the past
+satisfied -> (TRUE S request)

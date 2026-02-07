@@ -1,0 +1,2 @@
+# Got msg3 implies msg1 happened before (FIFO ordering)
+got3 -> (TRUE S msg1)

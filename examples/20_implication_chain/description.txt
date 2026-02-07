@@ -1,0 +1,12 @@
+Example 20: Implication Chain
+================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+At e2, propositions are {a, b} but not c. So "b -> c" fails at e2 (b is
+true but c is false). The conjunction of the two implications is therefore
+violated.
+
+This tests conjunction of implications and their evaluation at each state.

@@ -1,0 +1,13 @@
+Example 02: Two Concurrent Processes
+======================================
+Processes: P1, P2
+Events: 6
+Epsilon: 10.0
+Expected verdict: SATISFIED
+
+Two independent processes run without any message passing. P1 produces
+proposition "a" and P2 produces "b". With epsilon=10 the events are
+concurrent, so there exists a linearization where "a" and "b" are
+simultaneously true in a global state (their frontiers overlap).
+
+This tests existential semantics over concurrent events.

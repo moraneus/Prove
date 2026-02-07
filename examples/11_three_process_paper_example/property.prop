@@ -1,0 +1,2 @@
+# If r1 is true, send_msg was true at some point (message causality)
+r1 -> (TRUE S send_msg)

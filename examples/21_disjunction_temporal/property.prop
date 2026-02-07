@@ -1,0 +1,2 @@
+# Either "done" happened at some point OR "progress" happened at some point
+(TRUE S done) | (TRUE S progress)

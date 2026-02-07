@@ -1,0 +1,13 @@
+Example 29: Concurrent Exchanges
+===================================
+Processes: P1, P2, P3, P4
+Events: 12
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Two completely independent request-response exchanges run concurrently:
+P1<->P2 and P3<->P4. The property checks both completed. Since the
+exchanges are independent (no shared processes), they are fully concurrent
+and there exists a linearization where both complete.
+
+This tests four-process concurrency with independent message pairs.

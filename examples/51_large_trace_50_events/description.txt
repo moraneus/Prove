@@ -1,0 +1,13 @@
+Example 51: Large Trace (50 Events)
+======================================
+Processes: P1
+Events: 50
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A stress test with 50 events on a single process. Events alternate between
+"even" and "odd" propositions, with "start" at the beginning, "end" at the
+end, and "checkpoint" every 10 events. The property checks that "end"
+implies "start" occurred in the past.
+
+Edge case: large trace to test performance and scalability.

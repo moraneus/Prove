@@ -1,0 +1,12 @@
+Example 52: Five Processes (Edge Case)
+=========================================
+Processes: P1, P2, P3, P4, P5
+Events: 10
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Five independent processes, each with an initial "ready" event followed by
+a "working" event. All are fully concurrent. The property checks that
+"ready" occurred at some point, which it did for all processes.
+
+Edge case: many concurrent processes with wide vector clocks.

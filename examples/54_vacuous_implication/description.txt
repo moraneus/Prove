@@ -1,0 +1,13 @@
+Example 54: Vacuous Implication (Edge Case)
+=============================================
+Processes: P1
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The proposition "unicorn" never appears in any event. Since the antecedent
+of the implication is always false, the implication is vacuously true at
+every state. This tests the correct handling of vacuous truth in
+implication.
+
+Edge case: implication with permanently false antecedent.

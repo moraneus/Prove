@@ -1,0 +1,2 @@
+# If done, confirmed has been true since (ready AND yesterday-initialized)
+done -> (confirmed S (ready & @initialized))

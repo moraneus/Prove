@@ -1,0 +1,2 @@
+# Delivered implies origin happened in the past (transitive causality)
+delivered -> (TRUE S origin)

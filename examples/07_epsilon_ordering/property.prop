@@ -1,0 +1,2 @@
+# If second is true, then first was true at some point before
+second -> (TRUE S first)

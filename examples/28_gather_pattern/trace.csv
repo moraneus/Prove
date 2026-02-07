@@ -1,0 +1,12 @@
+# Gather: P2 and P3 both report to P1
+# system_processes: P1|P2|P3
+eid,processes,vc,timestamp,props,event_type,msg_partner
+i_p1,P1,P1:1;P2:0;P3:0,0.0,waiting,local,
+i_p2,P2,P1:0;P2:1;P3:0,0.0,idle,local,
+i_p3,P3,P1:0;P2:0;P3:1,0.0,idle,local,
+p2_work,P2,P1:0;P2:2;P3:0,1.0,result_b,local,
+p3_work,P3,P1:0;P2:0;P3:2,1.5,result_c,local,
+p2_send,P2,P1:0;P2:3;P3:0,2.0,report,send,P1
+p3_send,P3,P1:0;P2:0;P3:3,2.5,report,send,P1
+p1_r2,P1,P1:2;P2:3;P3:0,3.0,got_b,receive,P2
+p1_r3,P1,P1:3;P2:3;P3:3,4.0,got_c|all_done,receive,P3

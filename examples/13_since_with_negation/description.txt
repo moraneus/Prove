@@ -1,0 +1,13 @@
+Example 13: Since with Negation
+=================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The property "!error S initialized" checks that "initialized" was true at
+some past point, and "error" has been false continuously since then. Since
+"error" never appears in any event's propositions, !error is always true,
+and "initialized" holds at e0.
+
+This tests negation within the Since operator.

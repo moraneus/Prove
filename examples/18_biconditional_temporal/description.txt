@@ -1,0 +1,13 @@
+Example 18: Biconditional Temporal
+=====================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+At e2-e3 "locked" is true and "TRUE S acquire" is also true (acquire at e1),
+so the biconditional holds. But at e4, "locked" is false while
+"TRUE S acquire" is still true (acquire happened in the past). The
+biconditional fails at e4.
+
+This tests the biconditional operator with a temporal subformula.

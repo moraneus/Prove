@@ -1,0 +1,13 @@
+Example 04: Yesterday Operator
+================================
+Processes: P1
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A four-event chain where each event has a unique proposition. The property
+checks that "step3" implies "step2" held in the immediately previous state
+(the Yesterday operator @). Since step2 directly precedes step3, this is
+satisfied.
+
+This tests the Yesterday (@) temporal operator.

@@ -1,0 +1,15 @@
+Example 33: Epsilon Total Order
+=================================
+Processes: P1, P2
+Events: 6
+Epsilon: 0.0
+Expected verdict: VIOLATED
+
+With epsilon=0, any timestamp difference > 0 forces ordering. Events become
+essentially totally ordered by timestamp: init(P1,P2) -> e1 -> e2 -> e3 -> e4.
+The property "b -> @a" checks that the state before b is a. But the previous
+state before e2 (b) has e1 (a) AND i2 in its frontier. The @a depends on
+evaluation -- at the frontier before e2, "a" may or may not be the label.
+This demonstrates how epsilon=0 creates a strict time-based total order.
+
+This tests the extreme case of epsilon = 0.

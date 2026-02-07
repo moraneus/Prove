@@ -1,0 +1,12 @@
+Example 49: Once Never True (Edge Case)
+==========================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+The proposition "magic" never appears in any event. The Once pattern
+(TRUE S magic) checks if "magic" was ever true in the past. Since it
+never is, the property is violated on all paths.
+
+Edge case: temporal operator referencing a non-existent proposition.

@@ -1,0 +1,12 @@
+Example 21: Disjunction Temporal
+===================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+"done" never appears in the trace, so "TRUE S done" (Once done) is false.
+However, "progress" appears at e1-e3, so "TRUE S progress" (Once progress)
+is true. The disjunction is satisfied because the right disjunct holds.
+
+This tests disjunction of Once patterns.

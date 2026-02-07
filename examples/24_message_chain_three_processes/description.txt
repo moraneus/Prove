@@ -1,0 +1,12 @@
+Example 24: Message Chain (Three Processes)
+=============================================
+Processes: P1, P2, P3
+Events: 9
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A message relay: P1 sends to P2, which forwards to P3. The property checks
+that P3 receiving ("delivered") implies "origin" on P1 occurred earlier.
+This tests transitive causality through message chains -- P1->P2->P3.
+
+This tests three-process message relay and transitive causal ordering.

@@ -1,0 +1,2 @@
+# Both Since conditions hold: b since a, AND d since c
+(b S a) & (d S c)

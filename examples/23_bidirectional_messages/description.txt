@@ -1,0 +1,12 @@
+Example 23: Bidirectional Messages
+=====================================
+Processes: P1, P2
+Events: 8
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends ping to P2, P2 responds with pong to P1. The property checks
+that receiving "got_pong" means "ping" was true earlier. The causal chain
+ping -> got_ping -> pong -> got_pong guarantees this.
+
+This tests bidirectional message passing with causal ordering.

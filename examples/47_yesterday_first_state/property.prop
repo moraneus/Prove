@@ -1,0 +1,5 @@
+# @start at initial state: there is no "yesterday", so this is false
+# At e0: @start = false (no previous state)
+# The property checks if this is ever true on any path -- at e1, @start is true
+# So the overall once pattern will capture it
+@start

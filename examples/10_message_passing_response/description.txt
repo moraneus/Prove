@@ -1,0 +1,13 @@
+Example 10: Message Passing Response
+======================================
+Processes: Client, Server
+Events: 7
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A client-server interaction where the client sends a request and later
+receives a response. The property checks that whenever "response" holds,
+"request" must have occurred earlier. Since c_send (with "request") causally
+precedes s_send (with "response") via the message chain, the property holds.
+
+This tests the response pattern over message-passing causality.

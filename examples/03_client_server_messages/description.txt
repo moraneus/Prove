@@ -1,0 +1,13 @@
+Example 03: Client-Server Messages
+====================================
+Processes: Client, Server
+Events: 7
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A classic client-server request/response pattern. The client sends a
+request, the server receives it, processes, sends a response, and the
+client receives the response. Vector clocks enforce causal ordering
+across the message send/receive pairs.
+
+This tests message causality and the response property pattern.

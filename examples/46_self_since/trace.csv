@@ -1,0 +1,7 @@
+# Self-since: p S p (same formula on both sides)
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,init,local,
+e1,P1,P1:2,1.0,active,local,
+e2,P1,P1:3,2.0,active,local,
+e3,P1,P1:4,3.0,done,local,

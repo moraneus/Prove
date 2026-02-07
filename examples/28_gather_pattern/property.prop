@@ -1,0 +1,2 @@
+# All done implies both results were produced
+all_done -> ((TRUE S result_b) & (TRUE S result_c))

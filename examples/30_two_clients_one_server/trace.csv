@@ -1,0 +1,17 @@
+# Two clients sending requests to one server
+# system_processes: C1|C2|Server
+eid,processes,vc,timestamp,props,event_type,msg_partner
+ic1,C1,C1:1;C2:0;Server:0,0.0,idle,local,
+ic2,C2,C1:0;C2:1;Server:0,0.0,idle,local,
+is,Server,C1:0;C2:0;Server:1,0.0,idle,local,
+c1_s,C1,C1:2;C2:0;Server:0,1.0,request,send,Server
+c2_s,C2,C1:0;C2:2;Server:0,1.5,request,send,Server
+s_r1,Server,C1:2;C2:0;Server:2,2.0,handling,receive,C1
+s_p1,Server,C1:2;C2:0;Server:3,2.5,processing,local,
+s_resp1,Server,C1:2;C2:0;Server:4,3.0,response,send,C1
+s_r2,Server,C1:2;C2:2;Server:5,3.5,handling,receive,C2
+s_p2,Server,C1:2;C2:2;Server:6,4.0,processing,local,
+s_resp2,Server,C1:2;C2:2;Server:7,4.5,response,send,C2
+c1_r,C1,C1:3;C2:0;Server:4,5.0,served,receive,Server
+c2_r,C2,C1:0;C2:3;Server:7,5.5,served,receive,Server
+c2_done,C2,C1:0;C2:4;Server:7,6.0,done,local,

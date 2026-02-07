@@ -1,0 +1,12 @@
+Example 14: Chained Since
+===========================
+Processes: P1
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Tests two independent Since operators combined with conjunction. "a" and "c"
+are true at e0, then "b" and "d" are true from e1 through e4. At e4,
+"b S a" holds (b continuous since a was true) and "d S c" holds similarly.
+
+This tests conjunction of multiple Since operators.

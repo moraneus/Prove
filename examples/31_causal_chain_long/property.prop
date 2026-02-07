@@ -1,0 +1,2 @@
+# Final state implies start happened (long causal chain)
+final -> (TRUE S start)

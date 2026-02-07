@@ -1,0 +1,2 @@
+# unicorn is never true, so unicorn -> anything is vacuously satisfied
+unicorn -> rainbow

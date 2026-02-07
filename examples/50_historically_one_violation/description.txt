@@ -1,0 +1,12 @@
+Example 50: Historically with One Violation (Edge Case)
+=========================================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+"ok" holds at every event except e2 (which has "broken" instead). The
+Historically operator !(TRUE S !ok) requires ok to have been true at ALL
+past points. The single violation at e2 causes the property to fail.
+
+Edge case: Historically with exactly one violation point.

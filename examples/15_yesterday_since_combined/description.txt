@@ -1,0 +1,13 @@
+Example 15: Yesterday + Since Combined
+========================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+Tests the combination @(p S q). At e4 ("final"), @(p S q) looks back to e3.
+At e3, the propositions are {check} -- neither p nor q hold. Since "p S q"
+requires either q to be true now, or p to be true now AND p S q held before,
+and neither condition is met at e3, the formula evaluates to false.
+
+This tests the interaction between Yesterday and Since operators.

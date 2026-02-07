@@ -1,0 +1,3 @@
+# Even with huge time gaps, events remain concurrent (no ordering)
+# So a & b can coexist in some global state
+TRUE S (a & b)

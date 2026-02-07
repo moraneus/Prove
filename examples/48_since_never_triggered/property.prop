@@ -1,0 +1,2 @@
+# b is never true, so "a S b" is never satisfied (no trigger point)
+a S b

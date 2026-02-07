@@ -1,0 +1,3 @@
+# With epsilon=1.0, time gaps of 2+ force ordering across processes
+# c follows both a and b in all linearizations
+c -> ((TRUE S a) & (TRUE S b))

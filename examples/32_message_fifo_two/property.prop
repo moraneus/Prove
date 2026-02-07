@@ -1,0 +1,2 @@
+# Got second implies first was received earlier (FIFO)
+got_second -> (TRUE S got_first)

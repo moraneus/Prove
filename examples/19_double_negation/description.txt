@@ -1,0 +1,12 @@
+Example 19: Double Negation
+==============================
+Processes: P1
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Tests that double negation !!phi is equivalent to phi. At the final event
+e3, "done" is true, so "!!done" evaluates to true. This verifies that the
+parser and evaluator handle nested negation correctly.
+
+This tests negation composability.

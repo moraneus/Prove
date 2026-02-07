@@ -1,4 +1,0 @@
-# Pair 7 Property (VIOLATED)
-# "If first, then second was true at some point before"
-# first happens BEFORE second, so this is false
-first -> O second

@@ -1,0 +1,12 @@
+Example 31: Long Causal Chain
+================================
+Processes: P1, P2
+Events: 10
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Alternating send/receive between P1 and P2 forms a long causal chain:
+P1->P2->P1->P2->P1. The property checks that the "final" state implies
+"start" occurred earlier. The causal chain through messages guarantees this.
+
+This tests long multi-hop causal chains between two processes.

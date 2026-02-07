@@ -1,0 +1,3 @@
+# Self-since: active S active. True iff active is true now
+# (because ψ=active holds now, satisfying the Since immediately)
+active S active

@@ -1,0 +1,12 @@
+Example 48: Since Never Triggered (Edge Case)
+================================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+The Since operator "a S b" requires b to have been true at some past point
+with a holding continuously since. Since b never appears in any event's
+propositions, the Since can never be triggered. The property is violated.
+
+Edge case: Since with unreachable trigger condition.

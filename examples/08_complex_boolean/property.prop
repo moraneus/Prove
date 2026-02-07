@@ -1,0 +1,2 @@
+# At some point both a and b were true simultaneously
+TRUE S (a & b)

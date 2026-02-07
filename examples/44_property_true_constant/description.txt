@@ -1,0 +1,12 @@
+Example 44: Property TRUE Constant (Edge Case)
+=================================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The property is the constant TRUE, which is satisfied regardless of the
+trace content. This tests the tool's handling of trivial tautological
+properties.
+
+Edge case: tautological property.

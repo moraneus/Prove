@@ -1,0 +1,16 @@
+Example 47: Yesterday at First State (Edge Case)
+===================================================
+Processes: P1
+Events: 3
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The Yesterday operator (@) returns false at the initial state because there
+is no previous state. However, at e1, @start checks e0 which has "start" --
+so @start is true at e1. The property is evaluated at the final frontier,
+and @start at e2 checks e1 (middle, not start) = false.
+
+The final verdict depends on evaluation at the last state. At e2, @start
+is false because e1 has {middle}, not {start}. So the property is VIOLATED.
+
+Edge case: Yesterday operator at initial/boundary states.

@@ -1,4 +1,0 @@
-# Pair 8 Property (SATISFIED)
-# "At some point, a and b were both true"
-# At e2, both a and b are true
-O (a && b)
