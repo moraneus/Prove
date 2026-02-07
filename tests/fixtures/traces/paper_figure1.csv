@@ -1,0 +1,12 @@
+# system_processes: P1|P2|P3
+# epsilon: 2.0
+eid,processes,vc,timestamp,props,event_type,msg_partner
+iota_P1,P1,P1:1;P2:0;P3:0,0.0,init_P1,local,
+iota_P2,P2,P1:0;P2:1;P3:0,0.0,init_P2,local,
+iota_P3,P3,P1:0;P2:0;P3:1,0.0,init_P3,local,
+alpha1,P1,P1:2;P2:0;P3:0,1.5,send_msg,send,P2
+beta1,P2,P1:2;P2:2;P3:0,2.0,recv_msg|r1,receive,P1
+gamma1,P3,P1:0;P2:0;P3:2,1.8,q1,local,
+alpha2,P1,P1:3;P2:0;P3:0,2.5,t2,local,
+gamma2,P3,P1:0;P2:0;P3:3,3.0,q2,local,
+beta2,P2,P1:2;P2:3;P3:0,3.5,r2,local,

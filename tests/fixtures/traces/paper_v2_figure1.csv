@@ -1,0 +1,12 @@
+# Paper V2 Figure 1: Two-Process Partial Order with Epsilon-Based Ordering
+# system_processes: P1|P2
+# epsilon: 2
+eid,processes,vc,timestamp,props,event_type,msg_partner
+iota_P1,P1,P1:1;P2:0,0.0,init_P1,local,
+iota_P2,P2,P1:0;P2:1,0.0,init_P2,local,
+alpha1,P1,P1:2;P2:0,2.5,a,local,
+alpha2,P1,P1:3;P2:0,4.0,b,local,
+beta1,P2,P1:0;P2:2,1.0,c,local,
+beta2,P2,P1:0;P2:3,5.5,d,local,
+alpha3,P1,P1:4;P2:0,6.0,e,local,
+beta3,P2,P1:0;P2:4,7.0,f,local,
