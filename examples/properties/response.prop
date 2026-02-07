@@ -1,0 +1,4 @@
+# Response property: every response was preceded by a request
+# Uses the "Once" pattern (TRUE S request) to check that a request
+# occurred at some point in the past.
+response -> (TRUE S request)
