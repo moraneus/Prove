@@ -1,0 +1,2 @@
+# got_it implies start happened in the past
+got_it -> (TRUE S start)

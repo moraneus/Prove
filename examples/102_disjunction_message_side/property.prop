@@ -1,0 +1,2 @@
+# Either error occurred or result is ready
+(TRUE S error) | result

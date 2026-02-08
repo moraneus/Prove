@@ -1,0 +1,26 @@
+Example 77: Message Causes Violation
+======================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+P1 sends a message to P2 that carries the 'error' proposition.
+At events e2 and e3, ok is NOT true (only 'error' is).
+So historically(ok) = !(TRUE S !ok) fails.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(ok)     e1(ok)
+    |           |
+   e2 --------> e3
+  (error)    (error)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+
+At e2, !ok is true. So TRUE S !ok becomes true, and
+!(TRUE S !ok) is false. The property is VIOLATED.

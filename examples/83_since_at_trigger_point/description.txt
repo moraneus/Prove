@@ -1,0 +1,29 @@
+Example 83: Since Satisfied at Trigger Point
+==============================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The trigger appears at the very first event (e0) along with
+'hold'. Every subsequent event also has 'hold'. So
+"hold S trigger" is satisfied: trigger was true at e0, and
+hold has been true ever since.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (trigger,  (hold)
+   hold)
+    |           |
+   e2         e3
+  (hold)     (hold)
+
+No cross-process edges (fully concurrent).
+
+trigger is true at e0. hold is true at e0,e1,e2,e3.
+In any linearization starting with e0: hold S trigger
+is SATISFIED from e0 onward.

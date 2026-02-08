@@ -1,0 +1,23 @@
+Example 78: Yesterday False at Initial State
+==============================================
+Processes: P1, P2
+Events: 2
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+With only initial events, the yesterday operator @ready
+evaluates to false because there is no previous state.
+This is a fundamental property of the @ operator.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (ready)    (ready)
+
+No cross-process edges.
+
+The initial frontier is {e0, e1}. At this point, @ready
+is false (no previous state exists). VIOLATED.

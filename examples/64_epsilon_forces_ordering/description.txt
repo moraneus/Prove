@@ -1,0 +1,29 @@
+Example 64: Epsilon Forces Event Ordering
+===========================================
+Processes: P1, P2
+Events: 4
+Epsilon: 1.0
+Expected verdict: SATISFIED
+
+With epsilon=1.0, t(e3)-t(e2) = 3.0-1.0 = 2.0 > 1.0,
+so e2 must precede e3. Also t(e2)-t(e1) = 1.0 is NOT > 1.0,
+so e1 and e2 remain concurrent.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(a)      e1(b)
+    |       .   |
+   e2(a)  .    |
+    :   .      |
+    : (eps)    |
+    :..........> e3(b)
+
+Cross-process edges:
+  e2 -> e3  (Dt=2.0 > eps=1.0)
+
+e0 and e1 are concurrent (same timestamp, no msg).
+e2 and e3 are ordered by epsilon. The formula 'b' evaluates
+at the maximal frontier which includes e3(b), so SATISFIED.

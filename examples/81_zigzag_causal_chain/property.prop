@@ -1,0 +1,2 @@
+# When done, init must have been true in the past
+done -> (TRUE S init)

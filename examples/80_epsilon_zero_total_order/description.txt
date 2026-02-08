@@ -1,0 +1,31 @@
+Example 80: Epsilon Zero Forces Total Order
+=============================================
+Processes: P1, P2
+Events: 5
+Epsilon: 0.0
+Expected verdict: SATISFIED
+
+With epsilon=0, any events with different timestamps are
+ordered. Only e0 and e1 (same timestamp) remain concurrent.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(a)      e1(b)     <- concurrent (same timestamp)
+    |       .   |
+   e2(a)  .    |
+    :   .      |        <- e1 -> e2 (Dt=1.0 > eps=0)
+    :..........> e3(b)  <- e2 -> e3 (Dt=1.0 > eps=0)
+                 |
+   e4(a) <......'       <- e3 -> e4 (Dt=1.0 > eps=0)
+
+Cross-process edges (epsilon ordering):
+  e0 -> e2  (process-local)
+  e1 -> e2  (Dt=1.0 > eps=0.0)
+  e2 -> e3  (Dt=1.0 > eps=0.0)
+  e3 -> e4  (Dt=1.0 > eps=0.0)
+
+Total order: e0,e1 (concurrent) -> e2 -> e3 -> e4
+b is true at e1 and e3, so TRUE S b is SATISFIED.

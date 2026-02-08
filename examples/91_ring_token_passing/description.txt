@@ -1,0 +1,34 @@
+Example 91: Ring Token Passing
+================================
+Processes: P1, P2, P3
+Events: 9
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A token is passed around a ring: P1 -> P2 -> P3 -> P1.
+When P1 receives it back, it marks 'done'.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0         e1          e2
+  (token)    (idle)      (idle)
+    |           |           |
+   e3 --------> e4          |
+  (token)    (token)        |
+                |           |
+               e5 --------> e6
+             (token)     (token)
+                            |
+   e8 <-------------------- e7
+  (done)                 (token)
+
+Cross-process edges:
+  e3 -> e4  (message: P1 to P2)
+  e5 -> e6  (message: P2 to P3)
+  e7 -> e8  (message: P3 to P1)
+
+Causal chain: e0->e3->e4->e5->e6->e7->e8
+token was true throughout. SATISFIED.

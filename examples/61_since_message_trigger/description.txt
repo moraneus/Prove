@@ -1,0 +1,35 @@
+Example 61: Since With Message Trigger
+========================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The trigger proposition arrives at P2 via a message from P1.
+After that, P2 maintains 'monitor' continuously.
+The Since formula checks that monitor has held since trigger.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (idle)    (monitor)
+    |           |
+   e2 --------> e3
+ (trigger)  (trigger,
+              monitor)
+                |
+               e4
+            (monitor)
+                |
+               e5
+            (monitor)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+
+At e3, trigger becomes true and monitor holds.
+At e4, e5: monitor continues. So monitor S trigger
+is SATISFIED from e3 onward.

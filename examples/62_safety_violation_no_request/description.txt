@@ -1,0 +1,26 @@
+Example 62: Safety Violation - Response Without Request
+========================================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+P2 produces a 'response' event but no process ever produces
+'request'. The implication response -> (TRUE S request) fails.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (idle)     (idle)
+    |           |
+   e2         e3
+  (idle)   (response)
+
+No cross-process edges (fully concurrent).
+
+At e3, response is true but request was never true
+anywhere, so (TRUE S request) is false. The property
+is VIOLATED in all linearizations.

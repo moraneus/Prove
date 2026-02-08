@@ -1,0 +1,2 @@
+# Both a and b hold simultaneously at some point
+TRUE S (a & b)

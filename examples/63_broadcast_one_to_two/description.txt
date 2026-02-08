@@ -1,0 +1,30 @@
+Example 63: Broadcast - One Sender Two Receivers
+==================================================
+Processes: P1, P2, P3
+Events: 7
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends separate messages to P2 and P3 (broadcast pattern).
+Both receivers get 'notified' after P1's 'init'.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0         e1          e2
+  (init)     (idle)      (idle)
+    |           |           |
+   e3 --------> e5          |
+ (notify)  (notified)      |
+    |                       |
+   e4 ------------------> e6
+ (notify)             (notified)
+
+Cross-process edges:
+  e3 -> e5  (message: P1 to P2)
+  e4 -> e6  (message: P1 to P3)
+
+init was true at e0. Both e5 and e6 see 'notified'.
+The property is SATISFIED.

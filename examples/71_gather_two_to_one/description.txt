@@ -1,0 +1,34 @@
+Example 71: Gather Pattern (Two Report to One)
+================================================
+Processes: P1, P2, P3
+Events: 7
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P2 and P3 each send data to P1. After receiving both,
+P1 marks 'complete'.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0         e1          e2
+  (wait)    (data_b)    (data_c)
+    |           |           |
+    |          e3          e4
+    |        (data_b)    (data_c)
+    |           |           |
+   e5 <--------'           |
+ (data_b)                  |
+    |                       |
+   e6 <--------------------'
+ (data_c,
+  complete)
+
+Cross-process edges:
+  e3 -> e5  (message: P2 to P1)
+  e4 -> e6  (message: P3 to P1)
+
+At e6, P1 has received both data_b and data_c.
+The property is SATISFIED.

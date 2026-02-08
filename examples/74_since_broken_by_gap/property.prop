@@ -1,0 +1,3 @@
+# hold has been true since trigger
+# trigger only appears once (e0), then disappears
+hold S trigger

@@ -1,0 +1,2 @@
+# When done, token was passed (once held by each process)
+done -> (TRUE S token)

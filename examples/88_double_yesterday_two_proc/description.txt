@@ -1,0 +1,40 @@
+Example 88: Double Yesterday (@@p) - Violated
+================================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+Tests @@p which requires p to be true two states ago.
+P1 has p at e0, then idle at e2, then check at e4.
+
+The formula check -> @@p requires that at the final frontier
+where check is true, p was true exactly two steps back in
+the linearization.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(p)      e1(idle)
+    |           |
+   e2(idle)   e3(idle)
+    |           |
+   e4(check)  e5(idle)
+
+No cross-process edges (fully concurrent).
+
+Analysis: The final frontier is always {e4, e5}. At this
+frontier, check=true (from e4). For @@p to be true, @p
+must be true at the frontier just before {e4, e5}.
+
+The frontier before {e4,e5} is either {e4,e3} or {e2,e5}.
+At {e4,e3}: p is false (check from e4, idle from e3).
+At {e2,e5}: p is false (idle from both).
+
+So @p is false at the step before {e4,e5}, which means
+@@p is false at {e4,e5}.
+
+In no linearization can check -> @@p be satisfied at the
+final frontier. VIOLATED.

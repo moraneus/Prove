@@ -1,0 +1,2 @@
+# Either a or b was true at some point
+(TRUE S a) | (TRUE S b)

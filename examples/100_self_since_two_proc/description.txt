@@ -1,0 +1,24 @@
+Example 100: Self-Referential Since (Two Processes)
+=====================================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+p S p means "p has held since p was true." Since p is always
+true (all events have p), this is trivially satisfied.
+p serves as both the trigger and the maintainer.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(p)      e1(p)
+    |           |
+   e2(p)      e3(p)
+
+No cross-process edges (fully concurrent).
+
+p is always true. p S p is satisfied at the first state
+where p is true (immediately). SATISFIED.

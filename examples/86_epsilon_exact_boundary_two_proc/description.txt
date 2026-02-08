@@ -1,0 +1,25 @@
+Example 86: Epsilon Exact Boundary (Not Ordered)
+==================================================
+Processes: P1, P2
+Events: 4
+Epsilon: 2.0
+Expected verdict: SATISFIED
+
+With epsilon=2.0, e2(t=1.0) and e3(t=3.0) have dt=2.0.
+Since 2.0 is NOT > 2.0 (must be strictly greater), these
+events remain concurrent.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(a)      e1(b)
+    |           |
+   e2(a)      e3(b)
+
+No cross-process edges.
+(dt(e2,e3) = 2.0 = epsilon, NOT > epsilon, so no ordering)
+
+Both a and b are in the global state at the final frontier
+{e2, e3}. The property a & b is SATISFIED.

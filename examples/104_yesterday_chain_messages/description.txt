@@ -1,0 +1,35 @@
+Example 104: Yesterday Chain Via Messages
+==========================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+After P2 receives a message (step1), it goes through
+step2 and step3. At step3, @@step1 checks two states
+back, which should be the receive event e3(step1).
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (step0)    (idle)
+    |           |
+   e2 --------> e3
+  (step1)    (step1)
+                |
+               e4
+             (step2)
+                |
+               e5
+             (step3)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+
+In the linearization ending ...e3, e4, e5:
+- At e5: @step2 would be true (e4 had step2)
+- At e5: @@step1 checks two back = e3 which had step1.
+  So step3 -> @@step1 is SATISFIED.

@@ -1,0 +1,23 @@
+Example 69: Once Never Satisfied (Two Processes)
+==================================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+The proposition 'goal' never appears in any event.
+Therefore TRUE S goal (i.e., Once(goal)) is always false.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(a)      e1(b)
+    |           |
+   e2(a)      e3(b)
+
+No cross-process edges (fully concurrent).
+
+'goal' is never true at any event, so TRUE S goal is
+VIOLATED in every linearization.

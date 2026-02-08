@@ -1,0 +1,2 @@
+# Mutual exclusion: never both in critical section
+!(cs1 & cs2)

@@ -1,0 +1,37 @@
+Example 103: Epsilon Three Processes
+======================================
+Processes: P1, P2, P3
+Events: 6
+Epsilon: 1.0
+Expected verdict: SATISFIED
+
+With epsilon=1.0:
+- t(e3)-t(e1)=2.0>1.0: e1 < e3
+- t(e3)-t(e2)=2.0>1.0: e2 < e3
+- t(e4)-t(e3)=1.5>1.0: e3 < e4
+- t(e5)-t(e4)=1.5>1.0: e4 < e5
+- t(e5)-t(e3)=3.0>1.0: e3 < e5
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0(a)      e1(b)       e2(c)
+    |        .  |        .  |
+   e3(a)  .    |      .   |
+    :   .      |    .     |
+    :..........> e4(b)     |
+       (eps)    :    .     |
+                :     .    |
+                :..........> e5(c)
+                   (eps)
+
+Cross-process edges (epsilon):
+  e1 -> e3  (Dt=2.0 > eps=1.0)
+  e2 -> e3  (Dt=2.0 > eps=1.0)
+  e3 -> e4  (Dt=1.5 > eps=1.0)
+  e4 -> e5  (Dt=1.5 > eps=1.0)
+
+The events form a near-total order. e5 is the last event
+with c=true. SATISFIED.

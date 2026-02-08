@@ -1,0 +1,30 @@
+Example 60: Yesterday Across Message Boundary
+===============================================
+Processes: P1, P2
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Tests the yesterday operator (@) where the previous state
+involves a cross-process message delivery.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (setup)    (idle)
+    |           |
+   e2 --------> e3
+  (ready)    (go)
+                |
+               e4
+             (done)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+
+In the linearization ...e3, e4: @go at e4 checks if go
+was true in the state before e4. Since e3 has 'go' and
+e3 immediately precedes e4 on P2, done -> @go is SATISFIED.

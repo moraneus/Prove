@@ -1,0 +1,31 @@
+Example 73: Epsilon - Close Times Stay Concurrent
+===================================================
+Processes: P1, P2
+Events: 6
+Epsilon: 0.5
+Expected verdict: SATISFIED
+
+With epsilon=0.5:
+- e2(t=0.3) and e3(t=0.4): |dt|=0.1, NOT > 0.5, concurrent
+- e4(t=1.0) and e3(t=0.4): dt=0.6 > 0.5, so e3 < e4
+- e4(t=1.0) and e5(t=2.0): dt=1.0 > 0.5, so e4 < e5
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(a)      e1(b)
+    |           |
+   e2(a)      e3(b)
+    |       .   |
+    |     .     |
+   e4(a).      |
+    :..........> e5(b)
+      (eps)
+
+Cross-process edges:
+  e3 -> e4  (Dt=0.6 > eps=0.5)
+  e4 -> e5  (Dt=1.0 > eps=0.5)
+
+In the final frontier {e4, e5}: a & b is true. SATISFIED.

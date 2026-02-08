@@ -1,0 +1,23 @@
+Example 84: Double Negation
+=============================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Tests that !!p is equivalent to p. Since P1 always has 'p',
+and the global state includes P1's event, !!p should be true.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(p)      e1(q)
+    |           |
+   e2(p)      e3(q)
+
+No cross-process edges (fully concurrent).
+
+Global state includes p (from P1). !!p = !(!p) = !(false)
+= true. SATISFIED.

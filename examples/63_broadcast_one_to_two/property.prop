@@ -1,0 +1,2 @@
+# Once notified, init must have been true in the past
+notified -> (TRUE S init)

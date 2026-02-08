@@ -1,0 +1,30 @@
+Example 85: Complex Formula Multiple Operators
+================================================
+Processes: P1, P2
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Tests a formula combining implication, yesterday, and since.
+P1 sends 'ready' to P2, then P2 produces 'done'.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (init)     (init)
+    |           |
+   e2 --------> e3
+  (ready)    (ready)
+                |
+               e4
+             (done)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+
+At e4(done): @ready checks previous state which had ready
+(from e3). (TRUE S init) is true since init was at e0,e1.
+Both conjuncts true, so the implication holds. SATISFIED.

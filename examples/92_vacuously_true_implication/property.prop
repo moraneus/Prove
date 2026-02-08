@@ -1,0 +1,2 @@
+# z is never true, so z -> anything is vacuously satisfied
+z -> x

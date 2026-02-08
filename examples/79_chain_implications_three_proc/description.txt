@@ -1,0 +1,25 @@
+Example 79: Chain of Implications Across Processes
+====================================================
+Processes: P1, P2, P3
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Each process holds its own proposition. In the global state,
+a, b, and c are all true simultaneously (since the frontier
+includes one event from each process).
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0(a)      e1(b)       e2(c)
+    |           |           |
+   e3(a)      e4(b)       e5(c)
+
+No cross-process edges (fully concurrent).
+
+The global state always includes one event from each process.
+So a, b, and c are all true. (a -> b) is true (T->T=T),
+(b -> c) is true (T->T=T). The conjunction is SATISFIED.

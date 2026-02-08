@@ -1,0 +1,30 @@
+Example 102: Disjunction With One Side From Message
+=====================================================
+Processes: P1, P2
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+No error ever occurs, but P2 produces 'result' after
+receiving data from P1. The disjunction is satisfied
+because the right side (result) is true at e4.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (idle)     (idle)
+    |           |
+   e2 --------> e3
+  (data)     (data)
+                |
+               e4
+            (result)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+
+(TRUE S error) is false (error never occurs).
+result is true at e4. The disjunction is SATISFIED.

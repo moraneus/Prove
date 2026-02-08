@@ -1,0 +1,2 @@
+# ok has always been true (historically ok)
+!(TRUE S !ok)

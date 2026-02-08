@@ -1,0 +1,2 @@
+# Both a and c were true at some point
+(TRUE S a) & (TRUE S c)

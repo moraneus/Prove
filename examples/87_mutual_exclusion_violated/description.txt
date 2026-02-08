@@ -1,0 +1,33 @@
+Example 87: Mutual Exclusion Violated
+=======================================
+Processes: P1, P2, P3
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+P1 ends with cs1 and P2 ends with cs2. Since these are the
+FINAL events on their respective processes, the final frontier
+MUST contain both e3(cs1) and e4(cs2). The global state at
+every final frontier includes both cs1 and cs2 simultaneously.
+
+Therefore !(cs1 & cs2) is false at every final frontier,
+and the property is VIOLATED in every linearization.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0         e1          e2
+  (idle)     (idle)      (idle)
+    |           |           |
+   e3         e4          e5
+  (cs1)      (cs2)      (idle)
+
+No cross-process edges (fully concurrent).
+
+Final frontier: {e3, e4, e5}. Global state = {cs1, cs2, idle}.
+cs1 & cs2 = true. !(cs1 & cs2) = false.
+
+No linearization can avoid this: e3 and e4 are always the
+maximal events for P1 and P2. VIOLATED.

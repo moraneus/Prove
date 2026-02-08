@@ -1,0 +1,37 @@
+Example 105: Fan-Out With Since Property
+==========================================
+Processes: P1, P2, P3
+Events: 9
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends messages to both P2 and P3. After receiving,
+both processes become 'active'. The Since property checks
+that 'active' has held continuously since 'origin'.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0         e1          e2
+  (origin)   (wait)      (wait)
+    |           |           |
+   e3 --------> e5          |
+  (origin)   (active)      |
+    |                       |
+   e4 ------------------> e6
+  (origin)             (active)
+                |           |
+               e7          e8
+            (active)    (active)
+
+Cross-process edges:
+  e3 -> e5  (message: P1 to P2)
+  e4 -> e6  (message: P1 to P3)
+
+In a linearization starting with e0(origin), then
+proceeding to the receives (e5, e6 with active), and
+then e7, e8: origin was true at e0, and active holds
+from e5/e6 onward. active S origin is SATISFIED in at
+least one linearization.

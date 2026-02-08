@@ -1,0 +1,2 @@
+# a and b both hold (in the global state)
+a & b

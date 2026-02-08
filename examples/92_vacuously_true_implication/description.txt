@@ -1,0 +1,25 @@
+Example 92: Vacuously True Implication (Two Processes)
+=======================================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The antecedent 'z' is never true at any event. Therefore
+z -> x is vacuously true at every state (false -> anything
+= true).
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(x)      e1(y)
+    |           |
+   e2(x)      e3(y)
+
+No cross-process edges (fully concurrent).
+
+z is never true, so z -> x evaluates to true -> true = true
+at states where x holds, and false -> x = true everywhere.
+SATISFIED.

@@ -1,0 +1,31 @@
+Example 59: Three-Process Relay
+================================
+Processes: P1, P2, P3
+Events: 7
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends a message to P2, which relays it to P3.
+This creates a causal chain P1 -> P2 -> P3.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0         e1          e2
+  (start)    (idle)      (idle)
+    |           |           |
+   e3 --------> e4          |
+  (msg)      (msg)         |
+                |           |
+               e5 --------> e6
+             (relay)     (relay)
+
+Cross-process edges:
+  e3 -> e4  (message: P1 to P2)
+  e5 -> e6  (message: P2 to P3)
+
+Causal chain: e0 -> e3 -> e4 -> e5 -> e6
+At e6, start was true at e0, so relay -> (TRUE S start)
+is SATISFIED.

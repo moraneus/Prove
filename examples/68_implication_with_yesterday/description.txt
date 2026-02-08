@@ -1,0 +1,31 @@
+Example 68: Implication With Yesterday
+========================================
+Processes: P1, P2
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends a request to P2. P2 receives it (gaining 'req')
+and in the next step produces 'ack'. The property checks
+that ack implies the previous state had req.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (idle)     (idle)
+    |           |
+   e2 --------> e3
+  (req)      (req)
+                |
+               e4
+             (ack)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+
+In the linearization ending ...e3, e4: at e4, @req checks
+the previous state which included e3(req). True.
+So ack -> @req is SATISFIED.

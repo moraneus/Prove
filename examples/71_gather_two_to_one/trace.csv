@@ -1,0 +1,10 @@
+# P2 and P3 report to P1
+# system_processes: P1|P2|P3
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1;P2:0;P3:0,0.0,wait,local,
+e1,P2,P1:0;P2:1;P3:0,0.0,data_b,local,
+e2,P3,P1:0;P2:0;P3:1,0.0,data_c,local,
+e3,P2,P1:0;P2:2;P3:0,1.0,data_b,send,P1
+e4,P3,P1:0;P2:0;P3:2,1.0,data_c,send,P1
+e5,P1,P1:2;P2:2;P3:0,2.0,data_b,receive,P2
+e6,P1,P1:3;P2:2;P3:2,3.0,data_c|complete,receive,P3

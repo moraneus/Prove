@@ -1,0 +1,26 @@
+Example 67: Alternating Propositions
+======================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 and P2 alternate between 'on' and 'off'. Since there is
+no message passing, all events on different processes are
+concurrent.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(on)     e1(off)
+    |           |
+   e2(off)    e3(on)
+    |           |
+   e4(on)     e5(off)
+
+No cross-process edges (fully concurrent).
+
+'on' is true at e0, e3, e4. The formula TRUE S on is
+trivially SATISFIED at any of those events.

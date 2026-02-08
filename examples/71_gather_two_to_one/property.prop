@@ -1,0 +1,2 @@
+# When complete, both data_b and data_c were seen
+complete -> ((TRUE S data_b) & (TRUE S data_c))

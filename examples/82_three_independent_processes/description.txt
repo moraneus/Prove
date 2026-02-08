@@ -1,0 +1,24 @@
+Example 82: Three Independent Processes
+=========================================
+Processes: P1, P2, P3
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Three processes with no messages and no epsilon ordering.
+All events across processes are fully concurrent.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0(x)      e1(y)       e2(z)
+    |           |           |
+   e3(x)      e4(y)       e5(z)
+
+No cross-process edges.
+
+The global state at any frontier includes one event from
+each process. All frontiers have x, y, z simultaneously.
+So x & y & z is SATISFIED.

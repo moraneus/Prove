@@ -1,0 +1,31 @@
+Example 66: Two Senders to One Receiver
+=========================================
+Processes: P1, P2, P3
+Events: 7
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 and P3 each send a message to P2. The sends are
+concurrent but the receives on P2 are ordered.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0(a)      e1          e2(c)
+    |         (idle)        |
+   e3 --------> e5          |
+   (a)        (a)          |
+                |          e4
+               e6 <--------
+              (c)         (c)
+
+Cross-process edges:
+  e3 -> e5  (message: P1 to P2)
+  e4 -> e6  (message: P3 to P2)
+
+Note: e3 and e4 are concurrent (different processes,
+no causal relation). P2 receives them in order e5, e6.
+Both 'a' and 'c' appear in the trace, so the property
+is SATISFIED.

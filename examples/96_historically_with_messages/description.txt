@@ -1,0 +1,28 @@
+Example 96: Historically Satisfied With Messages
+==================================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+All events on both processes have 'ok'. Even with message
+passing, ok is never false, so historically(ok) holds.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(ok)     e1(ok)
+    |           |
+   e2 --------> e3
+  (ok)        (ok)
+    |           |
+   e4(ok)     e5(ok)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+
+ok is true at every event. !ok is always false.
+TRUE S !ok is always false. !(TRUE S !ok) is always true.
+SATISFIED.

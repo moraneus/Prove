@@ -1,0 +1,34 @@
+Example 81: Zig-Zag Causal Chain
+==================================
+Processes: P1, P2
+Events: 8
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Messages alternate between P1 and P2 creating a zig-zag
+causal chain: P1->P2->P1->P2.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (init)     (init)
+    |           |
+   e2 --------> e3
+ (step1)    (step1)
+                |
+   e5 <-------- e4
+ (step2)    (step2)
+    |
+   e6 --------> e7
+ (step3)     (done)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+  e4 -> e5  (message: P2 to P1)
+  e6 -> e7  (message: P1 to P2)
+
+Full causal chain: e0->e2->e3->e4->e5->e6->e7
+At e7(done), init was true at e0. SATISFIED.

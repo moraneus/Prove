@@ -1,0 +1,29 @@
+Example 76: Negation of Since (No Error Since Init)
+=====================================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Both processes initialize and then have 'ok' events.
+'error' never appears. The property !(error S init) says
+"it is NOT the case that error has held since init."
+Since error is always false, (error S init) is false,
+so the negation is true.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(init)   e1(init)
+    |           |
+   e2(ok)     e3(ok)
+    |           |
+   e4(ok)     e5(ok)
+
+No cross-process edges (fully concurrent).
+
+error S init would require error to hold continuously since
+init. Since error never holds, the Since is false. The
+negation makes the property SATISFIED.

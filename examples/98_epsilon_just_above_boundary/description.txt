@@ -1,0 +1,29 @@
+Example 98: Epsilon Just Above Boundary
+=========================================
+Processes: P1, P2
+Events: 4
+Epsilon: 1.0
+Expected verdict: SATISFIED
+
+t(e3) - t(e2) = 2.1 - 1.0 = 1.1 > 1.0 = epsilon.
+So e2 is ordered before e3 by epsilon. Also:
+t(e2) - t(e1) = 1.0 which is NOT > 1.0, so e1 and e2
+remain concurrent.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (first)    (first)
+    |           |
+   e2(second)  |
+    :          |
+    :...(eps)..> e3(second)
+
+Cross-process edges:
+  e2 -> e3  (Dt=1.1 > eps=1.0)
+
+Final frontier includes e3(second). The property 'second'
+evaluates to true. SATISFIED.

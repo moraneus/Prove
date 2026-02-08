@@ -1,0 +1,2 @@
+# If relay arrived, then start was true at some point
+relay -> (TRUE S start)

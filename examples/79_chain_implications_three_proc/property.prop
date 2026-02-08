@@ -1,0 +1,2 @@
+# Chain: if a then b, and if b then c
+(a -> b) & (b -> c)

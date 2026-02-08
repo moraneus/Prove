@@ -1,0 +1,30 @@
+Example 65: Historically Violated (Both Processes End Fail)
+============================================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+Both P1 and P2 end with 'fail' (not 'ok'). Since these are
+the final events on their respective processes, the final
+frontier MUST be {e2, e3} with global state = {fail}.
+At this frontier, ok is false and !ok is true, so
+TRUE S !ok = true, making !(TRUE S !ok) = false.
+
+No linearization can avoid this because both processes'
+maximal events have fail.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(ok)     e1(ok)
+    |           |
+   e2(fail)   e3(fail)
+
+No cross-process edges (fully concurrent).
+
+The final frontier is always {e2, e3}. Global state = {fail}.
+ok is NOT in the global state, so !ok is true.
+!(TRUE S !ok) evaluates to false. VIOLATED.

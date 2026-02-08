@@ -1,0 +1,2 @@
+# Complex: done implies (yesterday ready AND once init)
+done -> (@ready & (TRUE S init))

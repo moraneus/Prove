@@ -1,0 +1,26 @@
+Example 97: Once Satisfied Via Remote Process
+===============================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The proposition 'special' only appears on P2 at e1.
+Since the global state at the initial frontier includes
+e1, special is true there. TRUE S special holds.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (idle)    (special)
+    |           |
+   e2         e3
+  (idle)     (idle)
+
+No cross-process edges (fully concurrent).
+
+At the initial frontier {e0, e1}, special is true.
+So TRUE S special = SATISFIED.

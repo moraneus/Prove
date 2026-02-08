@@ -1,0 +1,28 @@
+Example 57: Single Message Causality
+=====================================
+Processes: P1, P2
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends a single message to P2. The receive event inherits
+causality from the send event.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+    |           |
+   e2 --------> e3
+  (send)     (recv)
+                |
+               e4
+             (done)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 sends to P2)
+
+When e4(done) is reached, request was true at e2 and e3,
+so done -> (TRUE S request) is SATISFIED.

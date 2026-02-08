@@ -1,0 +1,42 @@
+Example 74: Since With Gap - Existential Recovery
+===================================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 has 'trigger' at e0 and 'hold' throughout. P2 has 'hold'
+at e1, a gap at e3 (no propositions), then 'hold' again at e5.
+
+The formula "hold S trigger" requires that trigger was true
+at some past point, and hold has been true continuously since.
+
+Key insight (existential semantics): Since P1 and P2 are fully
+concurrent, there exists a linearization where e3 (the gap on P2)
+is processed while P1 still has 'hold', keeping hold true in the
+global state. Even though P2 has a gap, the union of propositions
+across processes keeps hold true.
+
+Partial Order Graph:
+--------------------
+
+    P1              P2
+    |               |
+   e0(trigger,     e1(hold)
+      hold)         |
+    |              e3()
+   e2(hold)         |
+    |              e5(hold)
+   e4(hold)
+
+No cross-process edges (fully concurrent).
+
+In linearization e0,e1,e2,e3,e4,e5:
+  - {e0,e1}: trigger=true, hold=true. hold S trigger = true.
+  - {e2,e1}: hold=true (from both). hold S trigger = true.
+  - {e2,e3}: hold=true (from e2 on P1). hold S trigger = true.
+  - {e4,e3}: hold=true (from e4 on P1). hold S trigger = true.
+  - {e4,e5}: hold=true. hold S trigger = true.
+
+The gap on P2 at e3 never causes hold to be false in the
+global state because P1 always contributes hold. SATISFIED.

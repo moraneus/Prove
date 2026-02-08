@@ -1,0 +1,25 @@
+Example 56: Concurrent Local Events
+====================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Two processes run independently with no messages.
+P1 holds 'a', P2 holds 'b'. At the final events, both
+processes hold both 'a' and 'b'.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(a)      e1(b)
+    |           |
+   e2(a)      e3(b)
+    |           |
+   e4(a,b)   e5(a,b)
+
+No cross-process edges (fully concurrent).
+Since e4 has {a,b}, the formula TRUE S (a & b) is SATISFIED
+in any linearization that reaches e4.

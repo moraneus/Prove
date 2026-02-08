@@ -1,0 +1,32 @@
+Example 72: Biconditional With Message
+========================================
+Processes: P1, P2
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends an 'acquire' message to P2. P2 becomes 'locked'
+upon receiving it and stays locked. The biconditional
+checks that locked holds exactly when acquire occurred.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (idle)     (idle)
+    |           |
+   e2 --------> e3
+ (acquire)  (acquire,
+              locked)
+                |
+               e4
+            (locked)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 to P2)
+
+At e3 and e4: locked is true and (TRUE S acquire) is true.
+At e0,e1: locked is false and (TRUE S acquire) is false.
+The biconditional holds everywhere. SATISFIED.

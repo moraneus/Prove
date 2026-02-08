@@ -1,0 +1,32 @@
+Example 75: Diamond Pattern (Fork)
+====================================
+Processes: P1, P2, P3
+Events: 7
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 forks work to P2 and P3 by sending messages to both.
+This creates a diamond structure where e5 and e6 are
+concurrent but both causally follow P1's events.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0         e1          e2
+  (start)    (idle)      (idle)
+    |           |           |
+   e3 --------> e5          |
+  (start)   (got_it)       |
+    |                       |
+   e4 ------------------> e6
+  (start)             (got_it)
+
+Cross-process edges:
+  e3 -> e5  (message: P1 to P2)
+  e4 -> e6  (message: P1 to P3)
+
+Note: e5 and e6 are concurrent (no ordering between them).
+start was true at e0,e3,e4. Both got_it events satisfy
+the property. SATISFIED.

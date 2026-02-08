@@ -1,0 +1,20 @@
+Example 90: FALSE Constant (Two Processes)
+============================================
+Processes: P1, P2
+Events: 2
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+The property is simply FALSE, which is never satisfied
+regardless of the trace content.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(a)      e1(b)
+
+No cross-process edges.
+
+FALSE is always VIOLATED.

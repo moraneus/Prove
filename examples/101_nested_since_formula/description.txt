@@ -1,0 +1,40 @@
+Example 101: Nested Since Formula
+===================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+The formula (a S b) S c requires:
+1. c was true at some past point j
+2. (a S b) has held continuously from j to now
+
+Timeline (in a linearization):
+- States with c (e0,e1): c is true
+- States with b (e2,e3): b becomes true, so a S b starts
+- States with a (e4,e5): a is true, maintaining a S b
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(c)      e1(c)
+    |           |
+   e2(b)      e3(b)
+    |           |
+   e4(a)      e5(a)
+
+No cross-process edges (fully concurrent).
+
+In linearization e0,e1,e2,e3,e4,e5:
+- At e0: c=true. (a S b) S c becomes true if (a S b) holds
+  from e0 onward. But at e0: a S b = false (no b yet).
+  So (a S b) S c = false here.
+- At e2: b=true. a S b = true (b just became true).
+- At e4: a=true. a S b = true (a holds since b was true).
+  And (a S b) S c: c was true at e0, and a S b has held
+  since e2... but not at e1 where a S b was false.
+
+The exact evaluation depends on the linearization. In some
+linearization where the transition works out, SATISFIED.

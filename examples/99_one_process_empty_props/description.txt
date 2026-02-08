@@ -1,0 +1,24 @@
+Example 99: One Process With Empty Propositions
+=================================================
+Processes: P1, P2, P3
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P3 contributes no propositions to the global state.
+The formula only references a and b which come from
+P1 and P2 respectively.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0(a)      e1(b)       e2()
+    |           |           |
+   e3(a)      e4(b)       e5()
+
+No cross-process edges (fully concurrent).
+
+Global state always has {a, b} from P1 and P2. P3
+contributes nothing. a & b = true. SATISFIED.

@@ -1,0 +1,25 @@
+Example 70: Disjunction Via Different Processes
+=================================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+'a' appears only on P1, 'b' appears only on P2.
+The disjunction (TRUE S a) | (TRUE S b) is satisfied
+because both sides are independently true.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (idle)     (idle)
+    |           |
+   e2(a)      e3(b)
+
+No cross-process edges (fully concurrent).
+
+(TRUE S a) is true after e2. (TRUE S b) is true after e3.
+The disjunction is SATISFIED.

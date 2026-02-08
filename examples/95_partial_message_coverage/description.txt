@@ -1,0 +1,26 @@
+Example 95: Partial Message Coverage (Three Processes)
+=======================================================
+Processes: P1, P2, P3
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends to P2 creating a causal link, but P3 is completely
+independent. The frontier includes events from all 3 processes.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2          P3
+    |           |           |
+   e0(a)      e1(b)       e2(c)
+    |           |           |
+   e3 --------> e4         e5
+   (a)       (a,b)        (c)
+
+Cross-process edges:
+  e3 -> e4  (message: P1 to P2)
+
+Final frontier {e3, e4, e5}: global state = {a, b, c}.
+Actually frontier could be {e3, e4, e5} where a (from e3
+or e4), b (from e4), c (from e5). a & b & c = SATISFIED.

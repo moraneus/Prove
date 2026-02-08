@@ -1,0 +1,2 @@
+# error has never occurred since init (no error S init is false)
+!(error S init)

@@ -1,0 +1,9 @@
+# Mutual exclusion violated: cs1 and cs2 are final events
+# system_processes: P1|P2|P3
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1;P2:0;P3:0,0.0,idle,local,
+e1,P2,P1:0;P2:1;P3:0,0.0,idle,local,
+e2,P3,P1:0;P2:0;P3:1,0.0,idle,local,
+e3,P1,P1:2;P2:0;P3:0,1.0,cs1,local,
+e4,P2,P1:0;P2:2;P3:0,1.0,cs2,local,
+e5,P3,P1:0;P2:0;P3:2,1.0,idle,local,

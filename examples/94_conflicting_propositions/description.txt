@@ -1,0 +1,24 @@
+Example 94: Conflicting Propositions Across Processes
+======================================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+P1 always has 'safe', P2 always has 'unsafe'. In the
+global state (frontier), BOTH safe and unsafe are true.
+So safe & !unsafe fails because !unsafe is false.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(safe)   e1(unsafe)
+    |           |
+   e2(safe)   e3(unsafe)
+
+No cross-process edges (fully concurrent).
+
+Global state at any frontier: {safe, unsafe}.
+safe & !unsafe = true & false = false. VIOLATED.

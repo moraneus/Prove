@@ -1,0 +1,8 @@
+# Biconditional: locked iff acquired
+# system_processes: P1|P2
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1;P2:0,0.0,idle,local,
+e1,P2,P1:0;P2:1,0.0,idle,local,
+e2,P1,P1:2;P2:0,1.0,acquire,send,P2
+e3,P2,P1:2;P2:2,2.0,acquire|locked,receive,P1
+e4,P2,P1:2;P2:3,3.0,locked,local,

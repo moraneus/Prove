@@ -1,0 +1,26 @@
+Example 93: Since Immediately Satisfied
+=========================================
+Processes: P1, P2
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+At e0, both a and b are true. So "a S b" is immediately
+satisfied (b is the trigger, a is the maintainer, and
+b just became true at the current state).
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0(a,b)    e1(a)
+    |           |
+   e2(a)      e3(a)
+
+No cross-process edges (fully concurrent).
+
+At the initial frontier {e0, e1}: b is true (from e0),
+and a is true. So a S b = true. It remains true at
+subsequent events since a continues and b was seen.
+SATISFIED.

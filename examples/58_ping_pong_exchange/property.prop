@@ -1,0 +1,2 @@
+# If pong received, then ping was sent earlier
+pong -> (TRUE S ping)

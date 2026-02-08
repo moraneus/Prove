@@ -1,0 +1,29 @@
+Example 58: Ping-Pong Message Exchange
+=======================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Classic ping-pong: P1 sends ping to P2, P2 responds with pong.
+
+Partial Order Graph:
+--------------------
+
+    P1          P2
+    |           |
+   e0         e1
+  (idle)     (idle)
+    |           |
+   e2 --------> e3
+  (ping)     (ping)
+                |
+   e5 <-------- e4
+  (pong)     (pong)
+
+Cross-process edges:
+  e2 -> e3  (message: P1 ping to P2)
+  e4 -> e5  (message: P2 pong to P1)
+
+The pong proposition appears at e4 and e5. Ping appeared at
+e2 and e3. So pong -> (TRUE S ping) is SATISFIED.
