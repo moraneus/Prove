@@ -390,3 +390,61 @@ class TestComplexFormulas:
         monitor = EPLTLMonitor(formula=formula, processes=["P1"], epsilon=float("inf"))
         result = monitor.run(events)
         assert result.satisfied is True
+
+
+# ---------------------------------------------------------------------------
+# Tests: Strict Initial Event Identification
+# ---------------------------------------------------------------------------
+
+
+class TestIdentifyInitialEvents:
+    """Test _identify_initial_events strict VC-based identification."""
+
+    def test_identifies_correct_initial_events(self) -> None:
+        """Correct initial events are identified by VC structure."""
+        formula = parse_formula("a")
+        events = [
+            _make_event("i1", "P1", {"P1": 1, "P2": 0}, 0.0, frozenset({"a"})),
+            _make_event("i2", "P2", {"P1": 0, "P2": 1}, 0.0, frozenset({"b"})),
+            _make_event("e1", "P1", {"P1": 2, "P2": 0}, 1.0),
+        ]
+        monitor = EPLTLMonitor(formula=formula, processes=["P1", "P2"])
+        initial = monitor._identify_initial_events(events)
+        assert initial["P1"].eid == "i1"
+        assert initial["P2"].eid == "i2"
+
+    def test_raises_on_missing_initial(self) -> None:
+        """Raises ValueError when a process has no initial event."""
+        formula = parse_formula("a")
+        events = [
+            _make_event("i1", "P1", {"P1": 1, "P2": 0}, 0.0),
+            # P2 has VC[P2]=2, not a valid initial event
+            _make_event("e2", "P2", {"P1": 0, "P2": 2}, 1.0),
+        ]
+        monitor = EPLTLMonitor(formula=formula, processes=["P1", "P2"])
+        with pytest.raises(ValueError, match="No initial event"):
+            monitor._identify_initial_events(events)
+
+    def test_raises_on_duplicate_initial(self) -> None:
+        """Raises ValueError when a process has multiple initial candidates."""
+        formula = parse_formula("a")
+        events = [
+            _make_event("i1a", "P1", {"P1": 1, "P2": 0}, 0.0),
+            _make_event("i1b", "P1", {"P1": 1, "P2": 0}, 0.1),
+            _make_event("i2", "P2", {"P1": 0, "P2": 1}, 0.0),
+        ]
+        monitor = EPLTLMonitor(formula=formula, processes=["P1", "P2"])
+        with pytest.raises(ValueError, match="multiple initial"):
+            monitor._identify_initial_events(events)
+
+    def test_no_fallback_to_first_event(self) -> None:
+        """The lenient fallback is gone — invalid VC causes an error."""
+        formula = parse_formula("a")
+        # Both events have VC[P1]=2, neither is a valid initial
+        events = [
+            _make_event("e1", "P1", {"P1": 2}, 0.0),
+            _make_event("e2", "P1", {"P1": 3}, 1.0),
+        ]
+        monitor = EPLTLMonitor(formula=formula, processes=["P1"])
+        with pytest.raises(ValueError, match="No initial event"):
+            monitor._identify_initial_events(events)

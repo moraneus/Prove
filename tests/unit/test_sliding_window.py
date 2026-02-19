@@ -613,3 +613,105 @@ class TestEdgeCases:
         g = SlidingWindowGraph(PROCS2, {"P1": iota1, "P2": iota2}, formula, po)
         node = g.nodes[g.maximal_node_id]
         assert "GraphNode" in repr(node)
+
+
+# ---------------------------------------------------------------------------
+# Tests: History / Snapshots (--full-graph)
+# ---------------------------------------------------------------------------
+
+
+class TestGraphHistory:
+    """Test record_history for step-by-step visualization."""
+
+    def test_no_history_by_default(self) -> None:
+        """History is empty when record_history is False (default)."""
+        iota1, iota2 = _make_two_proc_initial()
+        e1 = _ev("e1", "P1", _vc2(2, 0), 1.0, frozenset({"a"}))
+        all_events = [iota1, iota2, e1]
+        po = PartialOrder(all_events, epsilon=float("inf"))
+        formula = Proposition("a")
+        g = SlidingWindowGraph(
+            PROCS2, {"P1": iota1, "P2": iota2}, formula, po
+        )
+        g.process_event(e1)
+        assert g.history == []
+
+    def test_history_recorded_when_enabled(self) -> None:
+        """History is populated when record_history is True."""
+        iota1, iota2 = _make_two_proc_initial()
+        e1 = _ev("e1", "P1", _vc2(2, 0), 1.0, frozenset({"a"}))
+        all_events = [iota1, iota2, e1]
+        po = PartialOrder(all_events, epsilon=float("inf"))
+        formula = Proposition("a")
+        g = SlidingWindowGraph(
+            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            record_history=True,
+        )
+        g.process_event(e1)
+        # 1 init snapshot + 1 event snapshot
+        assert len(g.history) == 2
+
+    def test_history_init_snapshot(self) -> None:
+        """First snapshot is labeled 'init'."""
+        iota1, iota2 = _make_two_proc_initial()
+        po = PartialOrder([iota1, iota2], epsilon=float("inf"))
+        formula = Proposition("a")
+        g = SlidingWindowGraph(
+            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            record_history=True,
+        )
+        assert len(g.history) == 1
+        assert g.history[0].label == "init"
+        assert len(g.history[0].nodes) == 1  # One initial node
+        assert len(g.history[0].edges) == 0  # No edges yet
+
+    def test_history_event_snapshot_label(self) -> None:
+        """Event snapshots are labeled with the event eid."""
+        iota1, iota2 = _make_two_proc_initial()
+        e1 = _ev("alpha", "P1", _vc2(2, 0), 1.0)
+        all_events = [iota1, iota2, e1]
+        po = PartialOrder(all_events, epsilon=float("inf"))
+        formula = Proposition("a")
+        g = SlidingWindowGraph(
+            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            record_history=True,
+        )
+        g.process_event(e1)
+        assert g.history[1].label == "alpha"
+
+    def test_history_count_matches_events(self) -> None:
+        """Snapshot count = 1 (init) + number of non-initial events."""
+        iota1, iota2 = _make_two_proc_initial()
+        e1 = _ev("e1", "P1", _vc2(2, 0), 1.0)
+        e2 = _ev("e2", "P2", _vc2(0, 2), 2.0)
+        e3 = _ev("e3", "P1", _vc2(3, 0), 3.0)
+        all_events = [iota1, iota2, e1, e2, e3]
+        po = PartialOrder(all_events, epsilon=float("inf"))
+        formula = Proposition("a")
+        g = SlidingWindowGraph(
+            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            record_history=True,
+        )
+        for ev in [e1, e2, e3]:
+            g.process_event(ev)
+        assert len(g.history) == 4  # init + 3 events
+
+    def test_history_snapshot_captures_nodes_before_pruning(self) -> None:
+        """Snapshots capture graph state before redundant node removal."""
+        iota1, iota2 = _make_two_proc_initial()
+        e1 = _ev("e1", "P1", _vc2(2, 0), 1.0)
+        e2 = _ev("e2", "P2", _vc2(0, 2), 2.0)
+        all_events = [iota1, iota2, e1, e2]
+        po = PartialOrder(all_events, epsilon=float("inf"))
+        formula = Proposition("a")
+        g = SlidingWindowGraph(
+            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            record_history=True,
+        )
+        g.process_event(e1)
+        g.process_event(e2)
+
+        # After e2 is processed but before pruning, the snapshot should
+        # have more nodes than the final pruned graph
+        snap_after_e2 = g.history[2]
+        assert len(snap_after_e2.nodes) >= len(g.nodes)

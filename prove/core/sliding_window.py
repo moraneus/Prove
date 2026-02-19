@@ -60,6 +60,27 @@ class GraphEdge:
     event: Event
 
 
+@dataclass
+class GraphSnapshot:
+    """
+    A lightweight snapshot of the graph state at a point in time.
+
+    Used by ``--full-graph`` to record the graph after each event
+    is processed (before pruning), enabling step-by-step visualization.
+
+    Attributes:
+        label: Description of this snapshot ("init" or event eid).
+        nodes: Mapping from node ID to frontier event IDs.
+        edges: Set of (source_id, event_eid, target_id) tuples.
+        maximal_node_id: The maximal node at this point.
+    """
+
+    label: str
+    nodes: Dict[int, Tuple[int, ...]]  # node_id -> sorted frontier event eids
+    edges: Set[Tuple[int, str, int]]  # (source, event_eid, target)
+    maximal_node_id: int
+
+
 class SlidingWindowGraph:
     """
     The sliding window graph for EPLTL verification.
@@ -82,6 +103,7 @@ class SlidingWindowGraph:
         initial_events: Dict[str, Event],
         formula: Formula,
         partial_order: PartialOrder,
+        record_history: bool = False,
     ) -> None:
         """
         Initialize with initial frontier and formula.
@@ -91,10 +113,14 @@ class SlidingWindowGraph:
             initial_events: Dictionary mapping each process to its initial event.
             formula: The EPLTL formula to verify.
             partial_order: Complete partial order for event ordering.
+            record_history: If True, save a snapshot after each event
+                           (used by ``--full-graph`` visualization).
         """
         self.processes: frozenset[str] = frozenset(processes)
         self.formula: Formula = formula
         self.partial_order: PartialOrder = partial_order
+        self._record_history: bool = record_history
+        self.history: List[GraphSnapshot] = []
 
         self.nodes: Dict[int, GraphNode] = {}
         self.edges: Set[GraphEdge] = set()
@@ -118,6 +144,9 @@ class SlidingWindowGraph:
         s0 = self._create_node(initial_frontier)
         s0.summaries.add(initial_summary)
         self.maximal_node_id: int = s0.node_id
+
+        if self._record_history:
+            self._take_snapshot("init")
 
     def _create_initial_summary(self, global_props: frozenset[str]) -> Summary:
         """Create the initial summary, evaluated against the initial global state."""
@@ -223,6 +252,10 @@ class SlidingWindowGraph:
 
         # Step 5: Update covered processes
         self._update_covered_processes(event)
+
+        # Snapshot before pruning (for --full-graph visualization)
+        if self._record_history:
+            self._take_snapshot(event.eid)
 
         # Step 6: Remove redundant nodes
         self._remove_redundant_nodes()
@@ -363,6 +396,29 @@ class SlidingWindowGraph:
         del self._outgoing[node_id]
         del self._incoming[node_id]
         del self.nodes[node_id]
+
+    # ------------------------------------------------------------------ #
+    # History / snapshots
+    # ------------------------------------------------------------------ #
+
+    def _take_snapshot(self, label: str) -> None:
+        """Save a lightweight snapshot of the current graph state."""
+        snap_nodes: Dict[int, Tuple[int, ...]] = {}
+        for nid, node in self.nodes.items():
+            snap_nodes[nid] = tuple(sorted(e.eid for e in node.frontier.events))
+
+        snap_edges: Set[Tuple[int, str, int]] = set()
+        for edge in self.edges:
+            snap_edges.add((edge.source, edge.event.eid, edge.target))
+
+        self.history.append(
+            GraphSnapshot(
+                label=label,
+                nodes=snap_nodes,
+                edges=snap_edges,
+                maximal_node_id=self.maximal_node_id,
+            )
+        )
 
     # ------------------------------------------------------------------ #
     # Verdict

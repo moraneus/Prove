@@ -173,6 +173,7 @@ def _run(args: argparse.Namespace) -> None:
         processes=trace_data.metadata.processes,
         epsilon=eps,
         logger=logger,
+        full_graph=args.full_graph,
     )
     result = monitor._run_with_partial_order(trace_data.events, trace_data.partial_order)
 
@@ -187,23 +188,24 @@ def _run(args: argparse.Namespace) -> None:
         graph = monitor._graph
         if graph is not None:
             viz = GraphVisualizer(graph)
+            # Use step-by-step DOT when --full-graph is set
+            dot_content = viz.to_dot_steps() if args.full_graph else viz.to_dot()
             if args.visualize == "__stdout__":
-                print(viz.to_dot())
+                print(dot_content)
             else:
                 filepath = Path(args.visualize)
                 suffix = filepath.suffix.lower()
                 if suffix == ".dot":
-                    viz.save_dot(filepath)
-                elif suffix in (".png", ".pdf", ".svg"):
+                    filepath.write_text(dot_content)
+                elif suffix in (".png", ".pdf", ".svg") and not args.full_graph:
                     try:
                         viz.save_png(filepath)
                     except RuntimeError as e:
                         print(f"Warning: {e}", file=sys.stderr)
-                        # Fall back to DOT
                         dot_path = filepath.with_suffix(".dot")
-                        viz.save_dot(dot_path)
+                        dot_path.write_text(dot_content)
                 else:
-                    viz.save_dot(filepath)
+                    filepath.write_text(dot_content)
 
     # Statistics (skip if verbose already printed them)
     if args.stats and log_level.value < LogLevel.VERBOSE.value:

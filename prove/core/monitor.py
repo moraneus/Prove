@@ -63,6 +63,7 @@ class EPLTLMonitor:
         processes: Iterable[str],
         epsilon: float = float("inf"),
         logger: Optional[MonitorLogger] = None,
+        full_graph: bool = False,
     ) -> None:
         """
         Initialize the monitor.
@@ -72,11 +73,14 @@ class EPLTLMonitor:
             processes: Set of process IDs in the system.
             epsilon: Maximum clock skew (default: infinity).
             logger: Optional logger for debug output.
+            full_graph: If True, record graph snapshots for step-by-step
+                       visualization (``--full-graph``).
         """
         self.formula: Formula = formula
         self.processes: frozenset[str] = frozenset(processes)
         self.epsilon: float = epsilon
         self.logger: MonitorLogger = logger or MonitorLogger(LogLevel.SILENT)
+        self.full_graph: bool = full_graph
 
         # Will be initialized when events are provided
         self._graph: Optional[SlidingWindowGraph] = None
@@ -268,8 +272,8 @@ class EPLTLMonitor:
         self.logger.info(f"Epsilon: {eps_str}")
         self.logger.info(f"Verifying formula: {self.formula}")
 
-        # Identify initial events
-        initial_events = self._find_initial_events(events, po)
+        # Identify initial events (strict VC-based identification)
+        initial_events = self._identify_initial_events(events)
 
         # Initialize graph
         self._graph = SlidingWindowGraph(
@@ -277,6 +281,7 @@ class EPLTLMonitor:
             initial_events=initial_events,
             formula=self.formula,
             partial_order=po,
+            record_history=self.full_graph,
         )
 
         # Log initial events
@@ -303,35 +308,47 @@ class EPLTLMonitor:
 
         return self.finalize()
 
-    def _find_initial_events(
+    def _identify_initial_events(
         self,
         events: List[Event],
-        po: PartialOrder,
     ) -> Dict[str, Event]:
         """
-        Find the initial event for each process.
+        Identify the initial event for each process using vector clock structure.
 
-        Initial events are minimal in the partial order (no predecessors).
-        Each process must have exactly one initial event.
+        Per paper §2.1.3, the initial event ιₚ for process p has:
+        VC[p] = 1 and VC[q] = 0 for all q ≠ p.
 
         Args:
             events: All events.
-            po: The partial order.
 
         Returns:
             Dictionary mapping process ID to its initial event.
+
+        Raises:
+            ValueError: If any process lacks a valid initial event.
         """
-        minimal = po.get_minimal_events()
         initial: Dict[str, Event] = {}
 
-        for event in minimal:
-            if event.process not in initial:
-                initial[event.process] = event
-
-        # If some processes don't have minimal events found,
-        # use the first event for each process
         for event in events:
-            if event.process not in initial:
-                initial[event.process] = event
+            p = event.process
+            if p not in self.processes:
+                continue
+            vc = event.vector_clock
+            if vc.clock.get(p, 0) == 1 and all(
+                vc.clock.get(q, 0) == 0 for q in self.processes if q != p
+            ):
+                if p in initial:
+                    raise ValueError(
+                        f"Process {p}: multiple initial event candidates: "
+                        f"{initial[p].eid}, {event.eid}"
+                    )
+                initial[p] = event
+
+        missing = self.processes - initial.keys()
+        if missing:
+            raise ValueError(
+                f"No initial event found for process(es): {sorted(missing)}. "
+                f"Expected VC[p]=1, VC[q]=0 for all q≠p."
+            )
 
         return initial

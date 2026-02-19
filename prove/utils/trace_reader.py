@@ -118,6 +118,13 @@ class TraceReader:
         else:
             processes = frozenset(e.process for e in events)
 
+        # Validate initial events per paper §2.1.3
+        init_errors = self.validate_initial_events(events, processes)
+        if init_errors:
+            raise ValueError(
+                "Invalid initial events:\n  " + "\n  ".join(init_errors)
+            )
+
         po = PartialOrder(events, eps)
 
         metadata = TraceMetadata(
@@ -229,6 +236,76 @@ class TraceReader:
         missing = _REQUIRED_HEADERS - headers
         if missing:
             errors.append(f"Missing required headers: {sorted(missing)}")
+
+        return errors
+
+    @staticmethod
+    def validate_initial_events(
+        events: List[Event], processes: FrozenSet[str]
+    ) -> List[str]:
+        """
+        Validate that every process has a proper initial event per paper §2.1.3.
+
+        An initial event ιₚ for process p must satisfy:
+        - VC[p] = 1 and VC[q] = 0 for all q ≠ p
+        - Exactly one such event exists per process
+        - Initial events are pairwise concurrent (neither VC(ιᵢ) < VC(ιⱼ))
+
+        Args:
+            events: All events in the trace.
+            processes: Set of all process IDs.
+
+        Returns:
+            List of error messages (empty if valid).
+        """
+        errors: List[str] = []
+        candidates: dict[str, list[Event]] = {p: [] for p in processes}
+
+        for event in events:
+            if event.process not in processes:
+                continue
+            vc = event.vector_clock
+            p = event.process
+            # Check VC[p] = 1 and VC[q] = 0 for all q ≠ p
+            if vc.clock.get(p, 0) == 1 and all(
+                vc.clock.get(q, 0) == 0 for q in processes if q != p
+            ):
+                candidates[p].append(event)
+
+        # Check each process has exactly one initial event
+        initial_events: dict[str, Event] = {}
+        for p in sorted(processes):
+            matches = candidates[p]
+            if len(matches) == 0:
+                errors.append(
+                    f"Process {p}: no initial event found "
+                    f"(expected VC[{p}]=1, VC[q]=0 for all q≠{p})"
+                )
+            elif len(matches) > 1:
+                eids = ", ".join(e.eid for e in matches)
+                errors.append(
+                    f"Process {p}: multiple initial event candidates: {eids}"
+                )
+            else:
+                initial_events[p] = matches[0]
+
+        if errors:
+            return errors
+
+        # Check initial events are pairwise concurrent
+        initials = list(initial_events.values())
+        for i, e1 in enumerate(initials):
+            for e2 in initials[i + 1 :]:
+                if e1.vector_clock < e2.vector_clock:
+                    errors.append(
+                        f"Initial events not concurrent: "
+                        f"{e1.eid} (VC) < {e2.eid} (VC)"
+                    )
+                elif e2.vector_clock < e1.vector_clock:
+                    errors.append(
+                        f"Initial events not concurrent: "
+                        f"{e2.eid} (VC) < {e1.eid} (VC)"
+                    )
 
         return errors
 

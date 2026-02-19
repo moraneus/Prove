@@ -433,3 +433,71 @@ class TestPartialOrderVisualizerWidth:
         output = viz.render(max_width=80)
         for line in output.splitlines():
             assert len(line) <= 80
+
+
+# ===========================================================================
+# Tests: GraphVisualizer — Step-by-step DOT (--full-graph)
+# ===========================================================================
+
+
+def _build_graph_with_history(
+    events: list[Event], epsilon: float = float("inf"),
+) -> SlidingWindowGraph:
+    """Build a SlidingWindowGraph with record_history=True."""
+    po = PartialOrder(events, epsilon)
+    procs = frozenset(e.process for e in events)
+    minimal = po.get_minimal_events()
+    initial = {}
+    for e in minimal:
+        if e.process not in initial:
+            initial[e.process] = e
+    formula = Proposition("ready")
+    graph = SlidingWindowGraph(
+        processes=procs,
+        initial_events=initial,
+        formula=formula,
+        partial_order=po,
+        record_history=True,
+    )
+    initial_set = set(initial.values())
+    for e in po.topological_sort():
+        if e not in initial_set:
+            graph.process_event(e)
+    return graph
+
+
+class TestDotSteps:
+    """Test to_dot_steps() for step-by-step visualization."""
+
+    def test_dot_steps_contains_multiple_digraphs(self) -> None:
+        """Output contains multiple digraph blocks."""
+        graph = _build_graph_with_history(_two_proc_events())
+        viz = GraphVisualizer(graph)
+        output = viz.to_dot_steps()
+        # Two non-initial events + 1 init = 3 digraph blocks
+        assert output.count("digraph step_") == 3
+
+    def test_dot_steps_labels(self) -> None:
+        """Each digraph block has a label with the event eid."""
+        graph = _build_graph_with_history(_two_proc_events())
+        viz = GraphVisualizer(graph)
+        output = viz.to_dot_steps()
+        assert "Initial state" in output
+        assert "After processing e1" in output
+        assert "After processing e2" in output
+
+    def test_dot_steps_fallback_no_history(self) -> None:
+        """Falls back to regular to_dot() when no history recorded."""
+        graph = _build_graph(_two_proc_events())
+        viz = GraphVisualizer(graph)
+        output = viz.to_dot_steps()
+        # Should just be the normal to_dot output
+        assert "digraph SlidingWindowGraph" in output
+
+    def test_dot_steps_three_processes(self) -> None:
+        """Step-by-step works for three-process traces."""
+        graph = _build_graph_with_history(_three_proc_events())
+        viz = GraphVisualizer(graph)
+        output = viz.to_dot_steps()
+        # 1 init + 3 events = 4 digraph blocks
+        assert output.count("digraph step_") == 4

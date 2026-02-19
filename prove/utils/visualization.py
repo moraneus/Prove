@@ -68,6 +68,53 @@ class GraphVisualizer:
         lines.append("}")
         return "\n".join(lines)
 
+    def to_dot_steps(self) -> str:
+        """
+        Generate a multi-step DOT output showing incremental graph construction.
+
+        Each step is a separate ``digraph`` block, labeled with the event
+        that was just processed. Requires the graph to have been created
+        with ``record_history=True``.
+
+        Returns:
+            A string with multiple DOT digraph blocks separated by blank lines.
+        """
+        if not self.graph.history:
+            return self.to_dot()
+
+        blocks: List[str] = []
+        for i, snap in enumerate(self.graph.history):
+            title = (
+                f"Step {i}: Initial state"
+                if snap.label == "init"
+                else f"Step {i}: After processing {snap.label}"
+            )
+            lines: List[str] = [f"digraph step_{i} {{"]
+            lines.append(f'  label="{title}";')
+            lines.append("  labelloc=t;")
+            lines.append("  rankdir=TB;")
+            lines.append(
+                "  node [shape=box, style=filled, fillcolor=lightyellow];"
+            )
+
+            for nid, frontier_eids in snap.nodes.items():
+                events_str = ", ".join(frontier_eids)
+                label = f"F{nid}\\n{{{events_str}}}"
+                style = ""
+                if nid == snap.maximal_node_id:
+                    style = ", fillcolor=lightblue, penwidth=2"
+                lines.append(f'  n{nid} [label="{label}"{style}];')
+
+            for src, eid, tgt in sorted(snap.edges):
+                lines.append(
+                    f'  n{src} -> n{tgt} [label="{eid}"];'
+                )
+
+            lines.append("}")
+            blocks.append("\n".join(lines))
+
+        return "\n\n".join(blocks)
+
     def to_ascii(self, max_width: int = 80) -> str:
         """
         Generate ASCII art representation of the sliding window graph.

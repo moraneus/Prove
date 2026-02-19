@@ -268,3 +268,150 @@ class TestEdgeCases:
         assert events[0].eid == "e1"
         assert events[0].process == "P1"
         assert "ready" in events[0].propositions
+
+
+# ---------------------------------------------------------------------------
+# Tests: Initial Event Validation
+# ---------------------------------------------------------------------------
+
+
+class TestValidateInitialEvents:
+    """Test validate_initial_events per paper §2.1.3."""
+
+    def _make_event(
+        self,
+        eid: str,
+        process: str,
+        vc_vals: dict[str, int],
+        timestamp: float = 0.0,
+        props: frozenset[str] = frozenset(),
+    ) -> Event:
+        procs = frozenset(vc_vals.keys())
+        vc = VectorClock(procs, initial_values=vc_vals)
+        return Event(
+            eid=eid, process=process, vector_clock=vc,
+            timestamp=timestamp, propositions=props,
+        )
+
+    def test_valid_two_process_trace(self) -> None:
+        """Proper initial events pass validation."""
+        events = [
+            self._make_event("i1", "P1", {"P1": 1, "P2": 0}),
+            self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
+            self._make_event("e1", "P1", {"P1": 2, "P2": 0}, 1.0),
+        ]
+        errors = TraceReader.validate_initial_events(
+            events, frozenset({"P1", "P2"})
+        )
+        assert errors == []
+
+    def test_valid_three_process_trace(self) -> None:
+        """Three-process trace with correct initial events."""
+        events = [
+            self._make_event("i1", "P1", {"P1": 1, "P2": 0, "P3": 0}),
+            self._make_event("i2", "P2", {"P1": 0, "P2": 1, "P3": 0}),
+            self._make_event("i3", "P3", {"P1": 0, "P2": 0, "P3": 1}),
+        ]
+        errors = TraceReader.validate_initial_events(
+            events, frozenset({"P1", "P2", "P3"})
+        )
+        assert errors == []
+
+    def test_missing_initial_for_process(self) -> None:
+        """Process without an initial event is detected."""
+        events = [
+            self._make_event("i1", "P1", {"P1": 1, "P2": 0}),
+            # P2 has no initial event (VC[P2]=2 instead of 1)
+            self._make_event("e2", "P2", {"P1": 0, "P2": 2}, 1.0),
+        ]
+        errors = TraceReader.validate_initial_events(
+            events, frozenset({"P1", "P2"})
+        )
+        assert len(errors) == 1
+        assert "P2" in errors[0]
+        assert "no initial event" in errors[0]
+
+    def test_wrong_vc_nonzero_other(self) -> None:
+        """Event with VC[q]!=0 for q!=p is not an initial event."""
+        events = [
+            self._make_event("i1", "P1", {"P1": 1, "P2": 1}),  # P2 should be 0
+            self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
+        ]
+        errors = TraceReader.validate_initial_events(
+            events, frozenset({"P1", "P2"})
+        )
+        assert len(errors) == 1
+        assert "P1" in errors[0]
+
+    def test_wrong_vc_own_not_one(self) -> None:
+        """Event with VC[p]!=1 is not an initial event."""
+        events = [
+            self._make_event("i1", "P1", {"P1": 0, "P2": 0}),  # P1 should be 1
+            self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
+        ]
+        errors = TraceReader.validate_initial_events(
+            events, frozenset({"P1", "P2"})
+        )
+        assert len(errors) == 1
+        assert "P1" in errors[0]
+
+    def test_duplicate_initial_events(self) -> None:
+        """Two events matching initial VC for the same process is an error."""
+        events = [
+            self._make_event("i1a", "P1", {"P1": 1, "P2": 0}),
+            self._make_event("i1b", "P1", {"P1": 1, "P2": 0}, 0.1),
+            self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
+        ]
+        errors = TraceReader.validate_initial_events(
+            events, frozenset({"P1", "P2"})
+        )
+        assert len(errors) == 1
+        assert "multiple" in errors[0]
+        assert "P1" in errors[0]
+
+    def test_not_concurrent_initial_events(self) -> None:
+        """Initial events that are not pairwise concurrent are detected.
+
+        This is a theoretical edge case: both events have the correct
+        VC pattern (VC[p]=1, VC[q]=0) but one still causally dominates
+        the other. In practice, proper initial events are always concurrent
+        by construction (VC[p]=1, VC[q]=0 means neither dominates). We
+        verify the check exists by testing with 3 processes where the
+        pattern can technically occur only with malformed clocks. Since
+        correct initial events are always concurrent, we test the
+        validation passes for valid traces and catches missing/duplicate.
+        """
+        # Proper initial events are always concurrent, so this check
+        # is a safety net. We test it indirectly through valid traces.
+        events = [
+            self._make_event("i1", "P1", {"P1": 1, "P2": 0}),
+            self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
+        ]
+        errors = TraceReader.validate_initial_events(
+            events, frozenset({"P1", "P2"})
+        )
+        assert errors == []  # Correct initials are concurrent
+
+    def test_single_process_valid(self) -> None:
+        """Single process trace passes validation."""
+        events = [
+            self._make_event("i1", "P1", {"P1": 1}),
+            self._make_event("e2", "P1", {"P1": 2}, 1.0),
+        ]
+        errors = TraceReader.validate_initial_events(
+            events, frozenset({"P1"})
+        )
+        assert errors == []
+
+    def test_read_all_raises_on_invalid_initial(self, tmp_path: Path) -> None:
+        """read_all raises ValueError for traces with invalid initial events."""
+        trace = tmp_path / "trace.csv"
+        trace.write_text(
+            "# system_processes: P1|P2\n"
+            "eid,processes,vc,timestamp,props,event_type,msg_partner\n"
+            "e1,P1,P1:2;P2:0,0.0,a,local,\n"
+            "e2,P2,P1:0;P2:1,0.0,b,local,\n"
+        )
+        reader = TraceReader(trace)
+        with pytest.raises(ValueError, match="Invalid initial events"):
+            reader.read_all()
