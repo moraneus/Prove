@@ -1,0 +1,2 @@
+# If response, then request was true at some point in the past
+response -> P request

@@ -1,0 +1,2 @@
+# If done, then ready happened in the past AND safe has always been true
+done -> (P ready & H safe)

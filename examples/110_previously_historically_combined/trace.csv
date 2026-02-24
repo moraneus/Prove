@@ -1,0 +1,9 @@
+# Previously and Historically combined across two processes
+# system_processes: P1|P2
+eid,processes,vc,timestamp,props,event_type,msg_partner
+iota_P1,P1,P1:1;P2:0,0.0,init|safe,local,
+iota_P2,P2,P1:0;P2:1,0.0,init|safe,local,
+e1,P1,P1:2;P2:0,1.0,ready|safe,local,
+e2,P1,P1:3;P2:0,2.0,confirmed|safe,local,
+e3,P2,P1:0;P2:2,1.5,waiting|safe,local,
+e4,P2,P1:0;P2:3,3.0,done|safe,local,

@@ -1,0 +1,14 @@
+Example 109: Historically Operator (Violated)
+===============================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: VIOLATED
+
+P1 starts with "stable" true for the first three events, then loses it at e3
+(error event without stable), then recovers at e4. The property "H stable"
+requires that "stable" has been true at every point in the past including now.
+Since e3 does not carry "stable", the Historically operator is violated --
+there is no linearization where stable holds at every point.
+
+This tests the H operator in a violation scenario.

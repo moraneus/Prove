@@ -1,0 +1,18 @@
+Example 110: Previously and Historically Combined
+===================================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 initializes, becomes ready, then confirmed. P2 initializes and reports done.
+The property "done -> (P ready & H safe)" requires that when "done" holds:
+  1. "ready" was true at some point in the past (P ready)
+  2. "safe" has always been true (H safe)
+
+Every event carries the "safe" proposition, and P1 sets "ready" before P2
+sets "done". In the linearization where P1's ready event precedes P2's done,
+both conditions are met.
+
+This tests combining P (Previously) and H (Historically) in a single formula
+with two concurrent processes.

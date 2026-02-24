@@ -1,0 +1,15 @@
+Example 108: Previously Operator (Two Processes)
+==================================================
+Processes: P1, P2
+Events: 6
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+P1 sends a request, P2 receives it, processes it, and sends a response.
+The property "done -> P request" checks that when the system reaches "done",
+"request" must have been true at some point in the past. Since P1's request
+event occurs before P2's processing, at least one linearization has request
+preceding done.
+
+This tests the Previously (P) operator across two concurrent processes
+with message passing.

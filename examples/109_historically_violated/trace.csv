@@ -1,0 +1,8 @@
+# Historically violated: P1 loses "stable" at e3
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,init|stable,local,
+e1,P1,P1:2,1.0,running|stable,local,
+e2,P1,P1:3,2.0,running|stable,local,
+e3,P1,P1:4,3.0,error,local,
+e4,P1,P1:5,4.0,recovered|stable,local,

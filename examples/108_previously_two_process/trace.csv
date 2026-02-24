@@ -1,0 +1,9 @@
+# Previously across two processes with message passing
+# system_processes: P1|P2
+eid,processes,vc,timestamp,props,event_type,msg_partner
+iota_P1,P1,P1:1;P2:0,0.0,init1,local,
+iota_P2,P2,P1:0;P2:1,0.0,init2,local,
+e1,P1,P1:2;P2:0,1.0,request,send,P2
+e2,P2,P1:2;P2:2,2.0,recv_req,receive,P1
+e3,P2,P1:2;P2:3,3.0,processing,local,
+e4,P2,P1:2;P2:4,4.0,done,local,

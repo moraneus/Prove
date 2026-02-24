@@ -1,0 +1,13 @@
+Example 107: Historically Operator (Single Process)
+=====================================================
+Processes: P1
+Events: 4
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+Every event in the trace carries the "safe" proposition. The property "H safe"
+checks that "safe" has been true at every point in the past (including now).
+Since safe is never absent, the Historically operator is satisfied.
+
+H phi is equivalent to !(TRUE S !phi) ("phi has always been true").
+This example uses the H shorthand instead of writing !(TRUE S !safe).

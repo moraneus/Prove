@@ -1,0 +1,14 @@
+Example 106: Previously Operator (Single Process)
+===================================================
+Processes: P1
+Events: 5
+Epsilon: default (infinity)
+Expected verdict: SATISFIED
+
+A single process goes through init -> request -> processing -> response -> done.
+The property "response -> P request" checks that whenever "response" holds,
+"request" was true at some point in the past. Since request occurs at e1 before
+response at e3, the Previously (P) operator is satisfied.
+
+P phi is equivalent to TRUE S phi ("phi was true at some point in the past").
+This example uses the P shorthand instead of writing TRUE S request.
