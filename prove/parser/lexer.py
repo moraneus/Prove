@@ -36,6 +36,8 @@ class EPLTLLexer(sly.Lexer):
         PROP,
         NOT,
         YESTERDAY,
+        PREVIOUSLY,
+        HISTORICALLY,
         AND,
         OR,
         IMPLIES,
@@ -113,9 +115,14 @@ class EPLTLLexer(sly.Lexer):
             "since": "SINCE",
             "prev": "YESTERDAY",
             "previous": "YESTERDAY",
-            # Single-char keywords: 'S' = SINCE, 'Y' = YESTERDAY
+            "previously": "PREVIOUSLY",
+            "historically": "HISTORICALLY",
+            # Single-char keywords: 'S' = SINCE, 'Y' = YESTERDAY,
+            # 'P' = PREVIOUSLY, 'H' = HISTORICALLY
             "S": "SINCE",
             "Y": "YESTERDAY",
+            "P": "PREVIOUSLY",
+            "H": "HISTORICALLY",
         }
         t.type = keywords.get(t.value, "PROP")
         return t

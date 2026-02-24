@@ -124,6 +124,72 @@ class TestYesterdayOperator:
         assert types == ["YESTERDAY", "PROP"]
 
 
+class TestPreviouslyOperator:
+    """Test Previously operator variants."""
+
+    def test_p_keyword(self, lexer: EPLTLLexer) -> None:
+        """Standalone 'P' is PREVIOUSLY."""
+        types = _types(lexer, "P ready")
+        assert types == ["PREVIOUSLY", "PROP"]
+
+    def test_previously_keyword(self, lexer: EPLTLLexer) -> None:
+        types = _types(lexer, "previously ready")
+        assert types == ["PREVIOUSLY", "PROP"]
+
+    def test_p_starting_prop(self, lexer: EPLTLLexer) -> None:
+        """Propositions starting with P (like 'Process') are PROP, not PREVIOUSLY."""
+        toks = _tokens(lexer, "Process")
+        assert toks == [("PROP", "Process")]
+
+    def test_p_with_underscore(self, lexer: EPLTLLexer) -> None:
+        """'P_flag' should be a proposition."""
+        toks = _tokens(lexer, "P_flag")
+        assert toks == [("PROP", "P_flag")]
+
+    def test_pa_is_prop(self, lexer: EPLTLLexer) -> None:
+        """'Pa' should be a proposition, not PREVIOUSLY + PROP."""
+        toks = _tokens(lexer, "Pa")
+        assert toks == [("PROP", "Pa")]
+
+    def test_previously_in_formula(self, lexer: EPLTLLexer) -> None:
+        """P in a real formula context."""
+        types = _types(lexer, "done -> P request")
+        assert types == ["PROP", "IMPLIES", "PREVIOUSLY", "PROP"]
+
+
+class TestHistoricallyOperator:
+    """Test Historically operator variants."""
+
+    def test_h_keyword(self, lexer: EPLTLLexer) -> None:
+        """Standalone 'H' is HISTORICALLY."""
+        types = _types(lexer, "H valid")
+        assert types == ["HISTORICALLY", "PROP"]
+
+    def test_historically_keyword(self, lexer: EPLTLLexer) -> None:
+        types = _types(lexer, "historically valid")
+        assert types == ["HISTORICALLY", "PROP"]
+
+    def test_h_starting_prop(self, lexer: EPLTLLexer) -> None:
+        """Propositions starting with H (like 'Hello') are PROP, not HISTORICALLY."""
+        toks = _tokens(lexer, "Hello")
+        assert toks == [("PROP", "Hello")]
+
+    def test_h_with_underscore(self, lexer: EPLTLLexer) -> None:
+        """'H_flag' should be a proposition."""
+        toks = _tokens(lexer, "H_flag")
+        assert toks == [("PROP", "H_flag")]
+
+    def test_ha_is_prop(self, lexer: EPLTLLexer) -> None:
+        """'Ha' should be a proposition, not HISTORICALLY + PROP."""
+        toks = _tokens(lexer, "Ha")
+        assert toks == [("PROP", "Ha")]
+
+    def test_historically_in_formula(self, lexer: EPLTLLexer) -> None:
+        """H in a real formula context."""
+        types = _types(lexer, "done -> H valid")
+        assert types == ["PROP", "IMPLIES", "HISTORICALLY", "PROP"]
+
+
 class TestConjunctionOperator:
     """Test conjunction operator variants."""
 
@@ -328,6 +394,21 @@ class TestComplexExpressions:
         types = _types(lexer, "locked <-> (TRUE S acquire)")
         assert types == ["PROP", "IFF", "LPAREN", "TRUE", "SINCE", "PROP", "RPAREN"]
 
+    def test_previously_in_complex(self, lexer: EPLTLLexer) -> None:
+        """P request in implication context."""
+        types = _types(lexer, "response -> P request")
+        assert types == ["PROP", "IMPLIES", "PREVIOUSLY", "PROP"]
+
+    def test_historically_in_complex(self, lexer: EPLTLLexer) -> None:
+        """H valid in implication context."""
+        types = _types(lexer, "done -> H valid")
+        assert types == ["PROP", "IMPLIES", "HISTORICALLY", "PROP"]
+
+    def test_previously_and_historically_combined(self, lexer: EPLTLLexer) -> None:
+        """P request & H valid."""
+        types = _types(lexer, "P request & H valid")
+        assert types == ["PREVIOUSLY", "PROP", "AND", "HISTORICALLY", "PROP"]
+
 
 class TestKeywordVsProposition:
     """Test that keywords are distinguished from propositions correctly."""
@@ -385,6 +466,28 @@ class TestKeywordVsProposition:
     def test_yes_is_prop(self, lexer: EPLTLLexer) -> None:
         """'Yes' (more than one char starting with Y) is a proposition."""
         assert _tokens(lexer, "Yes") == [("PROP", "Yes")]
+
+    def test_p_is_previously(self, lexer: EPLTLLexer) -> None:
+        """Standalone 'P' is PREVIOUSLY operator."""
+        assert _types(lexer, "P p") == ["PREVIOUSLY", "PROP"]
+
+    def test_pending_is_prop(self, lexer: EPLTLLexer) -> None:
+        """'Pending' (more than one char starting with P) is a proposition."""
+        assert _tokens(lexer, "Pending") == [("PROP", "Pending")]
+
+    def test_previously_is_operator(self, lexer: EPLTLLexer) -> None:
+        assert _types(lexer, "previously p") == ["PREVIOUSLY", "PROP"]
+
+    def test_h_is_historically(self, lexer: EPLTLLexer) -> None:
+        """Standalone 'H' is HISTORICALLY operator."""
+        assert _types(lexer, "H p") == ["HISTORICALLY", "PROP"]
+
+    def test_history_is_prop(self, lexer: EPLTLLexer) -> None:
+        """'History' (more than one char starting with H) is a proposition."""
+        assert _tokens(lexer, "History") == [("PROP", "History")]
+
+    def test_historically_is_operator(self, lexer: EPLTLLexer) -> None:
+        assert _types(lexer, "historically p") == ["HISTORICALLY", "PROP"]
 
 
 class TestErrorHandling:

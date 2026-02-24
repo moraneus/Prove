@@ -48,6 +48,32 @@ class TestParseFormula:
         assert isinstance(result, Implication)
         assert isinstance(result.right, Since)
 
+    def test_previously(self) -> None:
+        """P ready parses to Since(TRUE, ready)."""
+        result = parse_formula("P ready")
+        assert isinstance(result, Since)
+        assert isinstance(result.left, TrueConstant)
+        assert isinstance(result.right, Proposition)
+        assert result.right.name == "ready"
+
+    def test_previously_keyword(self) -> None:
+        result = parse_formula("previously ready")
+        assert isinstance(result, Since)
+        assert isinstance(result.left, TrueConstant)
+
+    def test_historically(self) -> None:
+        """H valid parses to !(TRUE S !valid)."""
+        result = parse_formula("H valid")
+        assert isinstance(result, Negation)
+        inner = result.operand
+        assert isinstance(inner, Since)
+        assert isinstance(inner.right, Negation)
+
+    def test_historically_keyword(self) -> None:
+        result = parse_formula("historically valid")
+        assert isinstance(result, Negation)
+        assert isinstance(result.operand, Since)
+
     def test_empty_raises(self) -> None:
         with pytest.raises(ParseError):
             parse_formula("")
@@ -164,6 +190,21 @@ class TestPropositions:
         f = Since(TrueConstant(), Proposition("request"))
         assert propositions(f) == frozenset({"request"})
 
+    def test_previously_propositions(self) -> None:
+        """P ready has only 'ready' as a proposition."""
+        f = parse_formula("P ready")
+        assert propositions(f) == frozenset({"ready"})
+
+    def test_historically_propositions(self) -> None:
+        """H valid has only 'valid' as a proposition."""
+        f = parse_formula("H valid")
+        assert propositions(f) == frozenset({"valid"})
+
+    def test_combined_p_h_propositions(self) -> None:
+        """P request & H valid has 'request' and 'valid'."""
+        f = parse_formula("P request & H valid")
+        assert propositions(f) == frozenset({"request", "valid"})
+
 
 class TestToString:
     """Test canonical string conversion."""
@@ -205,6 +246,16 @@ class TestToString:
             Since(Proposition("confirmed"), Proposition("ready")),
         )
         assert to_string(f) == "(done -> (confirmed S ready))"
+
+    def test_previously(self) -> None:
+        """P ready stringifies as (TRUE S ready)."""
+        f = parse_formula("P ready")
+        assert to_string(f) == "(TRUE S ready)"
+
+    def test_historically(self) -> None:
+        """H valid stringifies as !(TRUE S !valid)."""
+        f = parse_formula("H valid")
+        assert to_string(f) == "!(TRUE S !valid)"
 
 
 class TestSimplify:
@@ -322,6 +373,10 @@ class TestParseAndStringRoundTrip:
             ("a S b", "(a S b)"),
             ("TRUE", "TRUE"),
             ("FALSE", "FALSE"),
+            ("P ready", "(TRUE S ready)"),
+            ("previously ready", "(TRUE S ready)"),
+            ("H valid", "!(TRUE S !valid)"),
+            ("historically valid", "!(TRUE S !valid)"),
         ],
     )
     def test_parse_to_string(self, formula_str: str, expected_str: str) -> None:

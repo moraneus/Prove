@@ -52,7 +52,7 @@ class _SLYParser(sly.Parser):
         ("left", OR),
         ("left", AND),
         ("right", SINCE),
-        ("right", NOT, YESTERDAY),
+        ("right", NOT, YESTERDAY, PREVIOUSLY, HISTORICALLY),
     )
 
     # --- Atomic formulas ---
@@ -78,6 +78,14 @@ class _SLYParser(sly.Parser):
     @_("YESTERDAY formula")
     def formula(self, p):
         return Yesterday(p.formula)
+
+    @_("PREVIOUSLY formula")
+    def formula(self, p):
+        return Since(TrueConstant(), p.formula)
+
+    @_("HISTORICALLY formula")
+    def formula(self, p):
+        return Negation(Since(TrueConstant(), Negation(p.formula)))
 
     # --- Binary operators ---
 

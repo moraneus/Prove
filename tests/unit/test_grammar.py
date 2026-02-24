@@ -125,6 +125,70 @@ class TestUnaryOperators:
         assert isinstance(result, Yesterday)
         assert isinstance(result.operand, Yesterday)
 
+    def test_previously_p(self, parser: EPLTLParser) -> None:
+        """P ready → Since(TRUE, ready)"""
+        result = _parse(parser, "P ready")
+        assert isinstance(result, Since)
+        assert isinstance(result.left, TrueConstant)
+        assert isinstance(result.right, Proposition)
+        assert result.right.name == "ready"
+
+    def test_previously_keyword(self, parser: EPLTLParser) -> None:
+        result = _parse(parser, "previously ready")
+        assert isinstance(result, Since)
+        assert isinstance(result.left, TrueConstant)
+
+    def test_previously_equals_true_s(self, parser: EPLTLParser) -> None:
+        """P φ should produce the same AST as TRUE S φ."""
+        r1 = _parse(parser, "P ready")
+        r2 = _parse(parser, "TRUE S ready")
+        assert r1 == r2
+
+    def test_historically_h(self, parser: EPLTLParser) -> None:
+        """H valid → Negation(Since(TRUE, Negation(valid)))"""
+        result = _parse(parser, "H valid")
+        assert isinstance(result, Negation)
+        inner = result.operand
+        assert isinstance(inner, Since)
+        assert isinstance(inner.left, TrueConstant)
+        assert isinstance(inner.right, Negation)
+        assert isinstance(inner.right.operand, Proposition)
+        assert inner.right.operand.name == "valid"
+
+    def test_historically_keyword(self, parser: EPLTLParser) -> None:
+        result = _parse(parser, "historically valid")
+        assert isinstance(result, Negation)
+        assert isinstance(result.operand, Since)
+
+    def test_historically_equals_not_true_s_not(self, parser: EPLTLParser) -> None:
+        """H φ should produce the same AST as !(TRUE S !φ)."""
+        r1 = _parse(parser, "H valid")
+        r2 = _parse(parser, "!(TRUE S !valid)")
+        assert r1 == r2
+
+    def test_negation_of_previously(self, parser: EPLTLParser) -> None:
+        """!P ready → Negation(Since(TRUE, ready))"""
+        result = _parse(parser, "!P ready")
+        assert isinstance(result, Negation)
+        assert isinstance(result.operand, Since)
+        assert isinstance(result.operand.left, TrueConstant)
+
+    def test_previously_of_negation(self, parser: EPLTLParser) -> None:
+        """P !ready → Since(TRUE, Negation(ready))"""
+        result = _parse(parser, "P !ready")
+        assert isinstance(result, Since)
+        assert isinstance(result.right, Negation)
+
+    def test_historically_of_conjunction(self, parser: EPLTLParser) -> None:
+        """H (a & b) → !(TRUE S !(a & b))"""
+        result = _parse(parser, "H (a & b)")
+        assert isinstance(result, Negation)
+        inner_since = result.operand
+        assert isinstance(inner_since, Since)
+        inner_neg = inner_since.right
+        assert isinstance(inner_neg, Negation)
+        assert isinstance(inner_neg.operand, Conjunction)
+
 
 class TestBinaryOperators:
     """Test parsing of binary operators."""
@@ -245,6 +309,32 @@ class TestPrecedence:
         result = _parse(parser, "@a S b")
         assert isinstance(result, Since)
         assert isinstance(result.left, Yesterday)
+
+    def test_previously_binds_tighter_than_and(self, parser: EPLTLParser) -> None:
+        """P a & b  →  (P a) & b  →  (TRUE S a) & b"""
+        result = _parse(parser, "P a & b")
+        assert isinstance(result, Conjunction)
+        assert isinstance(result.left, Since)  # P a = TRUE S a
+        assert isinstance(result.right, Proposition)
+
+    def test_historically_binds_tighter_than_and(self, parser: EPLTLParser) -> None:
+        """H a & b  →  (H a) & b  →  !(TRUE S !a) & b"""
+        result = _parse(parser, "H a & b")
+        assert isinstance(result, Conjunction)
+        assert isinstance(result.left, Negation)  # H a = !(TRUE S !a)
+        assert isinstance(result.right, Proposition)
+
+    def test_previously_binds_tighter_than_implies(self, parser: EPLTLParser) -> None:
+        """done -> P request  →  done -> (TRUE S request)"""
+        result = _parse(parser, "done -> P request")
+        assert isinstance(result, Implication)
+        assert isinstance(result.right, Since)
+
+    def test_historically_binds_tighter_than_implies(self, parser: EPLTLParser) -> None:
+        """done -> H valid  →  done -> !(TRUE S !valid)"""
+        result = _parse(parser, "done -> H valid")
+        assert isinstance(result, Implication)
+        assert isinstance(result.right, Negation)
 
 
 class TestAssociativity:
@@ -391,6 +481,37 @@ class TestComplexFormulas:
         assert isinstance(result.right, Since)
         assert isinstance(result.right.left, TrueConstant)
 
+    def test_response_implies_previously_request(self, parser: EPLTLParser) -> None:
+        """response -> P request"""
+        result = _parse(parser, "response -> P request")
+        assert isinstance(result, Implication)
+        assert isinstance(result.right, Since)
+        assert isinstance(result.right.left, TrueConstant)
+        assert result.right.right.name == "request"
+
+    def test_historically_valid_formula(self, parser: EPLTLParser) -> None:
+        """H valid"""
+        result = _parse(parser, "H valid")
+        assert isinstance(result, Negation)
+        inner = result.operand
+        assert isinstance(inner, Since)
+        assert isinstance(inner.left, TrueConstant)
+        assert isinstance(inner.right, Negation)
+
+    def test_previously_and_historically_combined(self, parser: EPLTLParser) -> None:
+        """P request & H valid"""
+        result = _parse(parser, "P request & H valid")
+        assert isinstance(result, Conjunction)
+        assert isinstance(result.left, Since)  # P request = TRUE S request
+        assert isinstance(result.right, Negation)  # H valid = !(TRUE S !valid)
+
+    def test_historically_implies_previously(self, parser: EPLTLParser) -> None:
+        """H safe -> P done"""
+        result = _parse(parser, "H safe -> P done")
+        assert isinstance(result, Implication)
+        assert isinstance(result.left, Negation)  # H safe
+        assert isinstance(result.right, Since)  # P done
+
     def test_mutual_exclusion(self, parser: EPLTLParser) -> None:
         """!(cs1 & cs2)"""
         result = _parse(parser, "!(cs1 & cs2)")
@@ -428,6 +549,16 @@ class TestRoundTrip:
     def test_complex_str(self, parser: EPLTLParser) -> None:
         result = _parse(parser, "done -> (confirmed S ready)")
         assert str(result) == "(done -> (confirmed S ready))"
+
+    def test_previously_str(self, parser: EPLTLParser) -> None:
+        """P ready stringifies as (TRUE S ready)."""
+        result = _parse(parser, "P ready")
+        assert str(result) == "(TRUE S ready)"
+
+    def test_historically_str(self, parser: EPLTLParser) -> None:
+        """H valid stringifies as !(TRUE S !valid)."""
+        result = _parse(parser, "H valid")
+        assert str(result) == "!(TRUE S !valid)"
 
 
 class TestErrorHandling:
