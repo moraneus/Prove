@@ -1,0 +1,2 @@
+# At some point in the past, both done and init1 were true simultaneously
+P (done & init1)

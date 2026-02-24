@@ -204,15 +204,22 @@ class SlidingWindowGraph:
         """
         Check if new_event can commute backward over an edge labeled edge_event.
 
-        Paper V2 conditions:
+        Conditions for commutation:
         1. Events are independent: pr(new_event) != pr(edge_event)
         2. Timing allows: NOT (t(new_event) - t(edge_event) > epsilon)
+        3. Not causally ordered: edge_event is not before new_event in
+           the complete partial order (which includes VC ordering).
+           If edge_event ≺ new_event, then new_event depends on
+           edge_event and cannot be moved before it.
         """
         # Condition 1: process independence
         if new_event.process == edge_event.process:
             return False
-        # Condition 2: timing constraint
+        # Condition 2: timing constraint (Paper V2)
         if (new_event.timestamp - edge_event.timestamp) > self.partial_order.epsilon:
+            return False
+        # Condition 3: not causally ordered
+        if self.partial_order.is_before(edge_event, new_event):
             return False
         return True
 

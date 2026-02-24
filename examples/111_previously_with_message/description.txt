@@ -1,0 +1,20 @@
+Example 111: Previously with Message Causality
+================================================
+Processes: P1, P2
+Events: 5
+Epsilon: 2.0
+Expected verdict: VIOLATED
+
+P1 sends a message at e1 (ready) which P2 receives at e2 (done). This creates
+the causal ordering e1 < e2, meaning e2 can only appear in a linearization
+after e1. The property "P (done & init1)" asks whether there exists a point
+where both "done" and "init1" are true simultaneously in the global state.
+
+Without the message, the frontier {iota_P1, e2} would have propositions
+{init1, done}, satisfying the property. But with the message e1 < e2, event
+e2 can only be processed after e1, so by the time "done" appears, P1's maximal
+event is e1 (with "ready"), not iota_P1 (with "init1"). The two propositions
+never coexist in any reachable global state, so the property is violated.
+
+This demonstrates how message causality restricts the set of valid
+linearizations and can change the verdict.
