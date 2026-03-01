@@ -276,7 +276,7 @@ class TestEdgeCases:
 
 
 class TestValidateInitialEvents:
-    """Test validate_initial_events per paper §2.1.3."""
+    """Test validate_initial_events for proper initial event structure."""
 
     def _make_event(
         self,

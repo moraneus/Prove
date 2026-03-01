@@ -5,8 +5,7 @@ A frontier maps each process to its maximal event in a cut, providing
 a compact representation of a global state. Two cuts with the same
 frontier represent the same global state.
 
-The frontier always contains exactly one event per process (|F| = |P|),
-as required by the Paper V2 invariant.
+The frontier always contains exactly one event per process (|F| = |P|).
 """
 
 from __future__ import annotations

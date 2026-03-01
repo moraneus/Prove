@@ -1,4 +1,4 @@
-# Paper V2 Figure 1: Two-Process Partial Order with Epsilon-Based Ordering
+# Two-Process Partial Order with Epsilon-Based Ordering
 # system_processes: P1|P2
 # epsilon: 2
 eid,processes,vc,timestamp,props,event_type,msg_partner

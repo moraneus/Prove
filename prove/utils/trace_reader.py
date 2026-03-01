@@ -118,7 +118,7 @@ class TraceReader:
         else:
             processes = frozenset(e.process for e in events)
 
-        # Validate initial events per paper §2.1.3
+        # Validate initial event structure
         init_errors = self.validate_initial_events(events, processes)
         if init_errors:
             raise ValueError(
@@ -244,7 +244,7 @@ class TraceReader:
         events: List[Event], processes: FrozenSet[str]
     ) -> List[str]:
         """
-        Validate that every process has a proper initial event per paper §2.1.3.
+        Validate that every process has a proper initial event.
 
         An initial event ιₚ for process p must satisfy:
         - VC[p] = 1 and VC[q] = 0 for all q ≠ p

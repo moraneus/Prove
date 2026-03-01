@@ -3,7 +3,7 @@ Tests for the sliding window graph implementation.
 
 Tests cover initialization, sequential event processing, concurrent event
 processing with backward propagation (diamond property), summary propagation,
-redundant node removal, verdict computation, and Paper V2 timing constraints.
+redundant node removal, verdict computation, and timing constraints.
 """
 
 
@@ -421,12 +421,12 @@ class TestVerdict:
 
 
 # ---------------------------------------------------------------------------
-# Tests: Paper V2 Timing Constraint on Backward Commutation
+# Tests: Timing Constraint on Backward Commutation
 # ---------------------------------------------------------------------------
 
 
 class TestTimingConstraint:
-    """Test Paper V2 timing constraint on backward commutation."""
+    """Test timing constraint on backward commutation."""
 
     def test_commutation_blocked_by_timing(self) -> None:
         """Events cannot commute backward when t(e) - t(f) > epsilon."""

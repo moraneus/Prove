@@ -307,12 +307,12 @@ class TestFigure1ThreeProcesses:
 
 
 # ====================================================================
-# Test Suite B: Paper V2 Figure 1 (Epsilon Timing)
+# Test Suite B: Two-Process Trace with Epsilon-Based Ordering
 # ====================================================================
 
 
 class TestV2Figure1EpsilonTiming:
-    """Tests for the Paper V2 two-process trace with epsilon-based ordering."""
+    """Tests for two-process partial order with clock skew constraints."""
 
     @pytest.fixture(autouse=True)
     def _load_trace(self) -> None:

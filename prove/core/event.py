@@ -2,7 +2,7 @@
 Event representation for partial order executions.
 
 Each event belongs to exactly one process (asynchronous message-passing
-model per the paper), carries a Fidge-Mattern vector clock for causal
+model), carries a Fidge-Mattern vector clock for causal
 ordering, a global timestamp for epsilon-based clock-drift ordering,
 and a set of propositions that hold after the event executes.
 """

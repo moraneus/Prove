@@ -275,7 +275,6 @@ class EPLTLMonitor:
         # Identify initial events (strict VC-based identification)
         initial_events = self._identify_initial_events(events)
 
-        # Initialize graph
         self._graph = SlidingWindowGraph(
             processes=self.processes,
             initial_events=initial_events,
@@ -315,7 +314,7 @@ class EPLTLMonitor:
         """
         Identify the initial event for each process using vector clock structure.
 
-        Per paper §2.1.3, the initial event ιₚ for process p has:
+        An initial event ιₚ for process p has:
         VC[p] = 1 and VC[q] = 0 for all q ≠ p.
 
         Args:

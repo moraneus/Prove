@@ -166,7 +166,6 @@ def _run(args: argparse.Namespace) -> None:
     else:
         eps = float("inf")
 
-    # Create and run monitor
     monitor = EPLTLMonitor(
         formula=formula,
         processes=trace_data.metadata.processes,

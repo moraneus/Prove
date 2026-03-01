@@ -133,14 +133,9 @@ class SlidingWindowGraph:
         # Reverse adjacency: node_id -> list of (event, source_node_id)
         self._incoming: Dict[int, List[Tuple[Event, int]]] = {}
 
-        # Create initial frontier from all initial events
         initial_frontier = Frontier.from_mapping(initial_events)
-
-        # Create initial summary using global state of initial frontier
         global_props = initial_frontier.global_state()
         initial_summary = self._create_initial_summary(global_props)
-
-        # Create initial node
         s0 = self._create_node(initial_frontier)
         s0.summaries.add(initial_summary)
         self.maximal_node_id: int = s0.node_id
@@ -215,7 +210,7 @@ class SlidingWindowGraph:
         # Condition 1: process independence
         if new_event.process == edge_event.process:
             return False
-        # Condition 2: timing constraint (Paper V2)
+        # Timing constraint: commutation blocked when t(e) - t(f) > ε
         if (new_event.timestamp - edge_event.timestamp) > self.partial_order.epsilon:
             return False
         # Condition 3: not causally ordered
@@ -241,30 +236,23 @@ class SlidingWindowGraph:
         self._events_processed += 1
         new_edges: List[GraphEdge] = []
 
-        # Step 1: Create new maximal node
         old_max_id = self.maximal_node_id
         old_max_node = self.nodes[old_max_id]
         new_frontier = old_max_node.frontier.successor(event, self.partial_order)
         new_max_node = self._create_node(new_frontier)
         self._add_edge(old_max_id, event, new_max_node.node_id, new_edges)
 
-        # Step 2: Backward propagation (also collects new edges)
+        # Commute event backward over independent edges
         self._backward_propagate(event, old_max_id, new_edges)
 
-        # Step 3: Propagate summaries through all new edges (worklist)
         self._propagate_summaries(new_edges)
-
-        # Step 4: Update maximal node
         self.maximal_node_id = new_max_node.node_id
-
-        # Step 5: Update covered processes
         self._update_covered_processes(event)
 
         # Snapshot before pruning (for --full-graph visualization)
         if self._record_history:
             self._take_snapshot(event.eid)
 
-        # Step 6: Remove redundant nodes
         self._remove_redundant_nodes()
 
     def _backward_propagate(self, event: Event, start_id: int, new_edges: List[GraphEdge]) -> None:
@@ -284,14 +272,12 @@ class SlidingWindowGraph:
                 if not self._can_commute(event, edge_event):
                     continue
 
-                # Check if source already has an outgoing edge with this event
                 existing_target = self._has_edge_with_event(source_id, event)
                 if existing_target is None:
-                    # Create the commuted path: source --event--> r --edge_event--> join
+                    # Build commutation diamond: source --event--> r --edge_event--> join
                     source_node = self.nodes[source_id]
                     r_frontier = source_node.frontier.successor(event, self.partial_order)
 
-                    # Find or create the intermediate node
                     r_id = self._find_node_with_frontier(r_frontier)
                     if r_id is None:
                         r_node = self._create_node(r_frontier)
@@ -299,7 +285,6 @@ class SlidingWindowGraph:
 
                     self._add_edge(source_id, event, r_id, new_edges)
 
-                    # Find the join node (where both paths meet)
                     r_node_obj = self.nodes[r_id]
                     join_frontier = r_node_obj.frontier.successor(edge_event, self.partial_order)
                     join_id = self._find_node_with_frontier(join_frontier)
@@ -307,7 +292,6 @@ class SlidingWindowGraph:
                         join_node = self._create_node(join_frontier)
                         join_id = join_node.node_id
 
-                    # Add edge from r to join (if not exists)
                     if self._has_edge_with_event(r_id, edge_event) is None:
                         self._add_edge(r_id, edge_event, join_id, new_edges)
 
