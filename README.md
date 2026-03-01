@@ -1,17 +1,31 @@
-# PROVE -- Partial oRder Verification Engine
+# PROVE — Partial oRder Verification Engine
 
-Runtime verification of Existential Past Linear Temporal Logic (EPLTL) properties over partial order executions of distributed systems.
+Runtime verification of Existential Past Linear Temporal Logic (EPLTL) properties
+over partial order executions of distributed systems.
 
 ## Overview
 
-PROVE implements a sliding window algorithm for checking whether **at least one valid linearization** of a partial order execution satisfies a given past-time temporal property. It combines:
+PROVE verifies temporal properties against distributed system execution traces
+without requiring a total order. It works directly on the partial order defined by
+vector clocks and bounded clock drift (epsilon), checking whether **at least one
+valid linearization** of the execution satisfies a given past-time temporal property.
 
-- **Fidge-Mattern vector clocks** for causal ordering
-- **Bounded clock skew (epsilon)** for additional temporal ordering
-- **Sliding window graph** for efficient state space management
-- **Summary-based evaluation** for EPLTL formula checking
+The tool implements a sliding window algorithm that combines Fidge-Mattern vector
+clocks for causal ordering, bounded clock skew for additional temporal ordering,
+and summary-based EPLTL evaluation across all possible execution paths.
 
-Based on the paper: *"Runtime Verification of Linear Temporal Properties over Partial Order Executions"* by Doron Peled et al.
+Based on *"Runtime Verification of Linear Temporal Properties over Partial Order
+Executions"* by Doron Peled et al.
+
+## Features
+
+- Offline verification of EPLTL properties over partial orders
+- Vector clock and epsilon-based (bounded clock drift) event ordering
+- Sliding window graph algorithm for efficient state space exploration
+- Asynchronous message-passing with FIFO ordering
+- ASCII visualization of partial order executions
+- DOT/Graphviz export of the sliding window graph
+- Detailed statistics and configurable debug output
 
 ## Installation
 
@@ -20,224 +34,231 @@ Requires Python 3.10+.
 ```bash
 git clone https://github.com/moraneus/Prove.git
 cd Prove
+python -m venv .venv
+source .venv/bin/activate
 pip install -e ".[dev]"
+```
+
+Verify the installation:
+
+```bash
+python -m prove --version
 ```
 
 ## Quick Start
 
+Create a property file `safety.prop`:
+
+```
+# If done, then working was true at some point in the past
+done -> (TRUE S working)
+```
+
+Create a trace file `trace.csv`:
+
+```csv
+# system_processes: P1
+eid,processes,vc,timestamp,props,event_type,msg_partner
+e0,P1,P1:1,0.0,init,local,
+e1,P1,P1:2,1.0,working,local,
+e2,P1,P1:3,2.0,done,local,
+```
+
+Run the verification:
+
 ```bash
-# Check a property against a trace
-prove -p examples/properties/safety.prop -t examples/traces/simple.csv
-
-# With epsilon (clock skew bound)
-prove -p examples/properties/response.prop -t examples/traces/message_passing.csv -e 2.0
-
-# Verbose output with ASCII visualization
-prove -p examples/properties/safety.prop -t examples/traces/paper_example.csv \
-      -e 2.0 -o verbose --visualize-ascii --stats
+python -m prove -p safety.prop -t trace.csv
 ```
 
-## CLI Reference
+Output:
 
 ```
-prove -p PROPERTY -t TRACE [options]
-```
-
-| Option | Description |
-|--------|-------------|
-| `-p, --property FILE` | EPLTL formula file (required) |
-| `-t, --trace FILE` | Trace CSV file (required) |
-| `-e, --epsilon N` | Maximum clock skew in time units (default: infinity) |
-| `-o, --output MODE` | Output level: `silent`, `normal`, `verbose` (default: normal) |
-| `-d, --debug N` | Debug level 0-3 (default: 0) |
-| `--visualize [FILE]` | Generate graph visualization (DOT format) |
-| `--visualize-ascii` | Print ASCII partial order diagram |
-| `--full-graph` | Keep all graph nodes (disable pruning) |
-| `--stats` | Print verification statistics |
-| `--version` | Show version and exit |
-
-**Exit codes:** `0` = property satisfied, `1` = property violated, `2` = error
-
-### Verbose Output (`-o verbose`)
-
-The verbose output mode prints structured, tagged lines showing the full verification pipeline:
-
-```
-[INFO] Loaded 7 events from 2 processes
-[INFO] Processes: Client, Server
-[INFO] Epsilon: 0.0
-[INFO] Verifying formula: response -> (TRUE S request)
-[EVENT] iota_Client @ process Client, props: idle
-[EVENT] iota_Server @ process Server, props: idle
-[EVENT] c_send @ process Client, props: request
-[EVENT] s_recv @ process Server, props: busy
-[EVENT] s_process @ process Server, props: processing
-[EVENT] s_send @ process Server, props: response
-[EVENT] c_recv @ process Client, props: satisfied
-[FRONTIER] Maximal state: {Client: c_recv, Server: s_send}
 SATISFIED: Property holds for at least one linearization
 ```
 
-| Tag | Meaning |
-|-----|---------|
-| `[INFO]` | Loaded trace metadata, process list, epsilon, and formula |
-| `[EVENT]` | Per-event progress showing process and active propositions |
-| `[FRONTIER]` | The maximal frontier (last event per process) at verification end |
-
-### ASCII Visualization (`--visualize-ascii`)
-
-The `--visualize-ascii` flag prints a timeline diagram of the partial order execution, making causal relationships between events easy to understand at a glance.
-
-```bash
-prove -p formula.prop -t trace.csv -e 2.0 --visualize-ascii
-```
-
-#### How to Read the Diagram
-
-The diagram has three sections: **header**, **timeline**, and **footer**.
-
-**Header** -- Shows process names as column headers, a separator line, and the epsilon value:
+## Usage
 
 ```
-      Client          Server
-────────────────────────────────
-(epsilon = 2.0)
+python -m prove -p PROPERTY -t TRACE [options]
 ```
 
-**Timeline** -- Events are placed in their process column, ordered top-to-bottom by timestamp:
+| Option | Description | Default |
+|--------|-------------|---------|
+| `-p, --property FILE` | EPLTL formula file (required) | — |
+| `-t, --trace FILE` | Trace CSV file (required) | — |
+| `-e, --epsilon N` | Maximum clock skew in time units | infinity |
+| `-o, --output MODE` | Output level: `silent`, `normal`, `verbose` | `normal` |
+| `-d, --debug N` | Debug level 0–3 | `0` |
+| `--visualize [FILE]` | Generate graph visualization (DOT format) | — |
+| `--visualize-ascii` | Print ASCII partial order diagram | — |
+| `--full-graph` | Keep all graph nodes (disable pruning) | — |
+| `--stats` | Print verification statistics | — |
+| `--version` | Show version and exit | — |
 
-```
-    iota_Client      iota_Server
-      (t=0.0)          (t=0.0)
-        |                |          <-- intra-process arrows
-        v                v
-      c_send  {request}  s_recv  {busy}
-      (t=1.0)          (t=2.0)
-```
+### Exit Codes
 
-Each event shows:
-- **Event name** centered in its process column
-- **Propositions** in curly braces next to the name (e.g., `{request}`)
-- **Timestamp** below the name (e.g., `(t=1.0)`)
-- **Vertical arrows** (`|` and `v`) connecting consecutive events on the same process
-
-**Cross-process ordering arrows** appear between event rows when one event on a process is ordered before an event on another process. These arrows show **why** the ordering exists:
-
-```
-        c_send
-       (t=1.0)
-          ╰── c_send ≺ s_recv (VC) ──→
-                              s_recv
-                             (t=2.0)
-```
-
-| Arrow | Direction |
-|-------|-----------|
-| `╰──...──→` | Left-to-right: source process is left of target |
-| `←──...──╯` | Right-to-left: source process is right of target |
-
-The annotation between the arrows explains the ordering reason:
-
-| Annotation | Meaning |
-|------------|---------|
-| `(VC)` | **Vector clock ordering** -- the source event's vector clock is strictly less than the target's (typically from message send/receive pairs) |
-| `(dt=X.X>eps=Y.Y)` | **Epsilon ordering** -- the timestamp difference exceeds the clock skew bound, so the events are definitely ordered by time |
-| `(VC, dt=X.X>eps=Y.Y)` | Both orderings apply simultaneously |
-
-**Footer** -- Lists all cross-process orderings as a summary:
-
-```
-────────────────────────────────
-Cross-process orderings:
-  c_send ≺ s_recv  (VC)
-  s_send ≺ c_recv  (VC)
-```
-
-#### Full Example
-
-Given a two-process client-server trace with message passing (`epsilon = 0.0`):
-
-```
-         Client              Server
-──────────────────────────────────────────
-(epsilon = 0.0)
-
-      iota_Client  {idle}   iota_Server  {idle}
-        (t=0.0)               (t=0.0)
-           |                     |
-           v                     v
-        c_send  {request}     s_recv  {busy}
-        (t=1.0)               (t=2.0)
-           ╰── c_send ≺ s_recv (VC) ──→
-           |                     |
-           v                     v
-        c_recv  {satisfied}  s_send  {response}
-        (t=5.0)               (t=4.0)
-      ←── s_send ≺ c_recv (VC) ──╯
-
-──────────────────────────────────────────
-Cross-process orderings:
-  c_send ≺ s_recv  (VC)
-  s_send ≺ c_recv  (VC)
-```
-
-Reading this diagram: `c_send` on Client causally precedes `s_recv` on Server (via vector clock / message passing), and `s_send` on Server causally precedes `c_recv` on Client. Events within the same column (same process) are totally ordered top-to-bottom.
+| Code | Meaning |
+|------|---------|
+| `0` | Property SATISFIED |
+| `1` | Property VIOLATED |
+| `2` | Error (invalid input, file not found, parse error) |
 
 ## Trace File Format
 
-CSV with one event per row:
+CSV with one event per row. Optional directives in comments configure system-wide settings.
 
 ```csv
-# system_processes: P1|P2
+# system_processes: Client|Server
 # epsilon: 2.0
 eid,processes,vc,timestamp,props,event_type,msg_partner
-iota_P1,P1,P1:1;P2:0,0.0,init,local,
-iota_P2,P2,P1:0;P2:1,0.0,init,local,
-e1,P1,P1:2;P2:0,1.0,ready,local,
-e2,P2,P1:0;P2:2,1.5,done,local,
+iota_c,Client,Client:1;Server:0,0.0,idle,local,
+iota_s,Server,Client:0;Server:1,0.0,idle,local,
+c_send,Client,Client:2;Server:0,1.0,request,send,Server
+s_recv,Server,Client:2;Server:2,2.0,busy,receive,Client
+s_send,Server,Client:2;Server:3,3.0,response,send,Client
+c_recv,Client,Client:3;Server:3,4.0,done,receive,Server
 ```
 
-| Field | Description |
-|-------|-------------|
-| `eid` | Unique event identifier |
-| `processes` | Process ID this event belongs to |
-| `vc` | Vector clock (`P1:2;P2:1`) |
-| `timestamp` | Global timestamp for epsilon-ordering |
-| `props` | Propositions (`ready\|done`), may be empty |
-| `event_type` | `local`, `send`, or `receive` |
-| `msg_partner` | Target (send) or source (receive) process |
+### Fields
 
-## Property File Format (EPLTL)
+| Field | Required | Description |
+|-------|----------|-------------|
+| `eid` | Yes | Unique event identifier |
+| `processes` | Yes | Process ID this event belongs to |
+| `vc` | Yes | Vector clock (`P1:2;P2:1;P3:0`) |
+| `timestamp` | Yes | Global timestamp for epsilon-based ordering |
+| `props` | No | Pipe-separated propositions (`ready\|done`), may be empty |
+| `event_type` | No | `local`, `send`, or `receive` (default: `local`) |
+| `msg_partner` | Conditional | Target process (send) or source process (receive) |
 
-One formula per file. Lines starting with `#` are comments.
+### Initial Events
 
-| Operator | Syntax | Description |
-|----------|--------|-------------|
+Each process must have exactly one initial event with:
+- `VC[p] = 1` for its own process
+- `VC[q] = 0` for all other processes
+
+Initial events are concurrent with each other and form the initial frontier.
+
+## Property File Format
+
+One EPLTL formula per file. Lines starting with `#` are comments.
+
+### Operators
+
+| Operator | Symbols | Description |
+|----------|---------|-------------|
 | True | `TRUE`, `true` | Always true |
 | False | `FALSE`, `false` | Always false |
-| Negation | `!`, `not` | Logical NOT |
-| Yesterday | `@`, `Y` | Value in previous state |
-| Conjunction | `&`, `&&`, `and` | Logical AND |
-| Disjunction | `\|`, `\|\|`, `or` | Logical OR |
-| Implication | `->`, `implies` | If-then |
-| Biconditional | `<->`, `iff` | If and only if |
+| Negation | `!`, `not`, `¬` | Logical NOT |
+| Yesterday | `@`, `Y`, `prev` | True in previous state |
+| Conjunction | `&`, `&&`, `and`, `∧` | Logical AND |
+| Disjunction | `\|`, `\|\|`, `or`, `∨` | Logical OR |
+| Implication | `->`, `implies`, `→` | If-then |
+| Biconditional | `<->`, `iff`, `↔` | If and only if |
 | Since | `S`, `since` | Since temporal operator |
 
-**Common patterns:**
+### Precedence (highest to lowest)
 
-```
-# Once (eventually in past): TRUE S phi
-TRUE S request
+1. `!`, `@` — unary (right-to-left)
+2. `S` — since (right-to-left)
+3. `&` — conjunction (left-to-right)
+4. `\|` — disjunction (left-to-right)
+5. `->` — implication (right-to-left)
+6. `<->` — biconditional (left-to-right)
 
-# Historically (always in past): !(TRUE S !phi)
-!(TRUE S !valid)
+### Common Patterns
 
-# Response: request implies past event
+```bash
+# Response: every response was preceded by a request
 response -> (TRUE S request)
 
-# Safety with Since
+# Invariant: valid has always been true
+!(TRUE S !valid)
+
+# Precedence: alarm requires a prior warning
+alarm -> (TRUE S warning)
+
+# Safety with Since: confirmed held since ready became true
 done -> (confirmed S ready)
+
+# Yesterday: ready was true in the previous state
+@ready
 ```
+
+## Examples
+
+```bash
+# Basic property check
+python -m prove -p examples/01_single_process_workflow/property.prop \
+                -t examples/01_single_process_workflow/trace.csv
+
+# Client-server with message passing
+python -m prove -p examples/03_client_server_messages/property.prop \
+                -t examples/03_client_server_messages/trace.csv
+
+# Verbose output with statistics
+python -m prove -p examples/05_since_operator/property.prop \
+                -t examples/05_since_operator/trace.csv \
+                -o verbose --stats
+
+# ASCII visualization of partial order
+python -m prove -p examples/03_client_server_messages/property.prop \
+                -t examples/03_client_server_messages/trace.csv \
+                --visualize-ascii
+
+# Generate DOT graph file
+python -m prove -p examples/01_single_process_workflow/property.prop \
+                -t examples/01_single_process_workflow/trace.csv \
+                --visualize graph.dot
+```
+
+## ASCII Visualization
+
+The `--visualize-ascii` flag prints a timeline diagram of the partial order,
+showing causal relationships between events across processes.
+
+```
+         Client                  Server
+────────────────────────────────────────────────
+(ε = inf)
+
+     iota_c  {idle}          iota_s  {idle}
+        (t=0.0)                 (t=0.0)
+           │
+           ↓
+   c_send  {request}
+        (t=1.0)
+                                   │
+                                   ↓
+            ╰ c_send ≺ s_recv (VC) ─→
+                             s_recv  {busy}
+                                (t=2.0)
+                                   │
+                                   ↓
+                        s_process  {processing}
+                                (t=3.0)
+                                   │
+                                   ↓
+                           s_send  {response}
+                                (t=4.0)
+           │
+           ↓
+            ← s_send ≺ c_recv (VC) ─╯
+  c_recv  {satisfied}
+        (t=5.0)
+
+────────────────────────────────────────────────
+Cross-process orderings:
+  c_send ≺ s_recv  (VC)
+  s_send ≺ c_recv  (VC)
+```
+
+Annotations on cross-process arrows indicate the ordering reason:
+
+| Annotation | Meaning |
+|------------|---------|
+| `(VC)` | Vector clock ordering (message causality) |
+| `(Δt=X.X>ε=Y.Y)` | Timestamp difference exceeds clock skew bound |
 
 ## Python API
 
@@ -268,6 +289,25 @@ print(result.verdict)     # Human-readable verdict
 print(result.statistics)  # Verification statistics
 ```
 
+## Development
+
+```bash
+# Run all tests
+pytest tests/ -v
+
+# Run with coverage
+pytest tests/ --cov=prove --cov-report=html
+
+# Run specific tests
+pytest tests/unit/test_vector_clock.py -v
+
+# Format code
+black prove/ tests/
+isort prove/ tests/
+```
+
+Python 3.10+ required. Dependencies: `sly` (parser), `graphviz` (optional, visualization).
+
 ## Project Structure
 
 ```
@@ -291,23 +331,15 @@ prove/
 │   └── formula.py           # Formula utilities
 └── utils/                   # Utilities
     ├── trace_reader.py      # CSV trace file parser
-    ├── logger.py             # Structured logging
+    ├── logger.py            # Structured logging
     └── visualization.py     # Graph visualization
 ```
 
-## Running Tests
+## References
 
-```bash
-# Run all tests
-pytest tests/ -v
-
-# Run with coverage
-pytest tests/ --cov=prove --cov-report=html
-
-# Run specific component tests
-pytest tests/unit/test_vector_clock.py -v
-```
+> Doron Peled et al., *"Runtime Verification of Linear Temporal Properties
+> over Partial Order Executions."*
 
 ## License
 
-MIT
+See [LICENSE](LICENSE) file.
