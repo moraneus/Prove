@@ -7,7 +7,6 @@ concurrent/independent event detection, predecessor/successor queries,
 topological sorting, and enabled event computation.
 """
 
-
 from prove.core.event import Event
 from prove.core.partial_order import PartialOrder
 from prove.core.vector_clock import VectorClock

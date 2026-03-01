@@ -14,7 +14,6 @@ class LexerError(Exception):
     """Exception raised for lexical analysis errors."""
 
 
-
 class EPLTLLexer(sly.Lexer):
     """
     Lexical analyzer for EPLTL formulas.

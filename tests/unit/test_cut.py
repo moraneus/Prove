@@ -6,7 +6,6 @@ maximal event computation per process, frontier construction,
 and containment checks.
 """
 
-
 from prove.core.cut import Cut
 from prove.core.event import Event
 from prove.core.partial_order import PartialOrder

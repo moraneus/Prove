@@ -6,7 +6,6 @@ processing with backward propagation (diamond property), summary propagation,
 redundant node removal, verdict computation, and timing constraints.
 """
 
-
 from prove.core.event import Event
 from prove.core.partial_order import PartialOrder
 from prove.core.sliding_window import SlidingWindowGraph
@@ -625,9 +624,7 @@ class TestGraphHistory:
         all_events = [iota1, iota2, e1]
         po = PartialOrder(all_events, epsilon=float("inf"))
         formula = Proposition("a")
-        g = SlidingWindowGraph(
-            PROCS2, {"P1": iota1, "P2": iota2}, formula, po
-        )
+        g = SlidingWindowGraph(PROCS2, {"P1": iota1, "P2": iota2}, formula, po)
         g.process_event(e1)
         assert g.history == []
 
@@ -639,7 +636,10 @@ class TestGraphHistory:
         po = PartialOrder(all_events, epsilon=float("inf"))
         formula = Proposition("a")
         g = SlidingWindowGraph(
-            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            PROCS2,
+            {"P1": iota1, "P2": iota2},
+            formula,
+            po,
             record_history=True,
         )
         g.process_event(e1)
@@ -652,7 +652,10 @@ class TestGraphHistory:
         po = PartialOrder([iota1, iota2], epsilon=float("inf"))
         formula = Proposition("a")
         g = SlidingWindowGraph(
-            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            PROCS2,
+            {"P1": iota1, "P2": iota2},
+            formula,
+            po,
             record_history=True,
         )
         assert len(g.history) == 1
@@ -668,7 +671,10 @@ class TestGraphHistory:
         po = PartialOrder(all_events, epsilon=float("inf"))
         formula = Proposition("a")
         g = SlidingWindowGraph(
-            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            PROCS2,
+            {"P1": iota1, "P2": iota2},
+            formula,
+            po,
             record_history=True,
         )
         g.process_event(e1)
@@ -684,7 +690,10 @@ class TestGraphHistory:
         po = PartialOrder(all_events, epsilon=float("inf"))
         formula = Proposition("a")
         g = SlidingWindowGraph(
-            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            PROCS2,
+            {"P1": iota1, "P2": iota2},
+            formula,
+            po,
             record_history=True,
         )
         for ev in [e1, e2, e3]:
@@ -700,7 +709,10 @@ class TestGraphHistory:
         po = PartialOrder(all_events, epsilon=float("inf"))
         formula = Proposition("a")
         g = SlidingWindowGraph(
-            PROCS2, {"P1": iota1, "P2": iota2}, formula, po,
+            PROCS2,
+            {"P1": iota1, "P2": iota2},
+            formula,
+            po,
             record_history=True,
         )
         g.process_event(e1)

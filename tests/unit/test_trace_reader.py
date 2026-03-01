@@ -289,8 +289,11 @@ class TestValidateInitialEvents:
         procs = frozenset(vc_vals.keys())
         vc = VectorClock(procs, initial_values=vc_vals)
         return Event(
-            eid=eid, process=process, vector_clock=vc,
-            timestamp=timestamp, propositions=props,
+            eid=eid,
+            process=process,
+            vector_clock=vc,
+            timestamp=timestamp,
+            propositions=props,
         )
 
     def test_valid_two_process_trace(self) -> None:
@@ -300,9 +303,7 @@ class TestValidateInitialEvents:
             self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
             self._make_event("e1", "P1", {"P1": 2, "P2": 0}, 1.0),
         ]
-        errors = TraceReader.validate_initial_events(
-            events, frozenset({"P1", "P2"})
-        )
+        errors = TraceReader.validate_initial_events(events, frozenset({"P1", "P2"}))
         assert errors == []
 
     def test_valid_three_process_trace(self) -> None:
@@ -312,9 +313,7 @@ class TestValidateInitialEvents:
             self._make_event("i2", "P2", {"P1": 0, "P2": 1, "P3": 0}),
             self._make_event("i3", "P3", {"P1": 0, "P2": 0, "P3": 1}),
         ]
-        errors = TraceReader.validate_initial_events(
-            events, frozenset({"P1", "P2", "P3"})
-        )
+        errors = TraceReader.validate_initial_events(events, frozenset({"P1", "P2", "P3"}))
         assert errors == []
 
     def test_missing_initial_for_process(self) -> None:
@@ -324,9 +323,7 @@ class TestValidateInitialEvents:
             # P2 has no initial event (VC[P2]=2 instead of 1)
             self._make_event("e2", "P2", {"P1": 0, "P2": 2}, 1.0),
         ]
-        errors = TraceReader.validate_initial_events(
-            events, frozenset({"P1", "P2"})
-        )
+        errors = TraceReader.validate_initial_events(events, frozenset({"P1", "P2"}))
         assert len(errors) == 1
         assert "P2" in errors[0]
         assert "no initial event" in errors[0]
@@ -337,9 +334,7 @@ class TestValidateInitialEvents:
             self._make_event("i1", "P1", {"P1": 1, "P2": 1}),  # P2 should be 0
             self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
         ]
-        errors = TraceReader.validate_initial_events(
-            events, frozenset({"P1", "P2"})
-        )
+        errors = TraceReader.validate_initial_events(events, frozenset({"P1", "P2"}))
         assert len(errors) == 1
         assert "P1" in errors[0]
 
@@ -349,9 +344,7 @@ class TestValidateInitialEvents:
             self._make_event("i1", "P1", {"P1": 0, "P2": 0}),  # P1 should be 1
             self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
         ]
-        errors = TraceReader.validate_initial_events(
-            events, frozenset({"P1", "P2"})
-        )
+        errors = TraceReader.validate_initial_events(events, frozenset({"P1", "P2"}))
         assert len(errors) == 1
         assert "P1" in errors[0]
 
@@ -362,9 +355,7 @@ class TestValidateInitialEvents:
             self._make_event("i1b", "P1", {"P1": 1, "P2": 0}, 0.1),
             self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
         ]
-        errors = TraceReader.validate_initial_events(
-            events, frozenset({"P1", "P2"})
-        )
+        errors = TraceReader.validate_initial_events(events, frozenset({"P1", "P2"}))
         assert len(errors) == 1
         assert "multiple" in errors[0]
         assert "P1" in errors[0]
@@ -387,9 +378,7 @@ class TestValidateInitialEvents:
             self._make_event("i1", "P1", {"P1": 1, "P2": 0}),
             self._make_event("i2", "P2", {"P1": 0, "P2": 1}),
         ]
-        errors = TraceReader.validate_initial_events(
-            events, frozenset({"P1", "P2"})
-        )
+        errors = TraceReader.validate_initial_events(events, frozenset({"P1", "P2"}))
         assert errors == []  # Correct initials are concurrent
 
     def test_single_process_valid(self) -> None:
@@ -398,9 +387,7 @@ class TestValidateInitialEvents:
             self._make_event("i1", "P1", {"P1": 1}),
             self._make_event("e2", "P1", {"P1": 2}, 1.0),
         ]
-        errors = TraceReader.validate_initial_events(
-            events, frozenset({"P1"})
-        )
+        errors = TraceReader.validate_initial_events(events, frozenset({"P1"}))
         assert errors == []
 
     def test_read_all_raises_on_invalid_initial(self, tmp_path: Path) -> None:

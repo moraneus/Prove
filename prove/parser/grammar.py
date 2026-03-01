@@ -29,7 +29,6 @@ class ParseError(Exception):
     """Exception raised for parsing errors."""
 
 
-
 class _SLYParser(sly.Parser):
     """
     SLY-based parser for EPLTL formulas.

@@ -7,7 +7,6 @@ statistics formatting, and custom stream output.
 
 from io import StringIO
 
-
 from prove.utils.logger import LogLevel, MonitorLogger
 
 # ---------------------------------------------------------------------------

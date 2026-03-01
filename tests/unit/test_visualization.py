@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-
 from prove.core.event import Event
 from prove.core.partial_order import PartialOrder
 from prove.core.sliding_window import SlidingWindowGraph
@@ -440,7 +439,8 @@ class TestPartialOrderVisualizerWidth:
 
 
 def _build_graph_with_history(
-    events: list[Event], epsilon: float = float("inf"),
+    events: list[Event],
+    epsilon: float = float("inf"),
 ) -> SlidingWindowGraph:
     """Build a SlidingWindowGraph with record_history=True."""
     po = PartialOrder(events, epsilon)

@@ -121,9 +121,7 @@ class TraceReader:
         # Validate initial event structure
         init_errors = self.validate_initial_events(events, processes)
         if init_errors:
-            raise ValueError(
-                "Invalid initial events:\n  " + "\n  ".join(init_errors)
-            )
+            raise ValueError("Invalid initial events:\n  " + "\n  ".join(init_errors))
 
         po = PartialOrder(events, eps)
 
@@ -240,9 +238,7 @@ class TraceReader:
         return errors
 
     @staticmethod
-    def validate_initial_events(
-        events: List[Event], processes: FrozenSet[str]
-    ) -> List[str]:
+    def validate_initial_events(events: List[Event], processes: FrozenSet[str]) -> List[str]:
         """
         Validate that every process has a proper initial event.
 
@@ -283,9 +279,7 @@ class TraceReader:
                 )
             elif len(matches) > 1:
                 eids = ", ".join(e.eid for e in matches)
-                errors.append(
-                    f"Process {p}: multiple initial event candidates: {eids}"
-                )
+                errors.append(f"Process {p}: multiple initial event candidates: {eids}")
             else:
                 initial_events[p] = matches[0]
 
@@ -298,13 +292,11 @@ class TraceReader:
             for e2 in initials[i + 1 :]:
                 if e1.vector_clock < e2.vector_clock:
                     errors.append(
-                        f"Initial events not concurrent: "
-                        f"{e1.eid} (VC) < {e2.eid} (VC)"
+                        f"Initial events not concurrent: " f"{e1.eid} (VC) < {e2.eid} (VC)"
                     )
                 elif e2.vector_clock < e1.vector_clock:
                     errors.append(
-                        f"Initial events not concurrent: "
-                        f"{e2.eid} (VC) < {e1.eid} (VC)"
+                        f"Initial events not concurrent: " f"{e2.eid} (VC) < {e1.eid} (VC)"
                     )
 
         return errors

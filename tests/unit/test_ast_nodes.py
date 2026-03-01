@@ -5,7 +5,6 @@ Tests cover creation, subformula computation, string representation,
 equality, hashing, and derived operators for all EPLTL formula types.
 """
 
-
 from prove.parser.ast_nodes import (
     Biconditional,
     Conjunction,

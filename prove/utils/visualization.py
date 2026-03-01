@@ -93,9 +93,7 @@ class GraphVisualizer:
             lines.append(f'  label="{title}";')
             lines.append("  labelloc=t;")
             lines.append("  rankdir=TB;")
-            lines.append(
-                "  node [shape=box, style=filled, fillcolor=lightyellow];"
-            )
+            lines.append("  node [shape=box, style=filled, fillcolor=lightyellow];")
 
             for nid, frontier_eids in snap.nodes.items():
                 events_str = ", ".join(frontier_eids)
@@ -106,9 +104,7 @@ class GraphVisualizer:
                 lines.append(f'  n{nid} [label="{label}"{style}];')
 
             for src, eid, tgt in sorted(snap.edges):
-                lines.append(
-                    f'  n{src} -> n{tgt} [label="{eid}"];'
-                )
+                lines.append(f'  n{src} -> n{tgt} [label="{eid}"];')
 
             lines.append("}")
             blocks.append("\n".join(lines))
@@ -552,4 +548,3 @@ class PartialOrderVisualizer:
             return f"Δt={time_diff:.1f}>ε={self.epsilon:.1f}"
         else:
             return "VC"
-
