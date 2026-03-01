@@ -102,10 +102,12 @@ temp/
 *.orig
 *.rej
 
-# --- Graphviz Output (generated, not source) ---
+# --- Graphviz / Visualization Output ---
 *.gv.pdf
 *.gv.png
 *.gv.svg
+*.dot
+outfile*
 
 # --- Jupyter ---
 .ipynb_checkpoints/
