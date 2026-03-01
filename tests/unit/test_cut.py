@@ -6,7 +6,6 @@ maximal event computation per process, frontier construction,
 and containment checks.
 """
 
-import pytest
 
 from prove.core.cut import Cut
 from prove.core.event import Event

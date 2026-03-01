@@ -28,7 +28,6 @@ from prove.parser.lexer import EPLTLLexer
 class ParseError(Exception):
     """Exception raised for parsing errors."""
 
-    pass
 
 
 class _SLYParser(sly.Parser):

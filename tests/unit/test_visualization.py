@@ -11,7 +11,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-import pytest
 
 from prove.core.event import Event
 from prove.core.partial_order import PartialOrder

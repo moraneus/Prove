@@ -13,7 +13,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from types import MappingProxyType
-from typing import Dict, FrozenSet, Iterable, Optional, Set
+from typing import Dict, FrozenSet, Iterable, Set
 
 from prove.core.event import Event
 

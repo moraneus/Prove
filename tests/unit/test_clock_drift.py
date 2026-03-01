@@ -6,7 +6,6 @@ ordering determination, definite-before checks, and partitioning of
 events into (before, after, concurrent) sets relative to a reference.
 """
 
-import pytest
 
 from prove.core.clock_drift import ClockDriftHandler
 from prove.core.event import Event

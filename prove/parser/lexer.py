@@ -13,7 +13,6 @@ import sly
 class LexerError(Exception):
     """Exception raised for lexical analysis errors."""
 
-    pass
 
 
 class EPLTLLexer(sly.Lexer):

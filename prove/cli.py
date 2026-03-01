@@ -10,7 +10,6 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
-from typing import Optional
 
 import prove
 from prove.core.monitor import EPLTLMonitor

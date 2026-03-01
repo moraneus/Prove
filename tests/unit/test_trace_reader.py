@@ -11,7 +11,7 @@ import pytest
 
 from prove.core.event import Event
 from prove.core.vector_clock import VectorClock
-from prove.utils.trace_reader import TraceData, TraceMetadata, TraceReader
+from prove.utils.trace_reader import TraceData, TraceReader
 
 FIXTURES = Path(__file__).parent.parent / "fixtures"
 TRACES = FIXTURES / "traces"

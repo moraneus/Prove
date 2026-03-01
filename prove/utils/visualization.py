@@ -553,16 +553,3 @@ class PartialOrderVisualizer:
         else:
             return "VC"
 
-    def _format_cross_process_edge(self, source: Event, target: Event, reason: str) -> str:
-        """
-        Format a single cross-process ordering annotation.
-
-        Args:
-            source: Source event (e where e ≺ f).
-            target: Target event (f where e ≺ f).
-            reason: Ordering reason string.
-
-        Returns:
-            Formatted annotation string.
-        """
-        return f"{source.eid} ≺ {target.eid}  ({reason})"

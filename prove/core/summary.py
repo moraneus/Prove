@@ -10,7 +10,6 @@ Havelund-Rosu approach to past-time LTL monitoring.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import FrozenSet
 
 from prove.core.event import Event
 from prove.parser.ast_nodes import (

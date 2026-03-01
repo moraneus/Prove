@@ -6,22 +6,17 @@ processing with backward propagation (diamond property), summary propagation,
 redundant node removal, verdict computation, and Paper V2 timing constraints.
 """
 
-import pytest
 
 from prove.core.event import Event
-from prove.core.frontier import Frontier
 from prove.core.partial_order import PartialOrder
-from prove.core.sliding_window import GraphEdge, GraphNode, SlidingWindowGraph
-from prove.core.summary import Summary
+from prove.core.sliding_window import SlidingWindowGraph
 from prove.core.vector_clock import VectorClock
 from prove.parser.ast_nodes import (
     Conjunction,
     Disjunction,
     Implication,
-    Negation,
     Proposition,
     Since,
-    TrueConstant,
     Yesterday,
 )
 

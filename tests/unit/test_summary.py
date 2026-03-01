@@ -6,7 +6,6 @@ operator updates, temporal operator updates (Yesterday, Since),
 multi-event sequences, and equality/hashing.
 """
 
-import pytest
 
 from prove.core.event import Event
 from prove.core.summary import Summary

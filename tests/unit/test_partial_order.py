@@ -7,7 +7,6 @@ concurrent/independent event detection, predecessor/successor queries,
 topological sorting, and enabled event computation.
 """
 
-import pytest
 
 from prove.core.event import Event
 from prove.core.partial_order import PartialOrder

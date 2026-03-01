@@ -516,7 +516,6 @@ class TestAPIIntegration:
         The formula "done -> (confirmed S ready)" requires:
         if done is true, then confirmed has been true since ready was true.
         """
-        formula = parse_formula("done -> (confirmed S ready)")
         monitor = EPLTLMonitor.from_files(
             property_file=PROPERTIES / "since.prop",
             trace_file=TRACES / "simple_trace.csv",
@@ -650,7 +649,6 @@ class TestEdgeCases:
         With epsilon=0, any events with distinct timestamps are totally ordered
         by time (since diff > 0 = epsilon for any non-zero difference).
         """
-        procs = frozenset({"P1", "P2"})
         events = [
             _make_event("i1", "P1", {"P1": 1, "P2": 0}, 0.0, frozenset()),
             _make_event("i2", "P2", {"P1": 0, "P2": 1}, 0.0, frozenset()),
@@ -672,7 +670,6 @@ class TestEdgeCases:
 
         Events on different processes with no message chain remain concurrent.
         """
-        procs = frozenset({"P1", "P2"})
         events = [
             _make_event("i1", "P1", {"P1": 1, "P2": 0}, 0.0, frozenset()),
             _make_event("i2", "P2", {"P1": 0, "P2": 1}, 0.0, frozenset()),

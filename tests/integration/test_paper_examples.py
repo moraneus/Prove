@@ -15,7 +15,6 @@ from typing import Dict
 import pytest
 
 from prove.core.event import Event
-from prove.core.frontier import Frontier
 from prove.core.monitor import EPLTLMonitor, MonitorResult
 from prove.core.partial_order import PartialOrder
 from prove.core.sliding_window import SlidingWindowGraph
