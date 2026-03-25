@@ -25,6 +25,7 @@ Executions"* by Doron Peled et al.
 - Asynchronous message-passing with FIFO ordering
 - ASCII visualization of partial order executions
 - DOT/Graphviz export of the sliding window graph
+- Comprehensive trace file validator with 14 rule categories
 - Detailed statistics and configurable debug output
 
 ## Installation
@@ -260,6 +261,69 @@ Annotations on cross-process arrows indicate the ordering reason:
 | `(VC)` | Vector clock ordering (message causality) |
 | `(Δt=X.X>ε=Y.Y)` | Timestamp difference exceeds clock skew bound |
 
+## Trace Validator
+
+PROVE includes a standalone trace validator that checks CSV trace files for correctness
+before verification. It reports all structural and semantic problems with row-level detail.
+
+### Running the Validator
+
+```bash
+python -m prove.utils.trace_validator trace.csv
+```
+
+### Example Output
+
+For a valid trace:
+
+```
+Validating: trace.csv
+
+No issues found. Trace is valid.
+
+Summary: 0 error(s), 0 warning(s)
+```
+
+For an invalid trace:
+
+```
+Validating: bad_trace.csv
+
+[ERRORS]
+  Row 5 (eid=e3): Duplicate event ID 'e3' (first seen at row 2)
+  Row 7 (eid=e5): Timestamp decreased on P1: e4 t=3.0 > e5 t=2.0
+  Row 8 (eid=e6): Receive event has own process 'P2' as source
+
+[WARNINGS]
+  Row 4 (eid=e2): Proposition '123bad' does not match naming convention [a-zA-Z_][a-zA-Z0-9_'.]*
+  1 send(s) from P1 to P2 without matching receive(s)
+
+Summary: 3 error(s), 2 warning(s)
+```
+
+Exit codes: `0` = valid, `1` = errors found.
+
+### Validation Rules
+
+The validator checks the following categories:
+
+| # | Category | Severity | What is checked |
+|---|----------|----------|-----------------|
+| 1 | **File structure** | ERROR | File exists and is readable; CSV has a header row and at least one data row |
+| 2 | **Required headers** | ERROR | Headers `eid`, `processes`, `vc`, `timestamp` are present |
+| 3 | **Field parsing** | ERROR | `eid` and `processes` are non-empty; `timestamp` is a valid non-negative number; `vc` is parseable (`P:N;...` format) with non-negative components; `event_type` is one of `local`, `send`, `receive` |
+| 4 | **Duplicate event IDs** | ERROR | Every `eid` value is unique across the trace |
+| 5 | **Process consistency** | ERROR/WARN | Every event's process is in the declared `system_processes` set (if the directive exists); every declared process has at least one event (warning if missing) |
+| 6 | **Vector clock keys** | ERROR | Each event's vector clock contains exactly the set of declared processes — no missing or extra entries |
+| 7 | **Initial events** | ERROR | Each process has exactly one initial event where `VC[p] = 1` and `VC[q] = 0` for all other processes `q` |
+| 8 | **Intra-process ordering** | ERROR | Within each process, `VC[p]` increments by exactly 1 between consecutive events; timestamps are non-decreasing |
+| 9 | **Vector clock correctness** | ERROR | For local/send events, only the own-process VC component changes (others stay the same); for receive events, no VC component decreases compared to the previous event on the same process (merge rule) |
+| 10 | **VC–timestamp consistency** | ERROR | If event `e` causally precedes `f` by vector clock (`VC(e) < VC(f)`), then `t(e) < t(f)` |
+| 11 | **Message event fields** | ERROR | Send events specify a `msg_partner` that is a known process and is not the sender's own process; same for receive events (source must differ from receiver) |
+| 12 | **Message pairing** | ERROR/WARN | Receives without a matching send are errors; sends without a matching receive are warnings (the trace may be partial) |
+| 13 | **FIFO ordering** | ERROR | For each (sender, receiver) pair, messages are received in the same order they were sent |
+| 14 | **Proposition naming** | WARN | Proposition names match the pattern `[a-zA-Z_][a-zA-Z0-9_'.]*` |
+
 ## Python API
 
 ```python
@@ -331,6 +395,7 @@ prove/
 │   └── formula.py           # Formula utilities
 └── utils/                   # Utilities
     ├── trace_reader.py      # CSV trace file parser
+    ├── trace_validator.py   # Comprehensive trace validator
     ├── logger.py            # Structured logging
     └── visualization.py     # Graph visualization
 ```
