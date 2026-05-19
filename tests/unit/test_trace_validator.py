@@ -506,9 +506,7 @@ class TestReportFormatting:
 
     def test_error_report_format(self) -> None:
         report = ValidationReport(filepath=Path("test.csv"))
-        report.messages.append(
-            ValidationMessage(Severity.ERROR, "test error", row=2, eid="e1")
-        )
+        report.messages.append(ValidationMessage(Severity.ERROR, "test error", row=2, eid="e1"))
         text = report.format()
         assert "[ERRORS]" in text
         assert "test error" in text
@@ -516,9 +514,7 @@ class TestReportFormatting:
 
     def test_warning_report_format(self) -> None:
         report = ValidationReport(filepath=Path("test.csv"))
-        report.messages.append(
-            ValidationMessage(Severity.WARNING, "test warning")
-        )
+        report.messages.append(ValidationMessage(Severity.WARNING, "test warning"))
         text = report.format()
         assert "[WARNINGS]" in text
         assert "1 warning(s)" in text
