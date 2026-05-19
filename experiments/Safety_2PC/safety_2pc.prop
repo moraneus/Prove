@@ -1,0 +1,19 @@
+# Two-Phase Commit — ε-sensitive vote-order witness
+# 
+# "At some point, P3 was prepared while P2's last action (in the prev state)
+#  was still its yes-vote (i.e., P2 had NOT yet transitioned to prepared)."
+# 
+# Each transaction's vote events are VC-concurrent (participants work in parallel
+# during phase 1 — no messages between them). The prepared_Pi events overwrite
+# the vote_yes_Pi labels on each participant's maximal frontier event.
+# 
+# Whether a linearization exists in which prepared_P3 fires BEFORE prepared_P2
+# depends entirely on ε, because their timestamp gap is 0.25s.
+# 
+# Existential EPLTL verdict:
+#   ε >= 0.25 → SATISFIED    (prepared_P3 and prepared_P2 are PO-concurrent;
+#                             can interleave so P2's max label is still vote_yes_P2
+#                             when prepared_P3 fires)
+#   ε <  0.25 → VIOLATED     (time pins prepared_P2 ≺ prepared_P3 everywhere;
+#                             at prepared_P3's state, @vote_yes_P2 is always false)
+TRUE S (prepared_P3 & @vote_yes_P2)

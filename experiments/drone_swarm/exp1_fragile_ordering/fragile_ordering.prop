@@ -1,0 +1,8 @@
+# Fragile ordering (Yesterday operator, epsilon-sensitive)
+#
+# Two VC-concurrent events at the end of the trace:
+#   late_beacon (Drone2, t=T) and early_beacon (Drone1, t=T+delta)
+#
+# SAT when eps >= delta: concurrent, can order early_beacon first
+# VIOL when eps < delta: time forces late_beacon first
+late_beacon -> @early_beacon

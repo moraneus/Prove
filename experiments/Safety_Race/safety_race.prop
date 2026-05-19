@@ -1,0 +1,2 @@
+# Full pairwise monitoring
+!(TRUE S unsafe_A1A2) & !(TRUE S unsafe_A1A3) & !(TRUE S unsafe_A1A4) & !(TRUE S unsafe_A1A5) & !(TRUE S unsafe_A2A3) & !(TRUE S unsafe_A2A4) & !(TRUE S unsafe_A2A5) & !(TRUE S unsafe_A3A4) & !(TRUE S unsafe_A3A5) & !(TRUE S unsafe_A4A5)

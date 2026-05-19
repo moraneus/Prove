@@ -1,0 +1,2 @@
+# If relative velocity is confirmed, then a velocity broadcast occurred in the past
+relative_confirmed -> (TRUE S velocity_sent)

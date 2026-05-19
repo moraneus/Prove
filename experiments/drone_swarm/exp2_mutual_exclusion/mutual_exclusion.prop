@@ -1,0 +1,9 @@
+# Mutual exclusion history (Negation + Since + Conjunction)
+#
+# "idle and scanning were never simultaneously true in any global state"
+#
+# In a multi-drone system, one drone can be at idle (phase 0) while
+# another is at scanning (phase 1). If their maximal events coexist
+# in any frontier, both propositions appear in the global state.
+# Whether this co-occurrence happens depends on the linearization.
+!(TRUE S (idle & scanning))

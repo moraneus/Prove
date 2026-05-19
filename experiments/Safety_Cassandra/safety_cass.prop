@@ -1,0 +1,2 @@
+# If an enrollment is written, then a was written before
+write_enrollment -> (TRUE S write_student)

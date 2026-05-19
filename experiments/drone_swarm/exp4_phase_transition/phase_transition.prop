@@ -1,0 +1,10 @@
+# Phase transition (Biconditional + Yesterday)
+#
+# "scanning is true now if and only if idle was true at the previous step"
+#
+# Tests exact phase sequencing across multiple drones. In a single-drone
+# system this would hold (scanning always follows idle). In a multi-drone
+# system, the global state is the union of all drones' props, so scanning
+# from Drone1 and idle from Drone2 can coexist independently of the
+# previous step's state.
+scanning <-> @idle

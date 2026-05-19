@@ -1,0 +1,11 @@
+# Continuous Since (tests the "maintained continuously" semantics)
+#
+# "If relative_computed is true, then position_sent has been true
+#  continuously since position_measured was true"
+#
+# In a single drone: phases go position_measured -> position_sent ->
+# processing -> relative_computed, so position_sent does NOT hold
+# continuously (processing breaks the chain).
+# In multi-drone: other drones' propositions contribute to the global
+# state, so the result depends on concurrency and linearization.
+relative_computed -> (position_sent S position_measured)
