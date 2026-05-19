@@ -118,3 +118,6 @@ outfile*
 .dmypy.json
 dmypy.json
 pyrightconfig.json
+
+# --- latex ---
+*.tex
