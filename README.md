@@ -46,6 +46,88 @@ Verify the installation:
 python -m prove --version
 ```
 
+### Docker
+
+A `Dockerfile` is provided for running PROVE in a container without installing
+Python or `graphviz` locally.
+
+Build the image once:
+
+```bash
+docker build -t prove .
+```
+
+The container's entrypoint is the `prove` CLI, its working directory is
+`/data`, and any flags accepted by `python -m prove` can be appended after the
+image name.
+
+#### Running on local files
+
+Bind-mount the directory containing your property and trace into `/data`, then
+reference the files by their (relative) names:
+
+```bash
+# Run from the directory that holds safety.prop and trace.csv
+docker run --rm -v "$PWD":/data prove -p safety.prop -t trace.csv
+```
+
+`$PWD` is the current shell directory. `-v "$PWD":/data` exposes it inside the
+container at `/data`, and `WORKDIR /data` is already set in the image, so the
+relative paths resolve directly.
+
+You can also point the mount at a different directory:
+
+```bash
+docker run --rm -v /absolute/path/to/data:/data prove -p safety.prop -t trace.csv
+```
+
+#### Common flags
+
+```bash
+# Show version
+docker run --rm prove --version
+
+# Verbose output and statistics
+docker run --rm -v "$PWD":/data prove \
+    -p safety.prop -t trace.csv -o verbose --stats
+
+# ASCII visualisation of the partial order
+docker run --rm -v "$PWD":/data prove \
+    -p safety.prop -t trace.csv --visualize-ascii
+
+# Run one of the bundled examples (note the mount points at examples/)
+docker run --rm -v "$PWD/examples/01_single_process_workflow:/data" prove \
+    -p property.prop -t trace.csv
+```
+
+#### Windows hosts
+
+In PowerShell, use Windows-style host paths and a forward slash for the
+container side of the mount:
+
+```powershell
+docker run --rm -v "C:\path\to\data:/data" prove -p safety.prop -t trace.csv
+```
+
+In Command Prompt (`cmd.exe`), substitute `%cd%` for `$PWD`:
+
+```bat
+docker run --rm -v "%cd%:/data" prove -p safety.prop -t trace.csv
+```
+
+#### Common pitfalls
+
+- **Missing `-v`.** Without a bind mount, the container has its own isolated
+  filesystem and cannot see files on the host. The result is a "file not
+  found" error from the CLI.
+- **`-p` before the image name.** Docker itself interprets `-p` as
+  *publish port*. The `-p` that selects a property file must appear *after*
+  the image name `prove`. Flags before the image name are Docker's; flags
+  after it are forwarded to the entrypoint.
+- **Backslashes in the container path.** Container paths use forward slashes
+  even on Windows: the right-hand side of `-v` is always `/data`, never
+  `\data`.
+
 ## Quick Start
 
 Create a property file `safety.prop`:
