@@ -1,0 +1,41 @@
+name: Docker
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          tags: prove:test
+          load: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Verify CLI entrypoint
+        run: docker run --rm prove:test --version
+
+      - name: Smoke test on bundled example
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE/examples/01_single_process_workflow:/data" \
+            prove:test -p property.prop -t trace.csv
+
+      - name: Smoke test ASCII visualisation
+        run: |
+          docker run --rm \
+            -v "$GITHUB_WORKSPACE/examples/03_client_server_messages:/data" \
+            prove:test -p property.prop -t trace.csv --visualize-ascii
