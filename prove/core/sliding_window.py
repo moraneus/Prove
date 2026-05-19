@@ -14,6 +14,7 @@ from typing import Any, Dict, Iterable, List, Optional, Set, Tuple
 
 from prove.core.event import Event
 from prove.core.frontier import Frontier
+from prove.core.message_queue import MessageQueueHandler
 from prove.core.partial_order import PartialOrder
 from prove.core.summary import Summary
 from prove.parser.ast_nodes import Formula
@@ -132,6 +133,12 @@ class SlidingWindowGraph:
         self._outgoing: Dict[int, List[Tuple[Event, int]]] = {}
         # Reverse adjacency: node_id -> list of (event, source_node_id)
         self._incoming: Dict[int, List[Tuple[Event, int]]] = {}
+        # O(1) frontier-to-node lookup
+        self._frontier_to_node: Dict[Frontier, int] = {}
+
+        # Paper Section 2.1.4: track Γ(sender, receiver) along the maximal
+        # processing chain so receive enablement can be verified explicitly.
+        self._message_queue: MessageQueueHandler = MessageQueueHandler(self.processes)
 
         initial_frontier = Frontier.from_mapping(initial_events)
         global_props = initial_frontier.global_state()
@@ -164,6 +171,7 @@ class SlidingWindowGraph:
         self.nodes[nid] = node
         self._outgoing[nid] = []
         self._incoming[nid] = []
+        self._frontier_to_node[frontier] = nid
         return node
 
     def _add_edge(
@@ -189,11 +197,8 @@ class SlidingWindowGraph:
         return None
 
     def _find_node_with_frontier(self, frontier: Frontier) -> Optional[int]:
-        """Find an existing node with the given frontier, or None."""
-        for nid, node in self.nodes.items():
-            if node.frontier == frontier:
-                return nid
-        return None
+        """Find an existing node with the given frontier, or None. O(1) lookup."""
+        return self._frontier_to_node.get(frontier)
 
     def _can_commute(self, new_event: Event, edge_event: Event) -> bool:
         """
@@ -227,17 +232,48 @@ class SlidingWindowGraph:
         Process a new event, updating the graph.
 
         Steps:
-        1. Add edge from maximal node to new node
-        2. Backward propagation (commutation)
-        3. Update summaries for all new edges
-        4. Update covered processes
-        5. Remove redundant nodes
+        1. Verify the event is enabled from the maximal frontier
+           (paper Section 4 enablement predicate, including the
+           message-queue check for receive events from Section 2.1.4).
+        2. Add edge from maximal node to new node.
+        3. Backward propagation (commutation).
+        4. Update summaries for all new edges.
+        5. Update message queue for send/receive events.
+        6. Update covered processes (backward along incoming edges).
+        7. Remove redundant nodes.
         """
         self._events_processed += 1
         new_edges: List[GraphEdge] = []
 
         old_max_id = self.maximal_node_id
         old_max_node = self.nodes[old_max_id]
+
+        # Paper Section 4 enablement predicate, decomposed into the three
+        # conditions checked in their natural homes:
+        #   - Conditions 1 (history-closure) and 3 (timing): verified by
+        #     Frontier.is_event_enabled_fast in O(k) using the vector-clock
+        #     structure. The offline topological order satisfies the
+        #     fast variant's preconditions; the slower
+        #     Frontier.is_event_enabled is the literal full-predecessor
+        #     enumeration retained for direct testing.
+        #   - Condition 2 (Γ(sender, receiver) > 0 for receive events):
+        #     verified against the graph's MessageQueueHandler, since
+        #     queue state lives in the graph rather than the frontier.
+        if not old_max_node.frontier.is_event_enabled_fast(event):
+            raise RuntimeError(
+                f"Event {event.eid!r} is not enabled from the maximal frontier "
+                f"(violates paper Section 4 Conditions 1 and 3)."
+            )
+        if event.is_receive():
+            sender = event.source_process
+            receiver = event.process
+            if not self._message_queue.can_receive(sender, receiver):
+                raise RuntimeError(
+                    f"Receive event {event.eid!r} is not enabled: "
+                    f"no pending message from {sender!r} to {receiver!r} "
+                    f"(violates paper Section 4 Condition 2)."
+                )
+
         new_frontier = old_max_node.frontier.successor(event, self.partial_order)
         new_max_node = self._create_node(new_frontier)
         self._add_edge(old_max_id, event, new_max_node.node_id, new_edges)
@@ -247,6 +283,13 @@ class SlidingWindowGraph:
 
         self._propagate_summaries(new_edges)
         self.maximal_node_id = new_max_node.node_id
+
+        # Update Γ counters along the maximal chain (paper Section 2.1.4).
+        if event.is_send():
+            self._message_queue = self._message_queue.send(event.process, event.target_process)
+        elif event.is_receive():
+            self._message_queue = self._message_queue.receive(event.source_process, event.process)
+
         self._update_covered_processes(event)
 
         # Snapshot before pruning (for --full-graph visualization)
@@ -344,15 +387,28 @@ class SlidingWindowGraph:
 
     def _update_covered_processes(self, event: Event) -> None:
         """
-        Update covered process sets after processing an event.
+        Propagate the event's process backward from the maximal node along
+        incoming edges, per paper Section 3.2.3 step 4:
 
-        For every node in the graph, add the event's process to the
-        covered set (since this process now has an event beyond that node).
+            R_{s_m} := R_{s_m} ∪ {pr(e)}
+            for each edge t --f--> t': R_t := R_t ∪ {pr(e)}
+
+        The traversal starts at the new maximal node and walks backward
+        through ``_incoming`` edges, marking ``covered_processes`` on every
+        ancestor reached. The maximal node itself is excluded.
         """
         proc = event.process
-        for node in self.nodes.values():
-            if node.node_id != self.maximal_node_id:
-                node.covered_processes.add(proc)
+        visited: Set[int] = {self.maximal_node_id}
+        stack: List[int] = [self.maximal_node_id]
+
+        while stack:
+            current_id = stack.pop()
+            for _edge_event, source_id in self._incoming.get(current_id, []):
+                if source_id in visited:
+                    continue
+                visited.add(source_id)
+                self.nodes[source_id].covered_processes.add(proc)
+                stack.append(source_id)
 
     def _remove_redundant_nodes(self) -> None:
         """
@@ -374,15 +430,20 @@ class SlidingWindowGraph:
 
     def _remove_node(self, node_id: int) -> None:
         """Remove a node and all its edges from the graph."""
-        # Remove all edges involving this node
-        edges_to_remove = {e for e in self.edges if e.source == node_id or e.target == node_id}
-        self.edges -= edges_to_remove
-
-        # Clean up adjacency lists
+        # Build edges to remove from adjacency lists (O(degree) instead of O(|E|))
+        edges_to_remove: set[GraphEdge] = set()
         for ev, tid in self._outgoing.get(node_id, []):
+            edges_to_remove.add(GraphEdge(source=node_id, target=tid, event=ev))
             self._incoming[tid] = [(e, s) for e, s in self._incoming.get(tid, []) if s != node_id]
         for ev, sid in self._incoming.get(node_id, []):
+            edges_to_remove.add(GraphEdge(source=sid, target=node_id, event=ev))
             self._outgoing[sid] = [(e, t) for e, t in self._outgoing.get(sid, []) if t != node_id]
+
+        self.edges -= edges_to_remove
+
+        # Remove from frontier lookup
+        node = self.nodes[node_id]
+        self._frontier_to_node.pop(node.frontier, None)
 
         del self._outgoing[node_id]
         del self._incoming[node_id]

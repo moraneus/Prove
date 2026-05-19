@@ -85,37 +85,98 @@ class Frontier:
         partial_order: "PartialOrder",  # noqa: F821
     ) -> bool:
         """
-        Check if event can be executed from this frontier.
+        Paper V2 Section 4 enablement predicate (the parts checkable from
+        the frontier alone — Conditions 1 and 3).
 
-        An event is enabled if all its predecessors (in the complete partial
-        order) are contained in the cut that this frontier represents.
+        An event ``e`` is enabled from frontier ``F`` when:
+
+        - **Condition 1 (history-closure):** every predecessor of ``e``
+          in the complete partial order ``≺`` is contained in the cut
+          represented by ``F``. Verified by :meth:`_covers_predecessors`.
+
+        - **Condition 3 (timing):** no event ``e' ∉ F`` such that
+          ``t(e) - t(e') > ε``. Subsumed by Condition 1 here because
+          the complete partial order already includes ε-based ordering
+          (see :class:`PartialOrder`).
+
+        **Condition 2 (receive enablement,** ``Γ(sender, receiver) > 0``
+        **for receive events)** is *not* checked here — the message-queue
+        state lives in :class:`SlidingWindowGraph`, which performs that
+        check before calling into the frontier.
 
         Args:
             event: The event to check.
             partial_order: The complete partial order.
 
         Returns:
-            True if the event is enabled from this frontier.
+            True if Conditions 1 and 3 hold for ``event`` from this frontier.
         """
-        preds = partial_order.predecessors(event)
-        # Build the set of events in the cut: all events up to and including
-        # each frontier event, per process
-        frontier_event = self.process_to_event.get(event.process)
-        if frontier_event is not None:
-            # The event's process already has a maximal event in the frontier.
-            # The new event must be a direct successor of that maximal event.
-            if not partial_order.is_before(frontier_event, event) and frontier_event != event:
-                return False
+        return self._covers_predecessors(event, partial_order)
 
-        # All predecessors must be reachable from the frontier events
-        for pred in preds:
-            proc = pred.process
-            f_event = self.process_to_event.get(proc)
+    def _covers_predecessors(
+        self,
+        event: Event,
+        partial_order: "PartialOrder",  # noqa: F821
+    ) -> bool:
+        """Paper V2 Condition 1: every predecessor of *event* is in the cut.
+
+        For each process ``p``, the latest event on ``p`` that is a
+        predecessor of ``event`` must be at-or-before this frontier's
+        event for ``p``.
+        """
+        # Special case for event's own process: the frontier entry must
+        # be a strict predecessor of *event* in the partial order.
+        own = self.process_to_event.get(event.process)
+        if own is not None and own != event:
+            if not partial_order.is_before(own, event):
+                return False
+        # Generic case: every predecessor (on any process) must be
+        # at-or-before its process's frontier event.
+        for pred in partial_order.predecessors(event):
+            f_event = self.process_to_event.get(pred.process)
             if f_event is None:
                 return False
-            # pred must be <= f_event in the partial order
-            if pred != f_event and not partial_order.is_before(pred, f_event):
-                if not (f_event == pred):
+            if pred == f_event:
+                continue
+            if not partial_order.is_before(pred, f_event):
+                return False
+        return True
+
+    def is_event_enabled_fast(self, event: Event) -> bool:
+        """O(k) variant of :meth:`is_event_enabled` for topological processing.
+
+        When this frontier is the *maximal* one and ``event`` is the next
+        event in a valid topological linearization of the complete partial
+        order, paper V2 Conditions 1 and 3 are equivalent to a constant-
+        time-per-process vector-clock check:
+
+        - For ``p == pr(event)``: ``VC(F(p))[p] == VC(event)[p] - 1``
+          (frontier is the immediate predecessor of ``event`` on its process).
+        - For ``p != pr(event)``: ``VC(F(p))[p] >= VC(event)[p]``
+          (frontier has caught up to ``event``'s view of process ``p``).
+
+        ε-based predecessor coverage (Condition 3) is implied because
+        topological order already places every ε-predecessor of ``event``
+        in the cut. This avoids the O(N) :meth:`PartialOrder.predecessors`
+        enumeration in :meth:`is_event_enabled`, keeping graph construction
+        linear in the trace length.
+
+        Args:
+            event: The event to check. Must be the next event in a
+                topological linearization for the result to be meaningful.
+
+        Returns:
+            True if Conditions 1 and 3 hold under the topological-order
+            precondition.
+        """
+        event_vc = event.vector_clock._clock
+        for proc, f_event in self.process_to_event.items():
+            f_vc = f_event.vector_clock._clock
+            if proc == event.process:
+                if f_vc.get(proc, 0) != event_vc.get(proc, 0) - 1:
+                    return False
+            else:
+                if f_vc.get(proc, 0) < event_vc.get(proc, 0):
                     return False
         return True
 

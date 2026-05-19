@@ -43,6 +43,15 @@ class Summary:
 
     values: tuple[tuple[Formula, bool], ...]
 
+    def __post_init__(self) -> None:
+        # Build O(1) lookup dict keyed by Formula identity
+        lookup = {f: v for f, v in self.values}
+        object.__setattr__(self, "_lookup", lookup)
+        # Precompute stable comparison key and hash (string conversion done once)
+        cmp_key = tuple(sorted(((str(f), v) for f, v in self.values), key=lambda x: x[0]))
+        object.__setattr__(self, "_cmp_key", cmp_key)
+        object.__setattr__(self, "_hash", hash(cmp_key))
+
     @classmethod
     def initial(cls, formula: Formula) -> Summary:
         """
@@ -89,7 +98,7 @@ class Summary:
             else:  # pragma: no cover
                 vals[sub] = False
 
-        return cls(values=tuple(sorted(vals.items(), key=id)))
+        return cls(values=tuple(vals.items()))
 
     def update(self, event: Event, formula: Formula) -> Summary:
         """
@@ -121,7 +130,7 @@ class Summary:
         Returns:
             A new Summary with updated truth values.
         """
-        old = dict(self.values)
+        old = self._lookup  # O(1) dict reference, no conversion
         new: dict[Formula, bool] = {}
 
         for sub in _topological_sort(formula):
@@ -153,7 +162,7 @@ class Summary:
             else:  # pragma: no cover
                 new[sub] = False
 
-        return Summary(values=tuple(sorted(new.items(), key=id)))
+        return Summary(values=tuple(new.items()))
 
     def evaluate(self, formula: Formula) -> bool:
         """
@@ -168,27 +177,28 @@ class Summary:
         Raises:
             KeyError: If the formula is not in this summary.
         """
-        for f, v in self.values:
-            if f == formula:
-                return v
-        raise KeyError(f"Formula {formula} not in summary")
+        try:
+            return self._lookup[formula]
+        except KeyError:
+            raise KeyError(f"Formula {formula} not in summary")
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, Summary):
             return NotImplemented
-        return self._as_dict() == other._as_dict()
+        if self is other:
+            return True
+        return self._cmp_key == other._cmp_key
 
     def __hash__(self) -> int:
-        # Hash based on sorted (formula_str, value) pairs for stability
-        return hash(tuple((str(f), v) for f, v in sorted(self.values, key=lambda x: str(x[0]))))
-
-    def _as_dict(self) -> dict[str, bool]:
-        """Convert to a string-keyed dict for comparison."""
-        return {str(f): v for f, v in self.values}
+        return self._hash
 
     def __repr__(self) -> str:
         entries = ", ".join(f"{f}: {v}" for f, v in sorted(self.values, key=lambda x: str(x[0])))
         return f"Summary({{{entries}}})"
+
+
+# Module-level cache for topological sort results (keyed by formula object identity)
+_topo_cache: dict[int, list[Formula]] = {}
 
 
 def _topological_sort(formula: Formula) -> list[Formula]:
@@ -197,7 +207,14 @@ def _topological_sort(formula: Formula) -> list[Formula]:
 
     This ensures that when computing a compound formula's value,
     all of its operands' values have already been computed.
+
+    Results are cached per formula object identity.
     """
+    fid = id(formula)
+    cached = _topo_cache.get(fid)
+    if cached is not None:
+        return cached
+
     result: list[Formula] = []
     visited: set[int] = set()
 
@@ -219,4 +236,5 @@ def _topological_sort(formula: Formula) -> list[Formula]:
         result.append(f)
 
     visit(formula)
+    _topo_cache[id(formula)] = result
     return result

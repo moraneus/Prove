@@ -137,12 +137,12 @@ class MonitorLogger:
 
     def frontier_info(self, frontier: Dict[str, str]) -> None:
         """
-        Log the maximal frontier state at VERBOSE level.
+        Log the maximal frontier state at NORMAL level and above.
 
         Args:
             frontier: Mapping from process name to maximal event ID.
         """
-        if self.level.value >= LogLevel.VERBOSE.value:
+        if self.level.value >= LogLevel.NORMAL.value:
             entries = ", ".join(f"{p}: {e}" for p, e in sorted(frontier.items()))
             self._write(f"[FRONTIER] Maximal state: {{{entries}}}")
 

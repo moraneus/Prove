@@ -141,9 +141,7 @@ class TraceValidator:
 
         # Phase 3: semantic checks
         self._check_duplicate_eids(parsed_rows, report)
-        self._check_process_consistency(
-            parsed_rows, declared_processes, observed_processes, report
-        )
+        self._check_process_consistency(parsed_rows, declared_processes, observed_processes, report)
         self._check_vc_keys(parsed_rows, all_processes, report)
         self._check_initial_events(parsed_rows, all_processes, report)
         self._check_intra_process_ordering(parsed_rows, report)
@@ -168,9 +166,7 @@ class TraceValidator:
         try:
             self.filepath.read_text()
         except OSError as exc:
-            report.messages.append(
-                ValidationMessage(Severity.ERROR, f"Cannot read file: {exc}")
-            )
+            report.messages.append(ValidationMessage(Severity.ERROR, f"Cannot read file: {exc}"))
             return False
         return True
 
@@ -206,17 +202,13 @@ class TraceValidator:
                     lines.append(stripped)
 
         if not lines:
-            report.messages.append(
-                ValidationMessage(Severity.ERROR, "No data rows found in file")
-            )
+            report.messages.append(ValidationMessage(Severity.ERROR, "No data rows found in file"))
             return None, None
 
         reader = csv.DictReader(lines)
         headers = set(reader.fieldnames or [])
         if not headers:
-            report.messages.append(
-                ValidationMessage(Severity.ERROR, "No headers found in file")
-            )
+            report.messages.append(ValidationMessage(Severity.ERROR, "No headers found in file"))
             return None, None
 
         rows = list(reader)
@@ -234,9 +226,7 @@ class TraceValidator:
         missing = _REQUIRED_HEADERS - headers
         if missing:
             report.messages.append(
-                ValidationMessage(
-                    Severity.ERROR, f"Missing required headers: {sorted(missing)}"
-                )
+                ValidationMessage(Severity.ERROR, f"Missing required headers: {sorted(missing)}")
             )
             return False
         return True
@@ -276,9 +266,7 @@ class TraceValidator:
 
             if not process:
                 report.messages.append(
-                    ValidationMessage(
-                        Severity.ERROR, "Empty process field", row=row_num, eid=eid
-                    )
+                    ValidationMessage(Severity.ERROR, "Empty process field", row=row_num, eid=eid)
                 )
                 continue
 
@@ -286,9 +274,7 @@ class TraceValidator:
             timestamp: Optional[float] = None
             if not ts_str:
                 report.messages.append(
-                    ValidationMessage(
-                        Severity.ERROR, "Empty timestamp", row=row_num, eid=eid
-                    )
+                    ValidationMessage(Severity.ERROR, "Empty timestamp", row=row_num, eid=eid)
                 )
                 continue
             try:
@@ -318,9 +304,7 @@ class TraceValidator:
             vc_dict: Optional[dict[str, int]] = None
             if not vc_str:
                 report.messages.append(
-                    ValidationMessage(
-                        Severity.ERROR, "Empty vector clock", row=row_num, eid=eid
-                    )
+                    ValidationMessage(Severity.ERROR, "Empty vector clock", row=row_num, eid=eid)
                 )
                 continue
             try:
@@ -407,9 +391,7 @@ class TraceValidator:
     # Phase 3: Semantic checks
     # ------------------------------------------------------------------ #
 
-    def _check_duplicate_eids(
-        self, rows: list[dict], report: ValidationReport
-    ) -> None:
+    def _check_duplicate_eids(self, rows: list[dict], report: ValidationReport) -> None:
         seen: dict[str, int] = {}
         for r in rows:
             eid = r["eid"]
@@ -494,9 +476,7 @@ class TraceValidator:
             if p not in all_processes:
                 continue
             vc = r["vc"]
-            if vc.get(p, 0) == 1 and all(
-                vc.get(q, 0) == 0 for q in all_processes if q != p
-            ):
+            if vc.get(p, 0) == 1 and all(vc.get(q, 0) == 0 for q in all_processes if q != p):
                 candidates[p].append(r)
 
         for p in sorted(all_processes):
@@ -518,9 +498,7 @@ class TraceValidator:
                     )
                 )
 
-    def _check_intra_process_ordering(
-        self, rows: list[dict], report: ValidationReport
-    ) -> None:
+    def _check_intra_process_ordering(self, rows: list[dict], report: ValidationReport) -> None:
         by_process: dict[str, list[dict]] = defaultdict(list)
         for r in rows:
             by_process[r["process"]].append(r)
@@ -560,9 +538,7 @@ class TraceValidator:
                         )
                     )
 
-    def _check_vc_correctness(
-        self, rows: list[dict], report: ValidationReport
-    ) -> None:
+    def _check_vc_correctness(self, rows: list[dict], report: ValidationReport) -> None:
         """Check vector clock update rules for local, send, and receive events.
 
         - Local/send on process p: VC[k] for k != p must equal the
@@ -619,9 +595,7 @@ class TraceValidator:
                                 )
                             )
 
-    def _check_vc_timestamp_consistency(
-        self, rows: list[dict], report: ValidationReport
-    ) -> None:
+    def _check_vc_timestamp_consistency(self, rows: list[dict], report: ValidationReport) -> None:
         """If e ≺ f by VC (strict componentwise), then t(e) < t(f)."""
         # Only check for cross-process pairs to avoid quadratic blowup
         # (intra-process is already checked in _check_intra_process_ordering)
@@ -722,9 +696,7 @@ class TraceValidator:
                         )
                     )
 
-    def _check_message_pairing_and_fifo(
-        self, rows: list[dict], report: ValidationReport
-    ) -> None:
+    def _check_message_pairing_and_fifo(self, rows: list[dict], report: ValidationReport) -> None:
         # Collect sends and receives per (sender, receiver) pair
         sends: dict[tuple[str, str], list[dict]] = defaultdict(list)
         receives: dict[tuple[str, str], list[dict]] = defaultdict(list)
@@ -774,12 +746,8 @@ class TraceValidator:
             # Sort sends by sender's VC component
             sender_proc = pair[0]
             recv_proc = pair[1]
-            sorted_sends = sorted(
-                send_list, key=lambda e: e["vc"].get(sender_proc, 0)
-            )
-            sorted_recvs = sorted(
-                recv_list, key=lambda e: e["vc"].get(recv_proc, 0)
-            )
+            sorted_sends = sorted(send_list, key=lambda e: e["vc"].get(sender_proc, 0))
+            sorted_recvs = sorted(recv_list, key=lambda e: e["vc"].get(recv_proc, 0))
 
             # The i-th receive should correspond to the i-th send (FIFO)
             # Check that receive timestamps are in the same order as send timestamps
@@ -808,9 +776,7 @@ class TraceValidator:
                         )
                     )
 
-    def _check_proposition_names(
-        self, rows: list[dict], report: ValidationReport
-    ) -> None:
+    def _check_proposition_names(self, rows: list[dict], report: ValidationReport) -> None:
         warned: set[str] = set()
         for r in rows:
             for prop in r["props"]:

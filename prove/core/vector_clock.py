@@ -130,10 +130,18 @@ class VectorClock:
         """
         Strict causal ordering: ``self < other`` iff ``self ≤ other``
         and they are not equal (at least one component is strictly less).
+
+        Single-pass implementation: checks all components in one sweep.
         """
         if not isinstance(other, VectorClock):
             return NotImplemented
-        return (self <= other) and any(self._clock[p] < other._clock[p] for p in self._processes)
+        has_strict_less = False
+        for p in self._processes:
+            if self._clock[p] > other._clock[p]:
+                return False
+            if self._clock[p] < other._clock[p]:
+                has_strict_less = True
+        return has_strict_less
 
     def is_concurrent_with(self, other: VectorClock) -> bool:
         """

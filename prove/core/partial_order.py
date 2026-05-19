@@ -1,17 +1,19 @@
 """
 Complete partial order computation over events.
 
-Combines vector clock ordering and epsilon-based timestamp ordering,
-then computes the transitive closure to produce the full partial order
-relation used by the sliding window algorithm.
+Combines vector clock ordering and epsilon-based timestamp ordering.
+The partial order is queried on-demand using direct VC and timestamp
+checks, avoiding O(N²) precomputation of the transitive closure.
 
-The partial order is computed **once** at initialisation (offline mode)
-and then queried during graph construction and summary propagation.
+Key insight: for any events e1, e2, e1 ≺ e2 in the transitive closure
+iff VC(e1) < VC(e2) OR t(e2) - t(e1) > epsilon. This holds because
+timestamps are monotonic along all ordering edges (both VC and epsilon),
+so any transitive chain results in either a direct VC or epsilon ordering.
 """
 
 from __future__ import annotations
 
-from collections import defaultdict, deque
+from collections import defaultdict
 from typing import Dict, FrozenSet, Iterable, List, Set
 
 from prove.core.clock_drift import ClockDriftHandler
@@ -27,8 +29,9 @@ class PartialOrder:
     1. **Vector clock ordering**: ``e ≺ f`` when ``VC(e) < VC(f)``
     2. **Epsilon-based ordering**: ``e ≺ f`` when ``t(f) − t(e) > ε``
 
-    After collecting all direct orderings, the transitive closure is
-    computed so that ``is_before`` answers in O(1).
+    Order queries use direct VC and timestamp checks (O(k) per query
+    where k is the number of processes), eliminating the need for
+    O(N²) precomputation.
 
     Attributes:
         events: Tuple of all events (in insertion order).
@@ -37,7 +40,7 @@ class PartialOrder:
 
     def __init__(self, events: Iterable[Event], epsilon: float) -> None:
         """
-        Compute the complete partial order.
+        Initialize the partial order.
 
         Args:
             events: All events in the execution.
@@ -47,59 +50,85 @@ class PartialOrder:
         self.epsilon: float = epsilon
         self._drift = ClockDriftHandler(epsilon)
 
-        # Forward adjacency: event → set of direct successors
+        # Build direct successor edges for topological sort (sparse DAG)
         self._direct_succ: Dict[Event, Set[Event]] = defaultdict(set)
-        # The full transitive closure: event → all events it precedes
-        self._succ_closure: Dict[Event, Set[Event]] = {}
-        # Reverse closure: event → all events that precede it
-        self._pred_closure: Dict[Event, Set[Event]] = {}
-
-        self._compute()
+        self._build_direct_edges()
 
     # ------------------------------------------------------------------ #
     # Internal computation
     # ------------------------------------------------------------------ #
 
-    def _compute(self) -> None:
-        """Build the complete partial order with transitive closure."""
-        events = self._events
+    def _build_direct_edges(self) -> None:
+        """Build sparse direct edges for topological sort.
 
-        # 1. Collect direct orderings from VC and epsilon
-        for i, ei in enumerate(events):
-            for j, ej in enumerate(events):
-                if i == j:
+        Intra-process edges: consecutive events on the same process.
+        Cross-process edges: only the minimal necessary edges from VC
+        ordering and epsilon ordering.
+        """
+        # Group events by process, sort by their own VC component
+        by_process: Dict[str, list[Event]] = defaultdict(list)
+        for e in self._events:
+            by_process[e.process].append(e)
+
+        for proc, evts in by_process.items():
+            evts.sort(key=lambda e: e.vector_clock._clock[proc])
+            for i in range(len(evts) - 1):
+                self._direct_succ[evts[i]].add(evts[i + 1])
+
+        # Cross-process VC edges (message causality):
+        # For receive events, add edge from the matching send predecessor.
+        # We detect this via VC: if event f on process q has VC[p] > 0,
+        # find the event on process p with VC[p] == f.VC[p] as a predecessor.
+        event_by_proc_seq: Dict[str, Dict[int, Event]] = defaultdict(dict)
+        for e in self._events:
+            proc = e.process
+            seq = e.vector_clock._clock[proc]
+            event_by_proc_seq[proc][seq] = e
+
+        for e in self._events:
+            proc_e = e.process
+            for proc, seq in e.vector_clock._clock.items():
+                if proc == proc_e or seq == 0:
                     continue
-                if ei.causally_before(ej):
-                    self._direct_succ[ei].add(ej)
-                elif self._drift.is_definitely_before(ei, ej):
-                    self._direct_succ[ei].add(ej)
+                pred = event_by_proc_seq.get(proc, {}).get(seq)
+                if pred is not None and pred is not e:
+                    # pred on process `proc` with VC[proc]=seq is a predecessor of e
+                    # But only add as direct edge if pred ≺ e
+                    if self.is_before(pred, e):
+                        self._direct_succ[pred].add(e)
 
-        # 2. Compute transitive closure via BFS from each node
-        for e in events:
-            reachable: Set[Event] = set()
-            queue = deque(self._direct_succ.get(e, set()))
-            while queue:
-                curr = queue.popleft()
-                if curr in reachable:
-                    continue
-                reachable.add(curr)
-                queue.extend(self._direct_succ.get(curr, set()))
-            self._succ_closure[e] = reachable
-
-        # 3. Build reverse closure
-        for e in events:
-            self._pred_closure[e] = set()
-        for e in events:
-            for s in self._succ_closure[e]:
-                self._pred_closure[s].add(e)
+        # Epsilon edges: for each pair of process groups, find cross-process
+        # orderings from timestamps. Sort all events by timestamp and use
+        # a sweep to find epsilon edges between different processes.
+        if self.epsilon != float("inf"):
+            sorted_events = sorted(self._events, key=lambda e: e.timestamp)
+            n = len(sorted_events)
+            for i in range(n):
+                ei = sorted_events[i]
+                for j in range(i + 1, n):
+                    ej = sorted_events[j]
+                    if ej.timestamp - ei.timestamp <= self.epsilon:
+                        continue
+                    # ei ≺ ej by epsilon; add direct edge if they're
+                    # on different processes and not already VC-ordered
+                    if ei.process != ej.process and not ei.causally_before(ej):
+                        self._direct_succ[ei].add(ej)
+                    break  # All further events have even larger timestamp gap
 
     # ------------------------------------------------------------------ #
     # Order queries
     # ------------------------------------------------------------------ #
 
     def is_before(self, e1: Event, e2: Event) -> bool:
-        """True when ``e1 ≺ e2`` in the complete partial order."""
-        return e2 in self._succ_closure.get(e1, set())
+        """True when ``e1 ≺ e2`` in the complete partial order.
+
+        Checks direct VC ordering or epsilon-based timestamp ordering.
+        Due to timestamp monotonicity along causal chains, this correctly
+        captures the transitive closure without precomputation.
+        """
+        if e1 is e2:
+            return False
+        return e1.causally_before(e2) or self._drift.is_definitely_before(e1, e2)
 
     def is_after(self, e1: Event, e2: Event) -> bool:
         """True when ``e1 ≻ e2`` (i.e. ``e2 ≺ e1``)."""
@@ -119,24 +148,25 @@ class PartialOrder:
 
     def predecessors(self, event: Event) -> FrozenSet[Event]:
         """Return all events ``e`` where ``e ≺ event``."""
-        return frozenset(self._pred_closure.get(event, set()))
+        return frozenset(e for e in self._events if e is not event and self.is_before(e, event))
 
     def immediate_predecessors(self, event: Event) -> FrozenSet[Event]:
         """
         Return events ``e`` where ``e ≺ event`` and no ``f`` exists with
         ``e ≺ f ≺ event``.
         """
-        preds = self._pred_closure.get(event, set())
-        immediate: Set[Event] = set()
+        preds = self.predecessors(event)
+        immediate: set[Event] = set()
         for p in preds:
-            # p is immediate if no other predecessor of event is a successor of p
-            if not any(other in preds and other != p for other in self._succ_closure.get(p, set())):
+            if not any(
+                self.is_before(p, other) and other in preds for other in preds if other is not p
+            ):
                 immediate.add(p)
         return frozenset(immediate)
 
     def successors(self, event: Event) -> FrozenSet[Event]:
         """Return all events ``e`` where ``event ≺ e``."""
-        return frozenset(self._succ_closure.get(event, set()))
+        return frozenset(e for e in self._events if e is not event and self.is_before(event, e))
 
     # ------------------------------------------------------------------ #
     # Linearisation
@@ -144,21 +174,16 @@ class PartialOrder:
 
     def topological_sort(self) -> List[Event]:
         """
-        Return a valid linearisation of the partial order (Kahn's algorithm).
+        Return a valid linearisation of the partial order.
 
-        The linearisation respects all orderings: if ``e ≺ f`` then
-        ``e`` appears before ``f`` in the result.
-
-        For concurrent events, ties are broken by timestamp then by event ID
-        for determinism.
+        Uses Kahn's algorithm over the sparse direct edge graph.
+        Ties are broken by timestamp then by event ID for determinism.
         """
-        # In-degree map
         in_degree: Dict[Event, int] = {e: 0 for e in self._events}
         for e in self._events:
             for s in self._direct_succ.get(e, set()):
                 in_degree[s] += 1
 
-        # Start with zero in-degree events, sorted for determinism
         ready = sorted(
             [e for e in self._events if in_degree[e] == 0],
             key=lambda ev: (ev.timestamp, ev.eid),
@@ -166,7 +191,6 @@ class PartialOrder:
         result: List[Event] = []
 
         while ready:
-            # Pick the first ready event (stable sort by timestamp/eid)
             current = ready.pop(0)
             result.append(current)
             for s in sorted(
@@ -175,7 +199,6 @@ class PartialOrder:
             ):
                 in_degree[s] -= 1
                 if in_degree[s] == 0:
-                    # Insert in sorted position
                     ready.append(s)
                     ready.sort(key=lambda ev: (ev.timestamp, ev.eid))
 
@@ -189,9 +212,9 @@ class PartialOrder:
         ``sequence[j]`` does not precede ``sequence[i]`` in the partial order.
         """
         position = {e: i for i, e in enumerate(sequence)}
-        for e in self._events:
-            for s in self._succ_closure.get(e, set()):
-                if position.get(e, -1) >= position.get(s, -1):
+        for i, e in enumerate(sequence):
+            for j in range(i + 1, len(sequence)):
+                if self.is_before(sequence[j], e):
                     return False
         return True
 
@@ -201,7 +224,16 @@ class PartialOrder:
 
     def get_minimal_events(self) -> FrozenSet[Event]:
         """Return events with no predecessors (initial events)."""
-        return frozenset(e for e in self._events if not self._pred_closure.get(e, set()))
+        minimals: list[Event] = []
+        for e in self._events:
+            is_minimal = True
+            for f in self._events:
+                if f is not e and self.is_before(f, e):
+                    is_minimal = False
+                    break
+            if is_minimal:
+                minimals.append(e)
+        return frozenset(minimals)
 
     def get_enabled_events(self, processed: Set[Event]) -> Set[Event]:
         """
@@ -214,8 +246,12 @@ class PartialOrder:
         for e in self._events:
             if e in processed:
                 continue
-            preds = self._pred_closure.get(e, set())
-            if preds <= processed:
+            all_preds_done = True
+            for f in self._events:
+                if f is not e and f not in processed and self.is_before(f, e):
+                    all_preds_done = False
+                    break
+            if all_preds_done:
                 enabled.add(e)
         return enabled
 
