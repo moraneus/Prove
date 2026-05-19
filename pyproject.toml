@@ -40,6 +40,11 @@ dev = [
 [project.scripts]
 prove = "prove.cli:main"
 
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["prove*"]
+exclude = ["tests*", "experiments*", "examples*", "tools*"]
+
 [tool.black]
 line-length = 100
 target-version = ["py310"]
