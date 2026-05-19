@@ -1,6 +1,6 @@
 # Two-process with message: e1 sends to e2, creating e1 < e2
 # system_processes: P1|P2
-# epsilon: 2.0
+# epsilon: 0.5
 eid,processes,vc,timestamp,props,event_type,msg_partner
 iota_P1,P1,P1:1;P2:0,0.0,init1,local,
 iota_P2,P2,P1:0;P2:1,0.0,init2,local,
