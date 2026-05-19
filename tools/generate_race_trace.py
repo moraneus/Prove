@@ -32,6 +32,7 @@ Usage:
     python tools/generate_race_trace.py --events 1000 \\
         --output experiments/Safety_Race/trace_race.csv
 """
+
 from __future__ import annotations
 
 import argparse
@@ -85,9 +86,7 @@ class GeneratorState:
         self.events: list[tuple[str, str, str, str, str, str, str]] = []
 
     def _vc_str(self, proc: str) -> str:
-        return ";".join(
-            f"{p}:{self.counts[p] if p == proc else 0}" for p in PROCESSES
-        )
+        return ";".join(f"{p}:{self.counts[p] if p == proc else 0}" for p in PROCESSES)
 
     def emit(self, proc: str, timestamp: float) -> None:
         self.counts[proc] += 1
@@ -133,9 +132,7 @@ def _jitter_tick_times(rng: random.Random, num_ticks: int) -> list[float]:
 
 def emit_trace(target_size: int, seed: int | None) -> GeneratorState:
     if target_size < MIN_EVENTS:
-        raise ValueError(
-            f"trace size must be at least {MIN_EVENTS} (one init event per aircraft)"
-        )
+        raise ValueError(f"trace size must be at least {MIN_EVENTS} (one init event per aircraft)")
 
     rng = random.Random(seed)
 
@@ -160,8 +157,7 @@ def emit_trace(target_size: int, seed: int | None) -> GeneratorState:
             state.emit(proc, max(0.0, t))
 
     assert len(state.events) == target_size, (
-        f"internal error: emitted {len(state.events)} events, "
-        f"expected {target_size}"
+        f"internal error: emitted {len(state.events)} events, " f"expected {target_size}"
     )
     return state
 

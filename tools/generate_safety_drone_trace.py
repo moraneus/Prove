@@ -32,6 +32,7 @@ Usage:
         --events 1000 --drones 10 \\
         --output experiments/Safety_Drone/trace_drone.csv
 """
+
 from __future__ import annotations
 
 import argparse
@@ -73,9 +74,7 @@ class GeneratorState:
     def __init__(self, processes: tuple[str, ...]) -> None:
         self.processes = processes
         self.counts: dict[str, int] = {p: 0 for p in processes}
-        self.vcs: dict[str, dict[str, int]] = {
-            p: {q: 0 for q in processes} for p in processes
-        }
+        self.vcs: dict[str, dict[str, int]] = {p: {q: 0 for q in processes} for p in processes}
         self.pending: dict[tuple[str, str], list[dict[str, int]]] = {
             (s, d): [] for s in processes for d in processes if s != d
         }
@@ -110,17 +109,13 @@ class GeneratorState:
         self.vcs[proc][proc] = self.counts[proc]
         self._record(eid, proc, timestamp, props, "local", "")
 
-    def send(
-        self, eid: str, src: str, dst: str, timestamp: float, props: str = ""
-    ) -> None:
+    def send(self, eid: str, src: str, dst: str, timestamp: float, props: str = "") -> None:
         self.counts[src] += 1
         self.vcs[src][src] = self.counts[src]
         self.pending[(src, dst)].append(dict(self.vcs[src]))
         self._record(eid, src, timestamp, props, "send", dst)
 
-    def recv(
-        self, eid: str, src: str, dst: str, timestamp: float, props: str = ""
-    ) -> None:
+    def recv(self, eid: str, src: str, dst: str, timestamp: float, props: str = "") -> None:
         vc_msg = self.pending[(src, dst)].pop(0)
         for q in self.processes:
             if q != dst:
@@ -203,9 +198,7 @@ def emit_round(
 
         # Drone1 ← peer: relative_confirmed
         t += _delay(rng, DELAY_SEND_TO_CONFIRM)
-        state.recv(
-            f"d1_recv_d{peer_idx}_{rr}", peer, "Drone1", t, "relative_confirmed"
-        )
+        state.recv(f"d1_recv_d{peer_idx}_{rr}", peer, "Drone1", t, "relative_confirmed")
         emitted += 1
         if emitted >= target:
             return
@@ -226,9 +219,7 @@ def emit_trace(target_size: int, drones: int, seed: int | None) -> GeneratorStat
     if drones < 2:
         raise ValueError("drones must be at least 2")
     if target_size < drones:
-        raise ValueError(
-            f"trace size must be at least {drones} (one init event per drone)"
-        )
+        raise ValueError(f"trace size must be at least {drones} (one init event per drone)")
 
     rng = random.Random(seed)
 
@@ -244,9 +235,7 @@ def emit_trace(target_size: int, drones: int, seed: int | None) -> GeneratorStat
     round_start = ROUND_START
     for r in range(1, full_rounds + 1):
         emit_round(state, drones, r, round_start, rng)
-        gap = INTER_ROUND_GAP + rng.uniform(
-            -INTER_ROUND_GAP_JITTER, INTER_ROUND_GAP_JITTER
-        )
+        gap = INTER_ROUND_GAP + rng.uniform(-INTER_ROUND_GAP_JITTER, INTER_ROUND_GAP_JITTER)
         # Round_start advances to (last event in this round) + gap; the
         # last event timestamp lives in state.events[-1][3].
         last_t = float(state.events[-1][3])
@@ -256,8 +245,7 @@ def emit_trace(target_size: int, drones: int, seed: int | None) -> GeneratorStat
         emit_round(state, drones, full_rounds + 1, round_start, rng, peers_to_emit=partial)
 
     assert len(state.events) == target_size, (
-        f"internal error: emitted {len(state.events)} events, "
-        f"expected {target_size}"
+        f"internal error: emitted {len(state.events)} events, " f"expected {target_size}"
     )
     return state
 
@@ -282,9 +270,7 @@ HEADER_TEMPLATE = """\
 """
 
 
-def write_trace(
-    state: GeneratorState, drones: int, output: Path, seed: int | None
-) -> None:
+def write_trace(state: GeneratorState, drones: int, output: Path, seed: int | None) -> None:
     events_per_round = EVENTS_PER_ROUND_BASE + EVENTS_PER_PEER * (drones - 1)
     remaining = len(state.events) - drones
     full_rounds, partial = divmod(remaining, events_per_round)

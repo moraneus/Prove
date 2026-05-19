@@ -28,7 +28,6 @@ from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
-
 # Mission phases that drones cycle through
 MISSION_PHASES = [
     "idle",
@@ -69,9 +68,7 @@ class GeneratorState:
         default_factory=lambda: defaultdict(list)
     )
     # Pending receives: (receiver_drone_name) -> list of sender names
-    pending_receives: dict[str, list[str]] = field(
-        default_factory=lambda: defaultdict(list)
-    )
+    pending_receives: dict[str, list[str]] = field(default_factory=lambda: defaultdict(list))
     total_events: int = 0
     fragile_injected: bool = False
 
@@ -112,9 +109,7 @@ def increment_vc(state: GeneratorState, drone_name: str) -> None:
     state.vc[drone_name][drone_name] += 1
 
 
-def merge_vc(
-    state: GeneratorState, receiver: str, sender_vc: dict[str, int]
-) -> None:
+def merge_vc(state: GeneratorState, receiver: str, sender_vc: dict[str, int]) -> None:
     """Merge sender's VC into receiver's VC (Fidge-Mattern rule)."""
     # Increment own component
     state.vc[receiver][receiver] += 1
@@ -181,9 +176,7 @@ def generate_send_event(
 
     # Snapshot the sender's VC and timestamp for the message
     vc_snapshot = dict(state.vc[sender.name])
-    state.msg_queues[(sender.name, receiver_name)].append(
-        (vc_snapshot, sender.timestamp)
-    )
+    state.msg_queues[(sender.name, receiver_name)].append((vc_snapshot, sender.timestamp))
 
     # Track pending receives for the receiver
     state.pending_receives[receiver_name].append(sender.name)
@@ -214,9 +207,7 @@ def generate_receive_event(
     # Pop the oldest message from this sender (FIFO)
     queue = state.msg_queues[(sender_name, receiver.name)]
     if not queue:
-        raise ValueError(
-            f"No pending message from {sender_name} to {receiver.name}"
-        )
+        raise ValueError(f"No pending message from {sender_name} to {receiver.name}")
     sender_vc, send_timestamp = queue.pop(0)
 
     # Also remove from pending_receives

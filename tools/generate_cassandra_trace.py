@@ -40,6 +40,7 @@ Usage:
     python tools/generate_cassandra_trace.py --events 1000 \\
         --output experiments/Safety_Cassandra/trace_cass.csv
 """
+
 from __future__ import annotations
 
 import argparse
@@ -89,9 +90,7 @@ class GeneratorState:
 
     def __init__(self) -> None:
         self.counts: dict[str, int] = {p: 0 for p in PROCESSES}
-        self.vcs: dict[str, dict[str, int]] = {
-            p: {q: 0 for q in PROCESSES} for p in PROCESSES
-        }
+        self.vcs: dict[str, dict[str, int]] = {p: {q: 0 for q in PROCESSES} for p in PROCESSES}
         self.pending: dict[tuple[str, str], list[dict[str, int]]] = {
             (s, d): [] for s in PROCESSES for d in PROCESSES if s != d
         }
@@ -130,17 +129,13 @@ class GeneratorState:
         self.vcs[proc][proc] = self.counts[proc]
         self._record(proc, timestamp, props, "local", "")
 
-    def send(
-        self, src: str, dst: str, timestamp: float, props: str
-    ) -> None:
+    def send(self, src: str, dst: str, timestamp: float, props: str) -> None:
         self.counts[src] += 1
         self.vcs[src][src] = self.counts[src]
         self.pending[(src, dst)].append(dict(self.vcs[src]))
         self._record(src, timestamp, props, "send", dst)
 
-    def recv(
-        self, src: str, dst: str, timestamp: float, props: str
-    ) -> None:
+    def recv(self, src: str, dst: str, timestamp: float, props: str) -> None:
         vc_msg = self.pending[(src, dst)].pop(0)
         for q in PROCESSES:
             if q != dst:
@@ -228,17 +223,14 @@ def emit_maintenance_ticks(
         state.local(proc, t, label)
         t += max(
             0.05,
-            MAINTENANCE_TICK_PERIOD + rng.uniform(
-                -MAINTENANCE_TICK_PERIOD * 0.3, MAINTENANCE_TICK_PERIOD * 0.3
-            ),
+            MAINTENANCE_TICK_PERIOD
+            + rng.uniform(-MAINTENANCE_TICK_PERIOD * 0.3, MAINTENANCE_TICK_PERIOD * 0.3),
         )
 
 
 def emit_trace(target_size: int, seed: int | None) -> GeneratorState:
     if target_size < MIN_EVENTS:
-        raise ValueError(
-            f"trace size must be at least {MIN_EVENTS} (one init event per process)"
-        )
+        raise ValueError(f"trace size must be at least {MIN_EVENTS} (one init event per process)")
 
     rng = random.Random(seed)
 
@@ -258,8 +250,7 @@ def emit_trace(target_size: int, seed: int | None) -> GeneratorState:
         emit_maintenance_ticks(state, round_start, partial, rng)
 
     assert len(state.events) == target_size, (
-        f"internal error: emitted {len(state.events)} events, "
-        f"expected {target_size}"
+        f"internal error: emitted {len(state.events)} events, " f"expected {target_size}"
     )
     return state
 

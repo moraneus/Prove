@@ -40,6 +40,7 @@ Usage:
     python tools/generate_2pc_trace.py --events 1000 \\
         --output experiments/Safety_2PC/trace_2pc.csv
 """
+
 from __future__ import annotations
 
 import argparse
@@ -82,9 +83,7 @@ class GeneratorState:
 
     def __init__(self) -> None:
         self.counts: dict[str, int] = {p: 0 for p in PROCESSES}
-        self.vcs: dict[str, dict[str, int]] = {
-            p: {q: 0 for q in PROCESSES} for p in PROCESSES
-        }
+        self.vcs: dict[str, dict[str, int]] = {p: {q: 0 for q in PROCESSES} for p in PROCESSES}
         self.pending: dict[tuple[str, str], list[dict[str, int]]] = {
             (s, d): [] for s in PROCESSES for d in PROCESSES if s != d
         }
@@ -119,17 +118,13 @@ class GeneratorState:
         self.vcs[proc][proc] = self.counts[proc]
         self._record(eid, proc, timestamp, props, "local", "")
 
-    def send(
-        self, eid: str, src: str, dst: str, timestamp: float, props: str = ""
-    ) -> None:
+    def send(self, eid: str, src: str, dst: str, timestamp: float, props: str = "") -> None:
         self.counts[src] += 1
         self.vcs[src][src] = self.counts[src]
         self.pending[(src, dst)].append(dict(self.vcs[src]))
         self._record(eid, src, timestamp, props, "send", dst)
 
-    def recv(
-        self, eid: str, src: str, dst: str, timestamp: float, props: str = ""
-    ) -> None:
+    def recv(self, eid: str, src: str, dst: str, timestamp: float, props: str = "") -> None:
         vc_msg = self.pending[(src, dst)].pop(0)
         for q in PROCESSES:
             if q != dst:
@@ -156,9 +151,7 @@ def _jit_post(rng: random.Random, base: float) -> float:
     return base + rng.uniform(-POST_CLUSTER_JITTER, POST_CLUSTER_JITTER)
 
 
-def tx_step_functions(
-    state: GeneratorState, N: int, T: float, rng: random.Random
-) -> list:
+def tx_step_functions(state: GeneratorState, N: int, T: float, rng: random.Random) -> list:
     """Return the 33 emission closures for transaction N (1-indexed),
     starting at simulated time ``T``.
 
@@ -245,29 +238,15 @@ def tx_step_functions(
         lambda: state.recv(f"recv_yes_P2{sfx}", "P2", "C", T + post["recv_yes_P2"]),
         lambda: state.recv(f"recv_yes_P3{sfx}", "P3", "C", T + post["recv_yes_P3"]),
         # 20. decide
-        lambda: state.local(
-            f"decide_commit{sfx}", "C", T + post["decide_commit"], "committed"
-        ),
+        lambda: state.local(f"decide_commit{sfx}", "C", T + post["decide_commit"], "committed"),
         # 21-23. commit fan-out
-        lambda: state.send(
-            f"commit_cmd_P1{sfx}", "C", "P1", T + post["commit_cmd_P1"]
-        ),
-        lambda: state.send(
-            f"commit_cmd_P2{sfx}", "C", "P2", T + post["commit_cmd_P2"]
-        ),
-        lambda: state.send(
-            f"commit_cmd_P3{sfx}", "C", "P3", T + post["commit_cmd_P3"]
-        ),
+        lambda: state.send(f"commit_cmd_P1{sfx}", "C", "P1", T + post["commit_cmd_P1"]),
+        lambda: state.send(f"commit_cmd_P2{sfx}", "C", "P2", T + post["commit_cmd_P2"]),
+        lambda: state.send(f"commit_cmd_P3{sfx}", "C", "P3", T + post["commit_cmd_P3"]),
         # 24-26. commit receipts
-        lambda: state.recv(
-            f"recv_commit_P1{sfx}", "C", "P1", T + post["recv_commit_P1"]
-        ),
-        lambda: state.recv(
-            f"recv_commit_P2{sfx}", "C", "P2", T + post["recv_commit_P2"]
-        ),
-        lambda: state.recv(
-            f"recv_commit_P3{sfx}", "C", "P3", T + post["recv_commit_P3"]
-        ),
+        lambda: state.recv(f"recv_commit_P1{sfx}", "C", "P1", T + post["recv_commit_P1"]),
+        lambda: state.recv(f"recv_commit_P2{sfx}", "C", "P2", T + post["recv_commit_P2"]),
+        lambda: state.recv(f"recv_commit_P3{sfx}", "C", "P3", T + post["recv_commit_P3"]),
         # 27-29. local commits
         lambda: state.local(
             f"local_commit_P1{sfx}", "P1", T + post["local_commit_P1"], "local_commit_P1"
@@ -299,9 +278,7 @@ def emit_init(state: GeneratorState) -> None:
 
 def emit_trace(target_size: int, seed: int | None) -> GeneratorState:
     if target_size < MIN_EVENTS:
-        raise ValueError(
-            f"trace size must be at least {MIN_EVENTS} (one init event per process)"
-        )
+        raise ValueError(f"trace size must be at least {MIN_EVENTS} (one init event per process)")
 
     rng = random.Random(seed)
 
@@ -322,8 +299,7 @@ def emit_trace(target_size: int, seed: int | None) -> GeneratorState:
             step()
 
     assert len(state.events) == target_size, (
-        f"internal error: emitted {len(state.events)} events, "
-        f"expected {target_size}"
+        f"internal error: emitted {len(state.events)} events, " f"expected {target_size}"
     )
     return state
 
