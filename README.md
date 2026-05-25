@@ -62,10 +62,62 @@ On Windows, replace `source .venv/bin/activate` with
 `.venv\Scripts\activate` (`cmd.exe`) or `.venv\Scripts\Activate.ps1`
 (PowerShell). All other commands are identical.
 
+### Try the bundled examples
+
+The `examples/` directory ships about 110 worked examples. After activating
+the virtual environment, any of the following can be copy-pasted to verify
+the installation against a real trace:
+
+```bash
+# Single-process workflow: "done implies that working was true at some point"
+python -m prove -p examples/01_single_process_workflow/property.prop \
+                -t examples/01_single_process_workflow/trace.csv
+
+# Client-server with message causality: "satisfied implies a prior request"
+python -m prove -p examples/03_client_server_messages/property.prop \
+                -t examples/03_client_server_messages/trace.csv
+
+# Since operator: "running S start" (this trace VIOLATES the property)
+python -m prove -p examples/05_since_operator/property.prop \
+                -t examples/05_since_operator/trace.csv
+
+# Epsilon-based ordering across two processes
+python -m prove -p examples/07_epsilon_ordering/property.prop \
+                -t examples/07_epsilon_ordering/trace.csv
+
+# Three-process paper example with ASCII visualisation and statistics
+python -m prove -p examples/11_three_process_paper_example/property.prop \
+                -t examples/11_three_process_paper_example/trace.csv \
+                --visualize-ascii --stats
+```
+
 ### Docker
 
 A `Dockerfile` is provided for running PROVE in a container without installing
 Python or `graphviz` locally.
+
+#### Prerequisites
+
+A working Docker installation is required:
+
+- **Linux**: install [Docker Engine](https://docs.docker.com/engine/install/)
+  via your distribution's package manager, e.g. on Debian/Ubuntu:
+  ```bash
+  sudo apt install docker.io
+  sudo systemctl start docker
+  sudo usermod -aG docker "$USER"   # log out and back in for group change
+  ```
+- **macOS**: install [Docker Desktop for Mac](https://www.docker.com/products/docker-desktop/)
+  and start it from Applications.
+- **Windows**: install [Docker Desktop for Windows](https://www.docker.com/products/docker-desktop/)
+  (uses WSL2 as the backend) and start it from the Start menu.
+
+Verify the daemon is reachable:
+
+```bash
+docker --version
+docker info
+```
 
 Build the image once:
 
@@ -110,10 +162,33 @@ docker run --rm -v "$PWD":/data prove \
 # ASCII visualisation of the partial order
 docker run --rm -v "$PWD":/data prove \
     -p safety.prop -t trace.csv --visualize-ascii
+```
 
-# Run one of the bundled examples (note the mount points at examples/)
+#### Try the bundled examples (Docker)
+
+The same examples shown in the source-install section can be run directly
+inside the container by bind-mounting each example folder to `/data`:
+
+```bash
+# Single-process workflow
 docker run --rm -v "$PWD/examples/01_single_process_workflow:/data" prove \
     -p property.prop -t trace.csv
+
+# Client-server with message causality
+docker run --rm -v "$PWD/examples/03_client_server_messages:/data" prove \
+    -p property.prop -t trace.csv
+
+# Since operator (VIOLATED verdict)
+docker run --rm -v "$PWD/examples/05_since_operator:/data" prove \
+    -p property.prop -t trace.csv
+
+# Epsilon-based ordering
+docker run --rm -v "$PWD/examples/07_epsilon_ordering:/data" prove \
+    -p property.prop -t trace.csv
+
+# Three-process paper example with ASCII visualisation and statistics
+docker run --rm -v "$PWD/examples/11_three_process_paper_example:/data" prove \
+    -p property.prop -t trace.csv --visualize-ascii --stats
 ```
 
 #### Windows hosts
