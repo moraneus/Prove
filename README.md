@@ -30,21 +30,37 @@ Executions"* by Doron Peled et al.
 
 ## Installation
 
-Requires Python 3.10+.
+Requires Python 3.10 or newer. On Debian/Ubuntu (and other distributions that
+follow PEP 668), make sure the `venv` package is also installed:
+
+```bash
+sudo apt install python3-venv
+```
+
+Clone the repository, create an isolated virtual environment, and install
+PROVE from source:
 
 ```bash
 git clone https://github.com/moraneus/Prove.git
 cd Prove
-python -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -e ".[dev]"
 ```
+
+Once the virtual environment is active, the `python` command resolves to the
+venv interpreter, so `python` and `python3` are interchangeable inside the
+shell.
 
 Verify the installation:
 
 ```bash
 python -m prove --version
 ```
+
+On Windows, replace `source .venv/bin/activate` with
+`.venv\Scripts\activate` (`cmd.exe`) or `.venv\Scripts\Activate.ps1`
+(PowerShell). All other commands are identical.
 
 ### Docker
 
