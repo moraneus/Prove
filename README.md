@@ -30,6 +30,15 @@ Executions"* by Doron Peled et al.
 
 ## Installation
 
+PROVE can be installed in two ways. Pick the one that fits your environment:
+
+- [Install from source](#install-from-source) — clone the repository, create
+  a Python virtual environment, and install the package with `pip`.
+- [Docker](#docker) — build a container image and run PROVE without a local
+  Python installation.
+
+### Install from source
+
 Requires Python 3.10 or newer. On Debian/Ubuntu (and other distributions that
 follow PEP 668), make sure the `venv` package is also installed:
 
@@ -66,29 +75,44 @@ On Windows, replace `source .venv/bin/activate` with
 
 The `examples/` directory ships about 110 worked examples. After activating
 the virtual environment, any of the following can be copy-pasted to verify
-the installation against a real trace:
+the installation against a real trace.
+
+Print the full command-line help:
 
 ```bash
-# Single-process workflow: "done implies that working was true at some point"
-python -m prove -p examples/01_single_process_workflow/property.prop \
-                -t examples/01_single_process_workflow/trace.csv
+python3 -m prove --help
+```
 
-# Client-server with message causality: "satisfied implies a prior request"
-python -m prove -p examples/03_client_server_messages/property.prop \
-                -t examples/03_client_server_messages/trace.csv
+Single-process workflow ("done implies that working was true at some point"):
 
-# Since operator: "running S start" (this trace VIOLATES the property)
-python -m prove -p examples/05_since_operator/property.prop \
-                -t examples/05_since_operator/trace.csv
+```bash
+python3 -m prove -p examples/01_single_process_workflow/property.prop \
+                 -t examples/01_single_process_workflow/trace.csv \
+                 --stats
+```
 
-# Epsilon-based ordering across two processes
-python -m prove -p examples/07_epsilon_ordering/property.prop \
-                -t examples/07_epsilon_ordering/trace.csv
+Client-server with message causality, with ASCII visualisation:
 
-# Three-process paper example with ASCII visualisation and statistics
-python -m prove -p examples/11_three_process_paper_example/property.prop \
-                -t examples/11_three_process_paper_example/trace.csv \
-                --visualize-ascii --stats
+```bash
+python3 -m prove -p examples/03_client_server_messages/property.prop \
+                 -t examples/03_client_server_messages/trace.csv \
+                 --stats --visualize-ascii
+```
+
+Since operator ("running S start"); this trace VIOLATES the property:
+
+```bash
+python3 -m prove -p examples/05_since_operator/property.prop \
+                 -t examples/05_since_operator/trace.csv \
+                 --stats
+```
+
+Three-process paper example, with ASCII visualisation:
+
+```bash
+python3 -m prove -p examples/11_three_process_paper_example/property.prop \
+                 -t examples/11_three_process_paper_example/trace.csv \
+                 --stats --visualize-ascii
 ```
 
 ### Docker
@@ -119,6 +143,16 @@ docker --version
 docker info
 ```
 
+#### Build the image
+
+Clone the repository and switch into its root (the `Dockerfile` and the
+`examples/` directory both live there):
+
+```bash
+git clone https://github.com/moraneus/Prove.git
+cd Prove
+```
+
 Build the image once:
 
 ```bash
@@ -127,16 +161,19 @@ docker build -t prove .
 
 The container's entrypoint is the `prove` CLI, its working directory is
 `/data`, and any flags accepted by `python -m prove` can be appended after the
-image name.
+image name. To run real verifications straight away, jump to
+[Try the bundled examples (Docker)](#try-the-bundled-examples-docker).
 
 #### Running on local files
 
 Bind-mount the directory containing your property and trace into `/data`, then
-reference the files by their (relative) names:
+reference the files by their (relative) names. In the snippets below,
+`<PROPERTY>` is the name of your `.prop` file and `<TRACE>` is the name of your
+`.csv` trace file, both located in the mounted directory:
 
 ```bash
-# Run from the directory that holds safety.prop and trace.csv
-docker run --rm -v "$PWD":/data prove -p safety.prop -t trace.csv
+# Run from the directory that holds <PROPERTY> and <TRACE>
+docker run --rm -v "$PWD":/data prove -p <PROPERTY> -t <TRACE>
 ```
 
 `$PWD` is the current shell directory. `-v "$PWD":/data` exposes it inside the
@@ -146,49 +183,68 @@ relative paths resolve directly.
 You can also point the mount at a different directory:
 
 ```bash
-docker run --rm -v /absolute/path/to/data:/data prove -p safety.prop -t trace.csv
+docker run --rm -v /absolute/path/to/data:/data prove -p <PROPERTY> -t <TRACE>
 ```
 
 #### Common flags
 
+Show the tool version:
+
 ```bash
-# Show version
 docker run --rm prove --version
+```
 
-# Verbose output and statistics
-docker run --rm -v "$PWD":/data prove \
-    -p safety.prop -t trace.csv -o verbose --stats
+Verbose output and statistics:
 
-# ASCII visualisation of the partial order
+```bash
 docker run --rm -v "$PWD":/data prove \
-    -p safety.prop -t trace.csv --visualize-ascii
+    -p <PROPERTY> -t <TRACE> -o verbose --stats
+```
+
+ASCII visualisation of the partial order:
+
+```bash
+docker run --rm -v "$PWD":/data prove \
+    -p <PROPERTY> -t <TRACE> --visualize-ascii
 ```
 
 #### Try the bundled examples (Docker)
 
 The same examples shown in the source-install section can be run directly
-inside the container by bind-mounting each example folder to `/data`:
+inside the container by bind-mounting each example folder to `/data`.
+
+Print the full command-line help:
 
 ```bash
-# Single-process workflow
+docker run --rm prove --help
+```
+
+Single-process workflow:
+
+```bash
 docker run --rm -v "$PWD/examples/01_single_process_workflow:/data" prove \
-    -p property.prop -t trace.csv
+    -p property.prop -t trace.csv --stats
+```
 
-# Client-server with message causality
+Client-server with message causality, with ASCII visualisation:
+
+```bash
 docker run --rm -v "$PWD/examples/03_client_server_messages:/data" prove \
-    -p property.prop -t trace.csv
+    -p property.prop -t trace.csv --stats --visualize-ascii
+```
 
-# Since operator (VIOLATED verdict)
+Since operator (VIOLATED verdict):
+
+```bash
 docker run --rm -v "$PWD/examples/05_since_operator:/data" prove \
-    -p property.prop -t trace.csv
+    -p property.prop -t trace.csv --stats
+```
 
-# Epsilon-based ordering
-docker run --rm -v "$PWD/examples/07_epsilon_ordering:/data" prove \
-    -p property.prop -t trace.csv
+Three-process paper example, with ASCII visualisation:
 
-# Three-process paper example with ASCII visualisation and statistics
+```bash
 docker run --rm -v "$PWD/examples/11_three_process_paper_example:/data" prove \
-    -p property.prop -t trace.csv --visualize-ascii --stats
+    -p property.prop -t trace.csv --stats --visualize-ascii
 ```
 
 #### Windows hosts
@@ -197,13 +253,13 @@ In PowerShell, use Windows-style host paths and a forward slash for the
 container side of the mount:
 
 ```powershell
-docker run --rm -v "C:\path\to\data:/data" prove -p safety.prop -t trace.csv
+docker run --rm -v "C:\path\to\data:/data" prove -p <PROPERTY> -t <TRACE>
 ```
 
 In Command Prompt (`cmd.exe`), substitute `%cd%` for `$PWD`:
 
 ```bat
-docker run --rm -v "%cd%:/data" prove -p safety.prop -t trace.csv
+docker run --rm -v "%cd%:/data" prove -p <PROPERTY> -t <TRACE>
 ```
 
 #### Common pitfalls
