@@ -91,12 +91,38 @@ python3 -m prove -p examples/01_single_process_workflow/property.prop \
                  --stats
 ```
 
+Expected output (ends with):
+
+```
+SATISFIED: Property holds for at least one linearization
+
+=== Statistics ===
+  Node Count: 1
+  Edge Count: 0
+  Nodes Removed: 2
+  Max Summaries: 1
+  Events Processed: 2
+```
+
 Client-server with message causality, with ASCII visualisation:
 
 ```bash
 python3 -m prove -p examples/03_client_server_messages/property.prop \
                  -t examples/03_client_server_messages/trace.csv \
                  --stats --visualize-ascii
+```
+
+Expected output (ends with):
+
+```
+SATISFIED: Property holds for at least one linearization
+
+=== Statistics ===
+  Node Count: 2
+  Edge Count: 1
+  Nodes Removed: 4
+  Max Summaries: 1
+  Events Processed: 5
 ```
 
 Since operator ("running S start"); this trace VIOLATES the property:
@@ -107,12 +133,38 @@ python3 -m prove -p examples/05_since_operator/property.prop \
                  --stats
 ```
 
+Expected output (ends with):
+
+```
+VIOLATED: Property does not hold for any linearization
+
+=== Statistics ===
+  Node Count: 1
+  Edge Count: 0
+  Nodes Removed: 4
+  Max Summaries: 1
+  Events Processed: 4
+```
+
 Three-process paper example, with ASCII visualisation:
 
 ```bash
 python3 -m prove -p examples/11_three_process_paper_example/property.prop \
                  -t examples/11_three_process_paper_example/trace.csv \
                  --stats --visualize-ascii
+```
+
+Expected output (ends with):
+
+```
+SATISFIED: Property holds for at least one linearization
+
+=== Statistics ===
+  Node Count: 10
+  Edge Count: 11
+  Nodes Removed: 9
+  Max Summaries: 1
+  Events Processed: 6
 ```
 
 ### Docker
@@ -162,7 +214,9 @@ docker build -t prove .
 The container's entrypoint is the `prove` CLI, its working directory is
 `/data`, and any flags accepted by `python -m prove` can be appended after the
 image name. To run real verifications straight away, jump to
-[Try the bundled examples (Docker)](#try-the-bundled-examples-docker).
+[Try the bundled examples (Docker)](#try-the-bundled-examples-docker); to
+reproduce the paper's experimental tables inside the container, see
+[Reproducing the paper experiments](#reproducing-the-paper-experiments).
 
 #### Running on local files
 
@@ -211,7 +265,11 @@ docker run --rm -v "$PWD":/data prove \
 #### Try the bundled examples (Docker)
 
 The same examples shown in the source-install section can be run directly
-inside the container by bind-mounting each example folder to `/data`.
+inside the container by bind-mounting each example folder to `/data`. Each
+command produces the same `SATISFIED` / `VIOLATED` verdict and statistics
+block as the corresponding source-install command (the expected outputs are
+documented in
+[Try the bundled examples](#try-the-bundled-examples) above).
 
 Print the full command-line help:
 
@@ -274,6 +332,145 @@ docker run --rm -v "%cd%:/data" prove -p <PROPERTY> -t <TRACE>
 - **Backslashes in the container path.** Container paths use forward slashes
   even on Windows: the right-hand side of `-v` is always `/data`, never
   `\data`.
+
+## Reproducing the paper experiments
+
+The `experiments/` directory contains the four sweep experiments reported in
+the paper:
+
+| Directory | Property | Verdict |
+|---|---|---|
+| `experiments/Safety_2PC/` | `TRUE S (prepared_P3 & @vote_yes_P2)` | SAT |
+| `experiments/Safety_Cassandra/` | `write_enrollment -> (TRUE S write_student)` | SAT |
+| `experiments/Safety_Drone/` | `relative_confirmed -> (TRUE S velocity_sent)` | SAT |
+| `experiments/Safety_Race/` | `!(TRUE S unsafe_A1A2) & !(TRUE S unsafe_A1A3) & !(TRUE S unsafe_A2A3)` | SAT |
+
+Each subdirectory ships the property file (`safety_*.prop`), three
+pre-generated traces (`traces/trace_1k.csv`, `trace_10k.csv`,
+`trace_100k.csv`), and a sweep runner (`run_experiment.sh`). The runner
+performs **15 invocations per experiment** (three trace sizes × five values
+of $\epsilon \in \{0.0, 0.5, 1.0, 5.0, \infty\}$), captures wall-clock time
+and peak RSS via GNU `time`, and writes a Markdown summary to `results.md`
+alongside per-run logs in `logs/`.
+
+`Safety_Drone` additionally ships a second sweep,
+`run_experiment_by_processes.sh`, that fixes $\epsilon = 1.0$ and sweeps
+the **number of drones** $K \in \{2, 4, 6, 8, 10\}$ across the same three
+trace sizes. Its 15 invocations use the traces under
+`traces_by_processes/` and produce
+`results_by_processes.md` and `logs_by_processes/`.
+
+### Running an experiment inside Docker
+
+The Docker image already contains the `prove` package, GNU `time`,
+`timeout`, and `bash`. To run a single experiment, mount the repository
+root inside the container and invoke the runner with `bash` instead of the
+default `prove` entrypoint:
+
+```bash
+docker run --rm --entrypoint bash \
+    -v "$PWD:/opt/work" -w /opt/work prove \
+    experiments/Safety_Cassandra/run_experiment.sh
+```
+
+This single command builds nothing further; it produces output of the form
+
+```
+============================================
+  Experiment: Safety_Cassandra
+  Property:   write_enrollment -> (TRUE S write_student)
+  Timeout:    1000s per run
+============================================
+  cassandra, 1k, e=0.0   ... SAT nodes=5   time=0.94s  mem=17.2MB
+  cassandra, 1k, e=0.5   ... SAT nodes=9   time=0.36s  mem=16.5MB
+  ...
+  cassandra, 100k, e=inf ... SAT nodes=14  time=12.57s mem=168.0MB
+
+Results: /opt/work/experiments/Safety_Cassandra/results.md
+Logs:    /opt/work/experiments/Safety_Cassandra/logs/
+```
+
+Because `-v "$PWD:/opt/work"` is a bind mount, `results.md` and the
+per-run logs land back in `experiments/Safety_Cassandra/` on the host.
+
+### Running all four experiments
+
+```bash
+for exp in Safety_2PC Safety_Cassandra Safety_Drone Safety_Race; do
+  docker run --rm --entrypoint bash \
+      -v "$PWD:/opt/work" -w /opt/work prove \
+      "experiments/${exp}/run_experiment.sh"
+done
+
+# The additional Drone sweep across drone counts (K = 2, 4, 6, 8, 10):
+docker run --rm --entrypoint bash \
+    -v "$PWD:/opt/work" -w /opt/work prove \
+    experiments/Safety_Drone/run_experiment_by_processes.sh
+```
+
+Each `experiments/<Name>/results.md` is regenerated; collating the four
+files reproduces Tables 1 and 2 of the paper. Indicative wall-clock cost on
+a recent laptop (MacBook Pro M2 / x86_64 server class):
+
+| Experiment | Approximate runtime |
+|---|---|
+| `Safety_Cassandra` | ~1 – 2 minutes |
+| `Safety_Drone` (ε sweep) | ~1 – 3 minutes |
+| `Safety_Drone` (process-count sweep) | ~2 – 3 minutes |
+| `Safety_Race` | ~30 – 60 minutes (large traces stress the algorithm) |
+| `Safety_2PC` | ~50 – 80 minutes (some runs deliberately TIMEOUT at $\epsilon = \infty$, by design) |
+
+Each individual `prove` invocation is capped at 1000 s by `timeout`; if a
+run exceeds the budget it is logged as `TIMEOUT` and the sweep continues.
+This is expected behaviour for the `2PC` and `Race` experiments at large
+$\epsilon$, where the partial-order state space is intentionally explosive
+(this is precisely what the paper analyses).
+
+### Quick reproducibility smoke test
+
+To confirm the artifact is reproducible without committing to the full
+1–2 hour sweep, run only the fast experiment (`Safety_Cassandra`) and
+verify the resulting `results.md` matches the reference file already
+checked into the repository:
+
+```bash
+docker run --rm --entrypoint bash \
+    -v "$PWD:/opt/work" -w /opt/work prove \
+    experiments/Safety_Cassandra/run_experiment.sh
+
+# Inspect node-count / verdict columns:
+column -ts'|' experiments/Safety_Cassandra/results.md | head -25
+```
+
+The `Verdict`, `Nodes`, `Removed`, `MaxSum`, and `Events` columns should
+match the reference values in the checked-in `results.md` exactly; only
+the `Time`, `Mem`, and `CPU` columns vary across hosts.
+
+### Running an experiment from source
+
+If you prefer the source install, install GNU `time` and `coreutils`
+yourself, then expose them under the names the runner scripts expect
+(`gtime`, `gtimeout`):
+
+```bash
+# Debian/Ubuntu
+sudo apt install time coreutils
+sudo ln -sf /usr/bin/time    /usr/local/bin/gtime
+sudo ln -sf /usr/bin/timeout /usr/local/bin/gtimeout
+
+# macOS (Homebrew installs the binaries under these names directly)
+brew install gnu-time coreutils
+```
+
+Then, from the repository root:
+
+```bash
+source .venv/bin/activate
+bash experiments/Safety_Cassandra/run_experiment.sh
+```
+
+The same Markdown `results.md` and per-run logs are produced in
+`experiments/<Name>/`.
 
 ## Quick Start
 

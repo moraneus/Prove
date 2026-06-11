@@ -1,10 +1,14 @@
 # syntax=docker/dockerfile:1
 FROM python:3.12-slim
 
-# Optional graphviz support for rendered visualisation output.
+# graphviz - rendered visualisation output.
+# time     - GNU /usr/bin/time, used by the experiment runner scripts.
+# bash, coreutils (provides /usr/bin/timeout) are already in the slim base.
 RUN apt-get update \
- && apt-get install -y --no-install-recommends graphviz \
- && rm -rf /var/lib/apt/lists/*
+ && apt-get install -y --no-install-recommends graphviz time bash \
+ && rm -rf /var/lib/apt/lists/* \
+ && ln -s /usr/bin/time    /usr/local/bin/gtime \
+ && ln -s /usr/bin/timeout /usr/local/bin/gtimeout
 
 WORKDIR /opt/prove
 
